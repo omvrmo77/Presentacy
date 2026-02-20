@@ -1548,6 +1548,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     };
 
+
     const renderMultipleResults = (list, term, selectedClassLabel) => {
       const cards = list
         .map(
