@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Presentacy – Topic Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="main.js" defer></script>
+</head>
+<body data-page="generator">
+  <div class="page">
+   <nav class="navbar">
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    <span>Presentacy</span>
+  </div>
+
+  <!-- Hamburger button (mobile) -->
+  <button class="nav-toggle" aria-label="Toggle navigation">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-links">
+    <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+    <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+    <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
+    <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+    <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+  </div>
+</nav>
+
+    <section class="card generator-card">
+      <h1>Random Topic Generator</h1>
+      <p class="practice-text">
+        Press the button to get a topic. Then try speaking about it for 1–2
+        minutes without stopping.
+      </p>
+
+      <div class="generator-center">
+        <p id="topic-output" class="topic-output">
+          Press the button to get your first topic.
+        </p>
+        <button type="button" id="topic-button" class="primary-button">
+          Give me a topic
+        </button>
+      </div>
+    </section>
+
+    <footer>
+      Presentacy · Random Topic Practice · Made by Omar
+    </footer>
+  </div>
+</body>
+</html>

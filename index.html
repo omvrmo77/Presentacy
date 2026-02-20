@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Presentacy – Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="main.js" defer></script>
+</head>
+<body data-page="home">
+  <div class="page">
+    <nav class="navbar">
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    <span>Presentacy</span>
+  </div>
+
+  <!-- Hamburger button (mobile) -->
+  <button class="nav-toggle" aria-label="Toggle navigation">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-links">
+    <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+    <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+    <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
+    <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+    <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+  </div>
+</nav>
+
+    <section class="hero">
+      <div class="hero-text">
+        <div class="hero-tagline">
+          <span class="icon">🎤</span>
+          <span>Our school presentation league</span>
+        </div>
+        <h1>
+          Welcome to <span class="hero-highlight">Presentacy</span>
+        </h1>
+        <p>
+          Track your presentation progress, celebrate your classmates, and find
+          ideas to make your next talk stronger, louder, and more confident.
+        </p>
+        <p>
+          Every week, scores are updated on the leaderboard. Work on your eye
+          contact, body language, voice, and ideas to climb the board.
+        </p>
+      </div>
+
+      <aside class="hero-card">
+        <h2>How Presentacy works</h2>
+        <ul class="hero-list">
+          <li>Presentations are scored using a simple rubric.</li>
+          <li>Points are added each week for effort and improvement.</li>
+          <li>Top students appear on the leaderboard page.</li>
+          <li>Videos page will host tips and example presentations.</li>
+        </ul>
+      </aside>
+    </section>
+
+        <!-- Put this AFTER the hero section, BEFORE the existing .card section -->
+    <section class="card mood-card">
+      <h2>Today’s Presentacy vibe</h2>
+
+      <p class="mood-label">Quick boost</p>
+      <p id="presentacy-quote" class="mood-text">
+        <!-- Filled by JavaScript -->
+      </p>
+
+      <p class="mood-label">Mini challenge</p>
+      <p id="presentacy-challenge" class="mood-text">
+        <!-- Filled by JavaScript -->
+      </p>
+    </section>
+
+            <!-- Random topic generator (link to its own page) -->
+    <section class="card practice-card">
+      <h2>Random Topic Practice</h2>
+      <p class="practice-text">
+        Want a surprise topic? Open the generator and practice speaking for
+        1–2 minutes at home or before class.
+      </p>
+      <a href="generator.html" class="primary-button">
+        Open Topic Generator
+      </a>
+    </section>
+
+
+
+    <section class="card">
+      <h2>Ready to see this week’s top presenters?</h2>
+      <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+        Click the button below to open the leaderboard and check who is leading
+        the Presentacy league this week.
+      </p>
+      <a href="leaderboard.html" class="nav-link nav-link--active">
+        Go to Leaderboard
+      </a>
+    </section>
+
+    <footer>
+      Presentacy · School Presentation Project · Made by Omar
+    </footer>
+  </div>
+</body>
+</html>

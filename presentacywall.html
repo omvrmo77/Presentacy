@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Presentacy Wall – Presentacy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="presentacywall">
+  <div class="page">
+    <!-- Navbar (same as other pages) -->
+    <nav class="navbar">
+      <div class="logo">
+        <div class="logo-mark">P</div>
+        <span>Presentacy</span>
+      </div>
+
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="nav-links">
+        <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+        <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+        <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
+        <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+        <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+      </div>
+    </nav>
+
+    <!-- Presentacy Wall card – similar to leaderboard -->
+    <section class="card leaderboard-card leaderboard-card--coming-soon">
+  <h1>Presentacy Wall</h1>
+  <p class="card-subtitle">
+    Weekly shoutouts for students who stood out in specific presentation skills.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Award</th>
+        <th>Student</th>
+        <th>Class</th>
+        <th>Badge</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- You can fill this later when it is live -->
+      <tr>
+        <td class="rank rank-1">1</td>
+        <td>Bravery Award</td>
+        <td>—</td>
+        <td>—</td>
+        <td><span class="badge">Emerging Speaker</span></td>
+        <td>First full English presentation in front of the class.</td>
+      </tr>
+      <tr>
+        <td class="rank rank-2">2</td>
+        <td>Eye Contact Award</td>
+        <td>—</td>
+        <td>—</td>
+        <td><span class="badge">Developing Speaker</span></td>
+        <td>Looked at different students, not only at the screen.</td>
+      </tr>
+      <tr>
+        <td class="rank rank-3">3</td>
+        <td>Voice &amp; Intonation</td>
+        <td>—</td>
+        <td>—</td>
+        <td><span class="badge">Confident Speaker</span></td>
+        <td>Used a clear voice and changed intonation for important parts.</td>
+      </tr>
+      <tr>
+        <td class="rank">4</td>
+        <td>Most Improved</td>
+        <td>—</td>
+        <td>—</td>
+        <td><span class="badge">Impactful Speaker</span></td>
+        <td>Much better structure and eye contact than last time.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="updated-note">
+    The Presentacy Wall will be visible after Week&nbsp;2.
+  </p>
+
+  <!-- Same overlay style as leaderboard -->
+  <div class="leaderboard-blur-overlay">
+    <div class="leaderboard-blur-message">
+      <div class="leaderboard-blur-title">Presentacy Wall coming soon</div>
+      <div class="leaderboard-blur-subtitle">
+        Starts from Week 2, when we begin weekly Hall of Fame shoutouts.
+      </div>
+    </div>
+  </div>
+</section>
+
+    <footer>
+      Presentacy · Presentacy Wall · Made by Omar
+    </footer>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

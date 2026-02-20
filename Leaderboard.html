@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Presentacy – Leaderboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="main.js" defer></script>
+</head>
+<body data-page="leaderboard">
+  <div class="page">
+   <nav class="navbar">
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    <span>Presentacy</span>
+  </div>
+
+  <!-- Hamburger button (mobile) -->
+  <button class="nav-toggle" aria-label="Toggle navigation">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-links">
+    <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+    <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+    <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
+    <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+    <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+  </div>
+</nav>
+
+    <!-- Student search card -->
+       <!-- Student search card -->
+    <section class="card" id="student-search">
+      <h1>Find Your Score</h1>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        1) Choose your class. 2) Type your name to see your Presentacy score for Week&nbsp;1.
+      </p>
+
+      <div class="search-row">
+        <select id="class-filter" class="class-select">
+          <option value="">All classes</option>
+          <option value="1A">Grade 1A</option>
+          <option value="1B">Grade 1B</option>
+          <option value="2A">Grade 2A</option>
+          <option value="2B">Grade 2B</option>
+          <option value="3">Grade 3</option>
+          <option value="4">Grade 4</option>
+          <option value="5A">Grade 5A</option>
+          <option value="5B">Grade 5B</option>
+          <option value="6">Grade 6</option>
+          <option value="7">Grade 7</option>
+          <option value="8">Grade 8</option>
+          <option value="9">Grade 9</option>
+        </select>
+
+        <input
+          type="text"
+          id="student-search-input"
+          class="search-input"
+          placeholder="Type your name, e.g. Mohammed A"
+          autocomplete="off"
+        />
+        <button type="button" id="student-search-button" class="primary-button">
+          Search
+        </button>
+      </div>
+
+      <div id="student-result" class="student-result-area">
+        <!-- search result or messages will appear here -->
+      </div>
+    </section>
+    <!-- Student search card -->
+
+
+        <!-- Top 5 leaderboard card (coming soon) -->
+<section class="card leaderboard-card leaderboard-card--coming-soon">
+  <h2>Leaderboard</h2>
+
+  <div class="search-row" style="margin-top: 0.5rem;">
+    <label for="leaderboard-class-filter" style="font-size: 0.85rem; color: var(--text-muted);">
+      View leaderboard for:
+    </label>
+    <select id="leaderboard-class-filter" class="class-select" disabled>
+      <option value="">Whole school</option>
+      <option value="1A">Grade 1A</option>
+      <option value="1B">Grade 1B</option>
+      <option value="2A">Grade 2A</option>
+      <option value="2B">Grade 2B</option>
+      <option value="3">Grade 3</option>
+      <option value="4">Grade 4</option>
+      <option value="5A">Grade 5A</option>
+      <option value="5B">Grade 5B</option>
+      <option value="6">Grade 6</option>
+      <option value="7">Grade 7</option>
+      <option value="8">Grade 8</option>
+      <option value="9">Grade 9</option>
+    </select>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Student</th>
+        <th>Class</th>
+        <th>Points</th>
+        <th>Badge</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboard-table-body">
+      <!-- JS can still fill this later, it will stay blurred -->
+    </tbody>
+  </table>
+
+  <p class="updated-note">
+    The leaderboard will be visible after Week&nbsp;2.
+  </p>
+
+  <!-- Overlay text in the center -->
+  <div class="leaderboard-blur-overlay">
+    <div class="leaderboard-blur-message">
+      <div class="leaderboard-blur-title">Leaderboard coming soon</div>
+      <div class="leaderboard-blur-subtitle">
+        Starts from Week 2 after the second round of presentations.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+    <footer>
+      Presentacy · School Presentation Project · Leaderboard · Made by Omar
+    </footer>
+  </div>
+</body>
+
+</html>
