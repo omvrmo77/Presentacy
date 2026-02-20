@@ -294,6 +294,98 @@ a {
   font-size: 1.1rem;
 }
 
+
+/* === PresentacyWordle === */
+.wordle-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-auto-rows: 52px;
+  gap: 0.4rem;
+  max-width: 280px;
+  margin: 0.8rem auto 0.8rem;
+}
+
+.wordle-cell {
+  border-radius: 0.4rem;
+  border: 2px solid rgba(148, 163, 184, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  background: #f9fafb;
+}
+
+/* Colours like Wordle: green / yellow / grey */
+.wordle-cell--correct {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #ffffff;
+}
+
+.wordle-cell--present {
+  background: #eab308;
+  border-color: #eab308;
+  color: #111827;
+}
+
+.wordle-cell--absent {
+  background: #9ca3af;
+  border-color: #9ca3af;
+  color: #f9fafb;
+}
+
+/* Legend row */
+.wordle-legend {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.legend-item .wordle-cell {
+  width: 34px;
+  height: 34px;
+  font-size: 1rem;
+  border-width: 1px;
+}
+
+/* Message */
+.wordle-message {
+  text-align: center;
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.wordle-message.wordle-message--success {
+  color: #15803d;
+}
+
+.wordle-message.wordle-message--error {
+  color: #b91c1c;
+}
+
+/* Optional link style */
+.primary-link {
+  font-size: 0.9rem;
+  color: #2563eb;
+  text-decoration: underline;
+}
+.primary-link:hover {
+  text-decoration: none;
+}
+
+
 /* === Generic card style === */
 .card {
   background: var(--card-bg);
@@ -829,4 +921,5 @@ footer {
     font-size: 1.3rem;
   }
 }
+
 
