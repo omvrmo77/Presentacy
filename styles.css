@@ -385,6 +385,39 @@ a {
   text-decoration: none;
 }
 
+/* === On-screen keyboard for PresentacyWordle === */
+.wordle-keyboard {
+  max-width: 420px;
+  margin: 0.5rem auto 0;
+}
+
+.wordle-keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+.wordle-key {
+  flex: 1 0 auto;
+  padding: 0.4rem 0.25rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.9);
+  background: #e5e7eb;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.wordle-key--wide {
+  flex: 1.5 0 auto;
+  font-size: 0.8rem;
+}
+
+.wordle-key:active {
+  transform: translateY(1px);
+}
+
 
 /* === Generic card style === */
 .card {
@@ -921,5 +954,6 @@ footer {
     font-size: 1.3rem;
   }
 }
+
 
 
