@@ -57,6 +57,55 @@
         </div>
       </div>
 
+            <!-- Grid (JS will fill the cells) -->
+      <div id="wordle-grid" class="wordle-grid">
+        <!-- JS will create the 6 × 5 cells -->
+      </div>
+
+      <!-- On-screen keyboard for phones -->
+      <div id="wordle-keyboard" class="wordle-keyboard">
+        <div class="wordle-keyboard-row">
+          <button type="button" class="wordle-key" data-key="Q">Q</button>
+          <button type="button" class="wordle-key" data-key="W">W</button>
+          <button type="button" class="wordle-key" data-key="E">E</button>
+          <button type="button" class="wordle-key" data-key="R">R</button>
+          <button type="button" class="wordle-key" data-key="T">T</button>
+          <button type="button" class="wordle-key" data-key="Y">Y</button>
+          <button type="button" class="wordle-key" data-key="U">U</button>
+          <button type="button" class="wordle-key" data-key="I">I</button>
+          <button type="button" class="wordle-key" data-key="O">O</button>
+          <button type="button" class="wordle-key" data-key="P">P</button>
+        </div>
+        <div class="wordle-keyboard-row">
+          <button type="button" class="wordle-key" data-key="A">A</button>
+          <button type="button" class="wordle-key" data-key="S">S</button>
+          <button type="button" class="wordle-key" data-key="D">D</button>
+          <button type="button" class="wordle-key" data-key="F">F</button>
+          <button type="button" class="wordle-key" data-key="G">G</button>
+          <button type="button" class="wordle-key" data-key="H">H</button>
+          <button type="button" class="wordle-key" data-key="J">J</button>
+          <button type="button" class="wordle-key" data-key="K">K</button>
+          <button type="button" class="wordle-key" data-key="L">L</button>
+        </div>
+        <div class="wordle-keyboard-row">
+          <button type="button" class="wordle-key wordle-key--wide" data-key="Enter">
+            Enter
+          </button>
+          <button type="button" class="wordle-key" data-key="Z">Z</button>
+          <button type="button" class="wordle-key" data-key="X">X</button>
+          <button type="button" class="wordle-key" data-key="C">C</button>
+          <button type="button" class="wordle-key" data-key="V">V</button>
+          <button type="button" class="wordle-key" data-key="B">B</button>
+          <button type="button" class="wordle-key" data-key="N">N</button>
+          <button type="button" class="wordle-key" data-key="M">M</button>
+          <button type="button" class="wordle-key wordle-key--wide" data-key="Backspace">
+            ⌫
+          </button>
+        </div>
+      </div>
+
+      <p id="wordle-message" class="wordle-message"></p>
+
       <!-- Grid (JS will fill the cells) -->
       <div id="wordle-grid" class="wordle-grid">
         <!-- JS will create the 6 × 5 cells -->
@@ -93,6 +142,7 @@
     var wordleMessage = document.getElementById("wordle-message");
     var wordleFormLink = document.getElementById("wordle-form-link");
     var wordleFormAnchor = document.getElementById("wordle-form-anchor");
+    var wordleKeyboard = document.getElementById("wordle-keyboard");
 
     if (!wordleGrid || !wordleMessage) return;
 
@@ -466,10 +516,9 @@
       }
     }
 
-    function handleKeyDown(e) {
+        // Handle a key (from real keyboard or on-screen keyboard)
+    function handleKeyInput(key) {
       if (gameOver) return;
-
-      var key = e.key;
 
       if (key === "Enter") {
         submitGuess();
@@ -484,16 +533,41 @@
         return;
       }
 
-      var letterPattern = /^[a-z]$/i;
+      var letterPattern = /^[A-Z]$/;
       if (letterPattern.test(key)) {
         if (currentGuess.length < wordLength) {
-          currentGuess = currentGuess + key.toUpperCase();
+          currentGuess = currentGuess + key;
           renderCurrentGuess();
         }
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown);
+    // Physical keyboard (desktop / laptop)
+    function handleKeyDown(e) {
+      var key = e.key;
+
+      // normal letters
+      if (key.length === 1) {
+        key = key.toUpperCase();
+      }
+
+      handleKeyInput(key);
+    }
+
+        window.addEventListener("keydown", handleKeyDown);
+
+    // On-screen keyboard clicks (phones / tablets)
+    if (wordleKeyboard) {
+      wordleKeyboard.addEventListener("click", function (e) {
+        var target = e.target;
+        if (!target.classList.contains("wordle-key")) return;
+
+        var key = target.getAttribute("data-key");
+        if (!key) return;
+
+        handleKeyInput(key);
+      });
+    }
 
     // Init
     createGrid();
