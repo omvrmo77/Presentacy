@@ -492,14 +492,17 @@
         }
       }
 
-      if (guessWord === SECRET_WORD) {
-  gameStatus = "won";
-  lockBoard();
-  saveWordlePlayedToday();
-  showWordleWinMessage(SECRET_WORD);
-  return;
-}
-
+      if (guess === secret) {
+        showMessage("Amazing! You got it! 🎉", "success");
+        gameOver = true;
+        saveState(true, true);
+        updateFormHrefWithSecret();
+        if (wordleFormLink) {
+          wordleFormLink.style.display = "block";
+        }
+        return;
+      }
+      
       currentRow++;
       currentGuess = "";
 
@@ -575,6 +578,7 @@
 </script>
 </body>
 </html>
+
 
 
 
