@@ -6,7 +6,7 @@ const STUDENTS = [
         password: "58241",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
           // later: week2: ..., week3: ...
         }
       },
@@ -17,7 +17,7 @@ const STUDENTS = [
         password: "93706",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -27,7 +27,7 @@ const STUDENTS = [
         password: "41058",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -37,7 +37,7 @@ const STUDENTS = [
         password: "26937",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -47,7 +47,7 @@ const STUDENTS = [
         password: "84513",
         role: "student",
         scores: {
-          week1: 25
+          week1: 25,
         }
       },
       {
@@ -57,7 +57,7 @@ const STUDENTS = [
         password: "70329",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -67,7 +67,7 @@ const STUDENTS = [
         password: "19684",
         role: "student",
         scores: {
-          week1: 10
+          week1: 10,
         }
       },
       {
@@ -77,7 +77,7 @@ const STUDENTS = [
         password: "52897",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -87,7 +87,7 @@ const STUDENTS = [
         password: "64072",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -97,7 +97,7 @@ const STUDENTS = [
         password: "64072",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -107,7 +107,7 @@ const STUDENTS = [
         password: "87402",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -117,7 +117,7 @@ const STUDENTS = [
         password: "95268",
         role: "student",
         scores: {
-          week1: 10
+          week1: 10,
         }
       },
       {
@@ -127,7 +127,7 @@ const STUDENTS = [
         password: "73145",
         role: "student",
         scores: {
-          week1: 9
+          week1: 9,
         }
       },
       {
@@ -137,7 +137,7 @@ const STUDENTS = [
         password: "20489",
         role: "student",
         scores: {
-          week1: 19
+          week1: 19,
         }
       },
       {
@@ -147,7 +147,7 @@ const STUDENTS = [
         password: "11835",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -157,7 +157,7 @@ const STUDENTS = [
         password: "22764",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -167,7 +167,7 @@ const STUDENTS = [
         password: "33271",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -177,7 +177,7 @@ const STUDENTS = [
         password: "44986",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -187,7 +187,7 @@ const STUDENTS = [
         password: "55310",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -197,7 +197,7 @@ const STUDENTS = [
         password: "66742",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -207,7 +207,7 @@ const STUDENTS = [
         password: "77193",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -217,7 +217,7 @@ const STUDENTS = [
         password: "88924",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -227,7 +227,7 @@ const STUDENTS = [
         password: "91537",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -237,7 +237,7 @@ const STUDENTS = [
         password: "24619",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -247,7 +247,7 @@ const STUDENTS = [
         password: "38420",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -257,7 +257,7 @@ const STUDENTS = [
         password: "59276",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -267,7 +267,7 @@ const STUDENTS = [
         password: "61853",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -277,7 +277,7 @@ const STUDENTS = [
         password: "76401",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -287,7 +287,7 @@ const STUDENTS = [
         password: "89652",
         role: "student",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
 
@@ -465,7 +465,7 @@ const STUDENTS = [
         password: "2",
         role: "teacher",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
       {
@@ -475,7 +475,7 @@ const STUDENTS = [
         password: "1",
         role: "teacher",
         scores: {
-          week1: 0
+          week1: 0,
         }
       },
         // TODO: add all your other students here in the same format
@@ -1016,15 +1016,19 @@ function setupNavHighlight() {
   });
 }
 
-function setupMobileNav() {
-  const navToggle = document.querySelector(".nav-toggle");
-  const navLinksContainer = document.querySelector(".nav-links");
+let mobileNavInitialized = false;
 
-  if (navToggle && navLinksContainer) {
-    navToggle.addEventListener("click", () => {
-      navLinksContainer.classList.toggle("nav-links--open");
-    });
-  }
+function setupMobileNav() {
+  if (mobileNavInitialized) return; // prevent adding the listener twice
+  mobileNavInitialized = true;
+
+  const navToggle = document.querySelector(".nav-toggle");
+  const navLinks = document.querySelector(".nav-links");
+  if (!navToggle || !navLinks) return;
+
+  navToggle.addEventListener("click", () => {
+    navLinks.classList.toggle("nav-links--open");
+  });
 }
 
 function renderUserGreeting() {
