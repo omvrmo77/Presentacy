@@ -6,6 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
   <script src="main.js" defer></script>
+  <script>
+  (function () {
+    try {
+      // Check if someone is already logged in
+      var raw = localStorage.getItem("presentacy_current_user");
+
+      // If there is NO saved user → send to login
+      if (!raw) {
+        window.location.href = "login.html";
+      }
+      // If there *is* a user, do nothing: stay on Home
+    } catch (e) {
+      // If anything goes wrong reading storage, be safe and go to login
+      window.location.href = "login.html";
+    }
+  })();
+</script>
 </head>
 <body data-page="home">
   <div class="page">
@@ -14,6 +31,12 @@
     <div class="logo-mark">P</div>
     <span>Presentacy</span>
   </div>
+  <div class="nav-user">
+  <span id="user-greeting"></span>
+</div>
+<div id="greeting-banner" class="greeting-banner"></div>
+  <!-- index.html -->
+ <body data-page="home">
 
   <!-- Hamburger button (mobile) -->
   <button class="nav-toggle" aria-label="Toggle navigation">
@@ -29,8 +52,26 @@
     <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
     <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
     <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+    <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
   </div>
 </nav>
+
+<!-- Personal hero card -->
+    <section class="card home-hero" id="home-hero">
+  <div class="home-hero-left">
+    <div class="home-hero-logo-mark" id="home-hero-avatar">P</div>
+    <div class="home-hero-logo-text" id="home-hero-name">Presentacy</div>
+  </div>
+
+  <div class="home-hero-right">
+    <p class="home-hero-main" id="home-hero-main">
+      Welcome to Presentacy
+    </p>
+    <p class="home-hero-sub" id="home-hero-sub">
+      Log in to see your presentations, scores, and ideas.
+    </p>
+  </div>
+</section>
 
     <section class="hero">
       <div class="hero-text">
@@ -108,5 +149,6 @@
   </div>
 </body>
 </html>
+
 
 
