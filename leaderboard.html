@@ -2,31 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Presentacy – Home</title>
+  <title>Presentacy – Leaderboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
   <script src="main.js" defer></script>
-  <script>
-  (function () {
-    try {
-      // Check if someone is already logged in
-      var raw = localStorage.getItem("presentacy_current_user");
-
-      // If there is NO saved user → send to login
-      if (!raw) {
-        window.location.href = "login.html";
-      }
-      // If there *is* a user, do nothing: stay on Home
-    } catch (e) {
-      // If anything goes wrong reading storage, be safe and go to login
-      window.location.href = "login.html";
-    }
-  })();
-</script>
 </head>
-<body data-page="home">
+<body data-page="leaderboard">
   <div class="page">
-    <nav class="navbar">
+   <nav class="navbar">
   <div class="logo">
     <div class="logo-mark">P</div>
     <span>Presentacy</span>
@@ -36,7 +19,7 @@
 </div>
 <div id="greeting-banner" class="greeting-banner"></div>
   <!-- index.html -->
- <body data-page="home">
+
 
   <!-- Hamburger button (mobile) -->
   <button class="nav-toggle" aria-label="Toggle navigation">
@@ -56,98 +39,113 @@
   </div>
 </nav>
 
-<!-- Personal hero card -->
-    <section class="card home-hero" id="home-hero">
-  <div class="home-hero-left">
-    <div class="home-hero-logo-mark" id="home-hero-avatar">P</div>
-    <div class="home-hero-logo-text" id="home-hero-name">Presentacy</div>
+    <!-- Student search card -->
+       <!-- Student search card -->
+    <section class="card" id="student-search">
+      <h1>Find Your Score</h1>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        1) Choose your class. 2) Type your name to see your Presentacy score for Week&nbsp;1.
+      </p>
+
+      <div class="search-row">
+        <select id="class-filter" class="class-select">
+          <option value="">All classes</option>
+          <option value="1A">Grade 1A</option>
+          <option value="1B">Grade 1B</option>
+          <option value="2A">Grade 2A</option>
+          <option value="2B">Grade 2B</option>
+          <option value="3">Grade 3</option>
+          <option value="4">Grade 4</option>
+          <option value="5A">Grade 5A</option>
+          <option value="5B">Grade 5B</option>
+          <option value="6">Grade 6</option>
+          <option value="7">Grade 7</option>
+          <option value="8">Grade 8</option>
+          <option value="9">Grade 9</option>
+        </select>
+
+        <input
+          type="text"
+          id="student-search-input"
+          class="search-input"
+          placeholder="Type your name, e.g. Mohammed A"
+          autocomplete="off"
+        />
+        <button type="button" id="student-search-button" class="primary-button">
+          Search
+        </button>
+      </div>
+
+      <div id="student-result" class="student-result-area">
+        <!-- search result or messages will appear here -->
+      </div>
+    </section>
+    <!-- Student search card -->
+
+
+        <!-- Top 5 leaderboard card (coming soon) -->
+<section class="card leaderboard-card leaderboard-card--coming-soon">
+  <h2>Leaderboard</h2>
+
+  <div class="search-row" style="margin-top: 0.5rem;">
+    <label for="leaderboard-class-filter" style="font-size: 0.85rem; color: var(--text-muted);">
+      View leaderboard for:
+    </label>
+    <select id="leaderboard-class-filter" class="class-select" disabled>
+      <option value="">Whole school</option>
+      <option value="1A">Grade 1A</option>
+      <option value="1B">Grade 1B</option>
+      <option value="2A">Grade 2A</option>
+      <option value="2B">Grade 2B</option>
+      <option value="3">Grade 3</option>
+      <option value="4">Grade 4</option>
+      <option value="5A">Grade 5A</option>
+      <option value="5B">Grade 5B</option>
+      <option value="6">Grade 6</option>
+      <option value="7">Grade 7</option>
+      <option value="8">Grade 8</option>
+      <option value="9">Grade 9</option>
+    </select>
   </div>
 
-  <div class="home-hero-right">
-    <p class="home-hero-main" id="home-hero-main">
-      Welcome to Presentacy
-    </p>
-    <p class="home-hero-sub" id="home-hero-sub">
-      Log in to see your presentations, scores, and ideas.
-    </p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Student</th>
+        <th>Class</th>
+        <th>Points</th>
+        <th>Badge</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboard-table-body">
+      <!-- JS can still fill this later, it will stay blurred -->
+    </tbody>
+  </table>
+
+  <p class="updated-note">
+    The leaderboard will be visible after Week&nbsp;2.
+  </p>
+
+  <!-- Overlay text in the center -->
+  <div class="leaderboard-blur-overlay">
+    <div class="leaderboard-blur-message">
+      <div class="leaderboard-blur-title">Leaderboard coming soon</div>
+      <div class="leaderboard-blur-subtitle">
+        Starts from Week 2 after the second round of presentations.
+      </div>
+    </div>
   </div>
 </section>
 
-    <section class="hero">
-      <div class="hero-text">
-        <div class="hero-tagline">
-          <span class="icon">🎤</span>
-          <span>Our school presentation league</span>
-        </div>
-        <h1>
-          Welcome to <span class="hero-highlight">Presentacy</span>
-        </h1>
-        <p>
-          Track your presentation progress, celebrate your classmates, and find
-          ideas to make your next talk stronger, louder, and more confident.
-        </p>
-        <p>
-          Every week, scores are updated on the leaderboard. Work on your eye
-          contact, body language, voice, and ideas to climb the board.
-        </p>
-      </div>
 
-      <aside class="hero-card">
-        <h2>How Presentacy works</h2>
-        <ul class="hero-list">
-          <li>Presentations are scored using a simple rubric.</li>
-          <li>Points are added each week for effort and improvement.</li>
-          <li>Top students appear on the leaderboard page.</li>
-          <li>Videos page will host tips and example presentations.</li>
-        </ul>
-      </aside>
-    </section>
-
-        <!-- Put this AFTER the hero section, BEFORE the existing .card section -->
-    <section class="card mood-card">
-      <h2>Today’s Presentacy vibe</h2>
-
-      <p class="mood-label">Quick boost</p>
-      <p id="presentacy-quote" class="mood-text">
-        <!-- Filled by JavaScript -->
-      </p>
-
-      <p class="mood-label">Mini challenge</p>
-      <p id="presentacy-challenge" class="mood-text">
-        <!-- Filled by JavaScript -->
-      </p>
-    </section>
-
-            <!-- Random topic generator (link to its own page) -->
-    <section class="card practice-card">
-      <h2>Random Topic Practice</h2>
-      <p class="practice-text">
-        Want a surprise topic? Open the generator and practice speaking for
-        1–2 minutes at home or before class.
-      </p>
-      <a href="generator.html" class="primary-button">
-        Open Topic Generator
-      </a>
-    </section>
-
-
-
-    <section class="card">
-      <h2>Ready to see this week’s top presenters?</h2>
-      <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0.8rem;">
-        Click the button below to open the leaderboard and check who is leading
-        the Presentacy league this week.
-      </p>
-      <a href="leaderboard.html" class="nav-link nav-link--active">
-        Go to Leaderboard
-      </a>
-    </section>
 
     <footer>
-      Presentacy · School Presentation Project · Made by Omar
+      Presentacy · School Presentation Project · Leaderboard · Made by Omar
     </footer>
   </div>
 </body>
+
 </html>
 
 
