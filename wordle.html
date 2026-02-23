@@ -21,8 +21,6 @@
 </div>
 <div id="greeting-banner" class="greeting-banner"></div>
 <div id="wordle-reaction" class="reaction-banner" aria-live="polite"></div>
-      <!-- index.html -->
-  <body data-page="wordle">
 
       <button class="nav-toggle" aria-label="Toggle navigation">
         <span></span>
@@ -542,6 +540,41 @@
         }
       }
     }
+
+    // Physical keyboard (desktop / laptop)
+    function handleKeyDown(e) {
+      var key = e.key;
+
+      // normal letters
+      if (key.length === 1) {
+        key = key.toUpperCase();
+      }
+
+      handleKeyInput(key);
+    }
+
+        window.addEventListener("keydown", handleKeyDown);
+
+    // On-screen keyboard clicks (phones / tablets)
+    if (wordleKeyboard) {
+      wordleKeyboard.addEventListener("click", function (e) {
+        var target = e.target;
+        if (!target.classList.contains("wordle-key")) return;
+
+        var key = target.getAttribute("data-key");
+        if (!key) return;
+
+        handleKeyInput(key);
+      });
+    }
+
+    // Init
+    createGrid();
+    loadOrPickDailyWord();
+  })();
+</script>
+</body>
 </html>
+
 
 
