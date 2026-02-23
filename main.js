@@ -992,15 +992,25 @@ function initleaderboardPage() {
   }
 
   // Search card behaviour depends on login
-  const user = presentacyGetCurrentUser();
-  if (!user) {
-    setupAnonymousViewOnleaderboard();
-  } else if (user.role === "teacher") {
-    setupTeacherSearchOnleaderboard();
+    // Search card behaviour depends on login
+  const user =
+    (typeof presentacyGetCurrentUser === "function"
+      ? presentacyGetCurrentUser()
+      : null);
+
+  if (user && user.role === "teacher") {
+    // Teacher: full search + table (as before)
+    setupTeacherSearchOnLeaderboard();
+  } else if (user) {
+    // Logged-in student: show their own score card
+    setupStudentViewOnLeaderboard(user);
   } else {
-    setupStudentViewOnleaderboard(user);
+    // Fallback: even if no saved user is detected,
+    // still allow the class + name search for everyone
+    setupTeacherSearchOnLeaderboard();
   }
 }
+
 
 // ============================
 // 6. NAVBAR + HOME + GENERATOR + WALL
