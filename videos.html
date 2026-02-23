@@ -14,6 +14,12 @@
     <div class="logo-mark">P</div>
     <span>Presentacy</span>
   </div>
+  <div class="nav-user">
+  <span id="user-greeting"></span>
+</div>
+<div id="greeting-banner" class="greeting-banner"></div>
+    <!-- index.html -->
+  <body data-page="videos">
 
   <!-- Hamburger button (mobile) -->
   <button class="nav-toggle" aria-label="Toggle navigation">
@@ -29,98 +35,142 @@
     <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
     <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
     <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+    <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
   </div>
 </nav>
 
-    <section class="card">
-      <h1>Videos to Watch</h1>
-      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.8rem;">
-        These videos are here to help you prepare your presentations, get new
-        ideas, and see what good Presentacy looks like. Watch, take notes, and
-        try one new thing in your next presentation.
+   <section class="card">
+  <h1>Presentacy Videos</h1>
+  <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+    Watch any video you like, then click <strong>"I watched this"</strong> so Presentacy can talk to you about it.
+  </p>
+
+  <!-- 1) Presentation tips – speaking better -->
+  <div class="video-card" data-video-label="Speaking tips for better presentations">
+    <div class="video-thumb">
+      <iframe
+        src="https://www.youtube.com/embed/5m-C5mwpmxU"
+        title="Speaking Tips for Better Presentations"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <div class="video-info">
+      <h3>Speaking Tips for Better Presentations</h3>
+      <p style="font-size: 0.8rem; color: #4b5563; margin: 0;">
+        Simple ideas to help you speak more clearly and confidently.
       </p>
+      <button class="video-watch-btn" type="button">
+        I watched this
+      </button>
+      <div class="video-reaction"></div>
+    </div>
+  </div>
 
-            <div class="video-grid">
-        <!-- 1. Grades 1–2: super simple tips -->
-        <div class="video-card">
-          <strong>Presentation Tips – Speak Better & More Confidently</strong>
-          <p>Simple ideas to help you speak more clearly, confidently, and in a more organized way during your presentations.</p>
-          <iframe
-            class="video-frame"
-            height="180"
-            src="https://www.youtube.com/embed/5m-C5mwpmxU"
-            title="Grades 1–2 presentation tips"
-            allowfullscreen
-          ></iframe>
-        </div>
+  <!-- 2) PowerPoint tutorial – how to make a PowerPoint -->
+  <div class="video-card" data-video-label="PowerPoint tutorial">
+    <div class="video-thumb">
+      <iframe
+        src="https://www.youtube.com/embed/5YtbvUSdt5Q"
+        title="PowerPoint Tutorial – How to Make a Presentation"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <div class="video-info">
+      <h3>PowerPoint Tutorial – How to Make a Presentation</h3>
+      <p style="font-size: 0.8rem; color: #4b5563; margin: 0;">
+        Step-by-step guide to making a clear, simple PowerPoint.
+      </p>
+      <button class="video-watch-btn" type="button">
+        I watched this
+      </button>
+      <div class="video-reaction"></div>
+    </div>
+  </div>
 
-        <!-- 2. Grades 3–4: how to explain an idea -->
-        <div class="video-card">
-          <strong>How to Speak Clearly (Without Rambling)</strong>
-          <p>Simple strategies to stop rambling, stay on track, and make your ideas easier to follow when you speak.</p>
-          <iframe
-            class="video-frame"
-            height="180"
-            src="https://www.youtube.com/embed/5YtbvUSdt5Q"
-            title="Grades 3–4 explain an idea"
-            allowfullscreen
-          ></iframe>
-        </div>
+  <!-- 3) Presentation skills / body language -->
+  <div class="video-card" data-video-label="Body language and confidence">
+    <div class="video-thumb">
+      <iframe
+        src="https://www.youtube.com/embed/i68a6M5FFBc"
+        title="Body Language for Presentations"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <div class="video-info">
+      <h3>Body Language for Presentations</h3>
+      <p style="font-size: 0.8rem; color: #4b5563; margin: 0;">
+        How to use your hands, face, and posture to look more confident.
+      </p>
+      <button class="video-watch-btn" type="button">
+        I watched this
+      </button>
+      <div class="video-reaction"></div>
+    </div>
+  </div>
 
-        <!-- 3. Grades 5–6: starting your presentation -->
-        <div class="video-card">
-          <strong>Presentation Skills – Engaging Your Audience</strong>
-          <p>Simple tips to use your voice, face, and body language so people stay interested in what you’re saying.</p>
-          <iframe
-            class="video-frame"
-            height="180"
-            src="https://www.youtube.com/embed/i68a6M5FFBc"
-            title="Grades 5–6 presentation openings"
-            allowfullscreen
-          ></iframe>
-        </div>
+  <!-- 4) Younger students – fun speaking video -->
+  <div class="video-card" data-video-label="Fun speaking video for younger students">
+    <div class="video-thumb">
+      <iframe
+        src="https://www.youtube.com/embed/3mlEOISTIl8"
+        title="Fun Speaking Tips for Younger Students"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <div class="video-info">
+      <h3>Fun Speaking Tips for Younger Students</h3>
+      <p style="font-size: 0.8rem; color: #4b5563; margin: 0;">
+        Easy presentation tips for primary grades in a simple, fun way.
+      </p>
+      <button class="video-watch-btn" type="button">
+        I watched this
+      </button>
+      <div class="video-reaction"></div>
+    </div>
+  </div>
 
-        <!-- 4. Grades 7–9: body language & eye contact -->
-        <div class="video-card">
-          <strong>Speaking Confidently – For Younger Students</strong>
-          <p>Easy ideas to help young learners stand, smile, and share their ideas in a simple, clear way.</p>
-          <iframe
-            class="video-frame"
-            height="180"
-            src="https://www.youtube.com/embed/3mlEOISTIl8"
-            title="Grades 7–9 body language"
-            allowfullscreen
-          ></iframe>
-        </div>
+  <!-- 5) All grades – speaking clearly & confidently -->
+  <div class="video-card" data-video-label="Speaking clearly and confidently">
+    <div class="video-thumb">
+      <iframe
+        src="https://www.youtube.com/embed/AVtUrgN2g_U"
+        title="How to Speak Clearly and Confidently"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <div class="video-info">
+      <h3>How to Speak Clearly and Confidently</h3>
+      <p style="font-size: 0.8rem; color: #4b5563; margin: 0;">
+        Practical tips for all grades to sound more confident when presenting.
+      </p>
+      <button class="video-watch-btn" type="button">
+        I watched this
+      </button>
+      <div class="video-reaction"></div>
+    </div>
+  </div>
 
-        <!-- 5. All grades: using visual aids (slides, pictures, objects) -->
-        <div class="video-card">
-          <strong>How to Make a Simple PowerPoint (Step by Step)</strong>
-          <p>Easy, step-by-step instructions to create a clear, tidy PowerPoint for your presentation, suitable for all grades.</p>
-          <iframe
-            class="video-frame"
-            height="180"
-            src="https://www.youtube.com/embed/AVtUrgN2g_U"
-            title="Using visual aids in presentations"
-            allowfullscreen
-          ></iframe>
-        </div>
-
-        <!-- 6. All grades: how to finish your presentation -->
-        <div class="video-card">
-          <strong>PowerPoint Secrets – Make Your Slides Look Awesome</strong>
-          <p>Simple tricks and “secret” tips to make your PowerPoint slides clearer, more attractive, and easier to read.</p>
-          <iframe
-            class="video-frame"
-            height="180"
-            src="https://www.youtube.com/embed/aNj3YnaMHp0"
-            title="How to end a presentation"
-            allowfullscreen
-          ></iframe>
-        </div>
-      </div>
-
-    </section>
+  <!-- 6) Secrets about PowerPoint -->
+  <div class="video-card" data-video-label="PowerPoint secrets and tricks">
+    <div class="video-thumb">
+      <iframe
+        src="https://www.youtube.com/embed/aNj3YnaMHp0"
+        title="PowerPoint Secrets – Make Your Slides Better"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <div class="video-info">
+      <h3>PowerPoint Secrets – Make Your Slides Better</h3>
+      <p style="font-size: 0.8rem; color: #4b5563; margin: 0;">
+        Simple secrets to make your slides clearer and more interesting.
+      </p>
+      <button class="video-watch-btn" type="button">
+        I watched this
+      </button>
+      <div class="video-reaction"></div>
+    </div>
+  </div>
+</section>
 
     <footer>
       Presentacy · School Presentation Project · Videos · Made by Omar
@@ -128,6 +178,7 @@
   </div>
 </body>
 </html>
+
 
 
 
