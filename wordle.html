@@ -16,6 +16,13 @@
         <div class="logo-mark">P</div>
         <span>Presentacy</span>
       </div>
+      <div class="nav-user">
+  <span id="user-greeting"></span>
+</div>
+<div id="greeting-banner" class="greeting-banner"></div>
+<div id="wordle-reaction" class="reaction-banner" aria-live="polite"></div>
+      <!-- index.html -->
+  <body data-page="wordle">
 
       <button class="nav-toggle" aria-label="Toggle navigation">
         <span></span>
@@ -30,6 +37,7 @@
         <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
         <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
         <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+        <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
       </div>
     </nav>
 
@@ -129,7 +137,7 @@
     </section>
 
     <footer>
-      Presentacy · PresentacyWordle for presentation vocabulary
+      Presentacy · PresentacyWordle for presentation vocabulary · Made by Omar
     </footer>
   </div>
 
@@ -486,18 +494,13 @@
         }
       }
 
-      if (guess === secret) {
-        showMessage("Great job! You found the word.", "success");
-        gameOver = true;
-        saveState(true, true);
-
-        updateFormHrefWithSecret();
-
-        if (wordleFormLink) {
-          wordleFormLink.style.display = "block";
-        }
-        return;
-      }
+      if (guessWord === SECRET_WORD) {
+  gameStatus = "won";
+  lockBoard();
+  saveWordlePlayedToday();
+  showWordleWinMessage(SECRET_WORD);
+  return;
+}
 
       currentRow++;
       currentGuess = "";
@@ -539,39 +542,6 @@
         }
       }
     }
-
-    // Physical keyboard (desktop / laptop)
-    function handleKeyDown(e) {
-      var key = e.key;
-
-      // normal letters
-      if (key.length === 1) {
-        key = key.toUpperCase();
-      }
-
-      handleKeyInput(key);
-    }
-
-        window.addEventListener("keydown", handleKeyDown);
-
-    // On-screen keyboard clicks (phones / tablets)
-    if (wordleKeyboard) {
-      wordleKeyboard.addEventListener("click", function (e) {
-        var target = e.target;
-        if (!target.classList.contains("wordle-key")) return;
-
-        var key = target.getAttribute("data-key");
-        if (!key) return;
-
-        handleKeyInput(key);
-      });
-    }
-
-    // Init
-    createGrid();
-    loadOrPickDailyWord();
-  })();
-</script>
-</body>
 </html>
+
 
