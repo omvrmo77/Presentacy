@@ -924,11 +924,15 @@ function setupStudentViewOnLeaderboard(currentUser) {
   }
 
   // 3) Find this student in the data
-  const me = STUDENTS.find(
-    (s) =>
-      (s.username || "").trim().toLowerCase() ===
-      (currentUser.username || "").trim().toLowerCase()
-  );
+  // 3) Find this student in the data – match username *and* password
+  const me = STUDENTS.find((s) => {
+    const su = (s.username || "").trim().toLowerCase();
+    const cu = (currentUser.username || "").trim().toLowerCase();
+    const sp = (s.password || "").trim();
+    const cp = (currentUser.password || "").trim();
+
+    return su === cu && sp === cp;
+  });
 
   if (!me) {
     resultEl.innerHTML = `
@@ -1640,5 +1644,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initVideoReactions();
   }
 });
+
 
 
