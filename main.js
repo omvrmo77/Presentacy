@@ -648,7 +648,7 @@ function getBadgeForPoints(points) {
 }
 
 // Build the leaderboard table (top 5) for whole school or for a class
-function renderLeaderboardTable(classFilter) {
+function renderleaderboardTable(classFilter) {
   const tbody = document.getElementById("leaderboard-table-body");
   if (!tbody || !Array.isArray(STUDENTS)) return;
 
@@ -830,7 +830,7 @@ function renderNotFound(term, selectedClassLabel, targetEl) {
 // 5. LEADERBOARD SEARCH MODES
 // ============================
 
-function setupTeacherSearchOnLeaderboard() {
+function setupTeacherSearchOnleaderboard() {
   const classFilter = document.getElementById("class-filter");
   const nameInput = document.getElementById("student-search-input");
   const searchBtn = document.getElementById("student-search-button");
@@ -899,7 +899,7 @@ function setupTeacherSearchOnLeaderboard() {
   });
 }
 
-function setupStudentViewOnLeaderboard(currentUser) {
+function setupStudentViewOnleaderboard(currentUser) {
   const searchSection = document.getElementById("student-search");
   const resultEl = document.getElementById("student-result");
 
@@ -950,7 +950,7 @@ function setupStudentViewOnLeaderboard(currentUser) {
   renderStudentResultCard(me, resultEl);
 }
 
-function setupAnonymousViewOnLeaderboard() {
+function setupAnonymousViewOnleaderboard() {
   const classFilter = document.getElementById("class-filter");
   const nameInput = document.getElementById("student-search-input");
   const searchBtn = document.getElementById("student-search-button");
@@ -975,7 +975,7 @@ function setupAnonymousViewOnLeaderboard() {
   `;
 }
 
-function initLeaderboardPage() {
+function initleaderboardPage() {
   // Leaderboard table
   const leaderboardClassFilter = document.getElementById(
     "leaderboard-class-filter"
@@ -983,10 +983,10 @@ function initLeaderboardPage() {
   const leaderboardBody = document.getElementById("leaderboard-table-body");
 
   if (leaderboardBody) {
-    renderLeaderboardTable("");
+    renderleaderboardTable("");
     if (leaderboardClassFilter) {
       leaderboardClassFilter.addEventListener("change", () => {
-        renderLeaderboardTable(leaderboardClassFilter.value);
+        renderleaderboardTable(leaderboardClassFilter.value);
       });
     }
   }
@@ -994,11 +994,11 @@ function initLeaderboardPage() {
   // Search card behaviour depends on login
   const user = presentacyGetCurrentUser();
   if (!user) {
-    setupAnonymousViewOnLeaderboard();
+    setupAnonymousViewOnleaderboard();
   } else if (user.role === "teacher") {
-    setupTeacherSearchOnLeaderboard();
+    setupTeacherSearchOnleaderboard();
   } else {
-    setupStudentViewOnLeaderboard(user);
+    setupStudentViewOnleaderboard(user);
   }
 }
 
@@ -1366,7 +1366,7 @@ function renderStudentResultCard(student, targetEl) {
    STUDENT VIEW ON LEADERBOARD
    ======================== */
 
-function setupStudentViewOnLeaderboard(currentUser) {
+function setupStudentViewOnleaderboard(currentUser) {
   const searchSection = document.getElementById("student-search");
   const resultEl = document.getElementById("student-result");
 
@@ -1513,8 +1513,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  if (page === "leaderboard" && typeof initLeaderboardPage === "function") {
-    initLeaderboardPage();
+  if (page === "leaderboard" && typeof initleaderboardPage === "function") {
+    initleaderboardPage();
   }
 
   if (page === "videos" && typeof initVideoReactions === "function") {
@@ -1632,11 +1632,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  if (page === "leaderboard" && typeof initLeaderboardPage === "function") {
-    initLeaderboardPage();
+  if (page === "leaderboard" && typeof initleaderboardPage === "function") {
+    initleaderboardPage();
   }
 
   if (page === "videos" && typeof initVideoReactions === "function") {
     initVideoReactions();
   }
 });
+
