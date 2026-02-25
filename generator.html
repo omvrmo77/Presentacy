@@ -7,35 +7,38 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="main.js" defer></script>
 </head>
-<body data-page="generator">
-  <div class="page">
-   <nav class="navbar">
+<header class="page-header">
+  <nav class="navbar">
   <div class="logo">
     <div class="logo-mark">P</div>
     <span>Presentacy</span>
   </div>
-  <div class="nav-user">
-  <span id="user-greeting"></span>
-</div>
-<div id="greeting-banner" class="greeting-banner"></div>
 
-  <!-- Hamburger button (mobile) -->
-  <button class="nav-toggle" aria-label="Toggle navigation">
-    <span></span>
-    <span></span>
-    <span></span>
+  <div class="nav-user">
+    <span id="user-greeting"></span>
+  </div>
+  <div id="greeting-banner" class="greeting-banner"></div>
+
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
   </button>
 
-  <div class="nav-links">
+  <div class="nav-links" id="navLinks">
     <a href="index.html" class="nav-link" data-page-link="home">Home</a>
     <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+    <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
     <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
     <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
     <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
     <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+    <!-- teacher-only nav link -->
+    <a href="teacher-rubric.html"
+       class="nav-link"
+       data-nav="teacher-rubrics">Teacher Rubrics</a>
     <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
   </div>
 </nav>
+</header>
 
     <section class="card generator-card">
       <h1>Random Topic Generator</h1>
@@ -45,13 +48,31 @@
       </p>
 
       <div class="generator-center">
-        <p id="topic-output" class="topic-output">
-          Press the button to get your first topic.
-        </p>
-        <button type="button" id="topic-button" class="primary-button">
-          Give me a topic
-        </button>
-      </div>
+  <div class="topic-card">
+    <p id="topic-output" class="topic-output">
+      Press “Give me another topic” to get your first topic.
+    </p>
+
+    <div class="generator-buttons">
+      <!-- I don't like this topic / give me a new one -->
+      <button type="button" id="topic-button" class="primary-button">
+        🔄 Give me another topic
+      </button>
+
+      <!-- I like this topic -->
+      <button
+        type="button"
+        id="topic-like-button"
+        class="primary-button secondary-button"
+      >
+        ✅ I like this topic – help me
+      </button>
+    </div>
+
+    <!-- Here the detailed ideas card will appear -->
+    <div id="topic-ideas" class="topic-ideas"></div>
+  </div>
+</div>
     </section>
 
     <footer>
@@ -60,5 +81,6 @@
   </div>
 </body>
 </html>
+
 
 
