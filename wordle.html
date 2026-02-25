@@ -8,36 +8,38 @@
   <!-- keep your main.js for navbar etc. -->
   <script src="main.js" defer></script>
 </head>
-<body data-page="wordle">
-  <div class="page">
-    <!-- Navbar (same as other pages) -->
-    <nav class="navbar">
-      <div class="logo">
-        <div class="logo-mark">P</div>
-        <span>Presentacy</span>
-      </div>
-      <div class="nav-user">
-  <span id="user-greeting"></span>
-</div>
-<div id="greeting-banner" class="greeting-banner"></div>
-<div id="wordle-reaction" class="reaction-banner" aria-live="polite"></div>
+<header class="page-header">
+  <nav class="navbar">
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    <span>Presentacy</span>
+  </div>
 
-      <button class="nav-toggle" aria-label="Toggle navigation">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+  <div class="nav-user">
+    <span id="user-greeting"></span>
+  </div>
+  <div id="greeting-banner" class="greeting-banner"></div>
 
-      <div class="nav-links">
-        <a href="index.html" class="nav-link" data-page-link="home">Home</a>
-        <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
-        <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
-        <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
-        <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
-        <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
-        <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
-      </div>
-    </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="nav-links" id="navLinks">
+    <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+    <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+    <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
+    <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
+    <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+    <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+    <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+    <!-- teacher-only nav link -->
+    <a href="teacher-rubric.html"
+       class="nav-link"
+       data-nav="teacher-rubrics">Teacher Rubrics</a>
+    <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
+  </div>
+</nav>
+</header>
 
     <!-- PresentacyWordle -->
     <section class="card" id="wordle-card">
@@ -492,17 +494,14 @@
         }
       }
 
-      if (guess === secret) {
-        showMessage("Amazing! You got it! 🎉", "success");
-        gameOver = true;
-        saveState(true, true);
-        updateFormHrefWithSecret();
-        if (wordleFormLink) {
-          wordleFormLink.style.display = "block";
-        }
-        return;
-      }
-      
+      if (guessWord === SECRET_WORD) {
+  gameStatus = "won";
+  lockBoard();
+  saveWordlePlayedToday();
+  showWordleWinMessage(SECRET_WORD);
+  return;
+}
+
       currentRow++;
       currentGuess = "";
 
@@ -578,7 +577,3 @@
 </script>
 </body>
 </html>
-
-
-
-
