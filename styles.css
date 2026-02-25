@@ -479,11 +479,10 @@ a {
 .card {
   background: var(--card-bg);
   border-radius: var(--radius-lg);
-  padding: 1.4rem 1.3rem;
+  padding: 1.2rem 1.3rem;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
-  margin-top: 2.5rem;
-  margin-bottom: 1.8rem;
+  margin: 1.4rem 0;            /* less vertical stretch */
   transition: transform 0.18s ease-out, box-shadow 0.18s ease-out,
     border-color 0.18s ease-out;
 }
@@ -553,6 +552,16 @@ a {
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.4);
   transition: transform 0.15s ease-out, box-shadow 0.15s ease-out,
     filter 0.15s ease-out;
+}
+
+.secondary-button {
+  /* start from the primary style but a bit softer */
+  opacity: 0.9;
+}
+
+.secondary-button:hover {
+  opacity: 1;
+  transform: translateY(-1px);
 }
 
 .primary-button:hover {
@@ -702,6 +711,8 @@ tr:last-child td {
 .leaderboard-card {
   position: relative;
   overflow: hidden;
+  max-width: 800px;      /* keep it similar to My Scores width */
+  margin-inline: auto;   /* center the card */
 }
 
 /* Blur content when it's "coming soon" */
@@ -1351,7 +1362,406 @@ footer {
 }
 
 
+/* ===== Teacher Rubric page ===== */
+
+/* We use the global .card style for background / border / shadow.
+   Here we only tweak spacing and form layout. */
+
+.teacher-rubric-page.card {
+  margin-top: 2.6rem;        /* sits nicely under the navbar */
+}
+
+/* Headings & hint text */
+.teacher-rubric-page h2 {
+  font-size: 1.9rem;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.teacher-rubric-page .hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 1.4rem;
+}
+
+/* Top form rows */
+.teacher-rubric-page .teacher-info,
+.teacher-rubric-page .student-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .teacher-rubric-page .teacher-info,
+  .teacher-rubric-page .student-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Labels & inputs */
+.teacher-rubric-page label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.teacher-rubric-page input[type="text"],
+.teacher-rubric-page select {
+  width: 100%;
+  max-width: 320px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  font-size: 0.95rem;
+  outline: none;
+  background: #f9fafb;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.teacher-rubric-page input[type="text"]:focus,
+.teacher-rubric-page select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
+  background: #ffffff;
+}
+
+/* Rubric scores layout */
+.teacher-rubric-page .rubric-section {
+  margin-top: 0.75rem;
+}
+
+.teacher-rubric-page .rubric-section h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.75rem;
+}
+
+.teacher-rubric-page .rubric-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.6rem;
+}
+
+.teacher-rubric-page .rubric-row select {
+  max-width: 280px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .teacher-rubric-page.card {
+    margin-top: 2rem;
+  }
+}
 
 
 
+/* ===== Extra styles only for the teacher rubric page ===== */
 
+.teacher-rubric-page {
+  max-width: 960px;
+  margin: 80px auto 40px;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.teacher-rubric-page .teacher-info,
+.teacher-rubric-page .student-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 640px) {
+  .teacher-rubric-page .teacher-info,
+  .teacher-rubric-page .student-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+}
+
+.teacher-rubric-page label {
+  font-size: 14px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.teacher-rubric-page .teacher-code-label {
+  margin-top: 0.55rem;
+}
+
+.teacher-rubric-page #teacherKey {
+  margin-top: 0.25rem;
+}
+
+.teacher-rubric-page input[type="text"],
+.teacher-rubric-page input[type="password"],
+.teacher-rubric-page select {
+  width: 100%;
+  max-width: 320px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.teacher-rubric-page .rubric-section {
+  margin-top: 8px;
+}
+
+.teacher-rubric-page .rubric-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.teacher-rubric-page .rubric-row select {
+  max-width: 260px;
+}
+
+.teacher-rubric-page #saveRubricButton {
+  margin-top: 16px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .teacher-rubric-page {
+    margin: 72px 12px 24px;
+    padding: 16px;
+  }
+}
+
+.myscores-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.myscores-total {
+  min-width: 140px;
+  text-align: center;
+}
+
+.myscores-total-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.myscores-badge {
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.myscores-details {
+  flex: 1;
+  min-width: 200px;
+}
+
+.myscores-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.myscores-table th,
+.myscores-table td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #eee;
+}
+
+.myscores-rubric-list {
+  margin: 0.5rem 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.myscores-muted {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.myscores-teacher-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.student-card {
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #eee;
+  margin-bottom: 0.75rem;
+}
+
+/* Topic generator layout */
+.generator-center {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.topic-card {
+  max-width: 720px;
+  width: 100%;
+  padding: 1.75rem 2rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f5fbff, #eef3ff);
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.08);
+}
+
+.topic-output {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+/* Buttons row */
+.generator-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+/* "Secondary" style for the like button */
+.secondary-button {
+  background-color: transparent;
+  color: #1f4f7b; /* match this to your main brand colour */
+  border: 2px solid #1f4f7b;
+}
+
+.secondary-button:hover {
+  background-color: rgba(31, 79, 123, 0.06);
+}
+
+/* Ideas card */
+.topic-ideas {
+  margin-top: 1rem;
+  display: none;
+}
+
+.topic-ideas--visible {
+  display: block;
+}
+
+.topic-ideas-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+.topic-ideas-card h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.25rem;
+}
+
+.topic-ideas-card h3 {
+  font-size: 1.25rem;
+  margin: 0 0 0.3rem;
+}
+
+.topic-ideas-category {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5c6f92;
+  margin-bottom: 0.9rem;
+}
+
+/* Grid inside the ideas card */
+.topic-ideas-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .topic-ideas-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.topic-ideas-section-title {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.topic-ideas ul {
+  margin: 0.1rem 0 0.3rem;
+  padding-left: 1.1rem;
+}
+
+.topic-ideas li {
+  margin-bottom: 0.2rem;
+}
+
+.topic-ideas-phrases {
+  font-size: 0.9rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.topic-ideas-content-intro {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.topic-ideas-content-extra {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Make each section inside the ideas card look like its own small card */
+.topic-ideas-grid section {
+  background-color: #f7f9ff;           /* light background */
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(31, 79, 123, 0.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* Give a bit of space between title and text inside each small card */
+.topic-ideas-section-title {
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+}
+
+/* Make lists inside the mini-cards a bit tighter */
+.topic-ideas ul {
+  margin: 0.15rem 0 0.3rem;
+  padding-left: 1.1rem;
+}
+
+.topic-ideas li {
+  margin-bottom: 0.2rem;
+}
+
+/* Extra text in the “topic facts & ideas” card */
+.topic-ideas-content-intro {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.topic-ideas-content-extra {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  font-style: italic;
+}
