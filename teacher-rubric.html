@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Rubric – Presentacy</title>
+
+  <!-- Same main stylesheet as the rest of the site -->
+  <link rel="stylesheet" href="styles.css" />
+  <script src="main.js" defer></script>
+</head>
+<header class="page-header">
+ <nav class="navbar">
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    <span>Presentacy</span>
+  </div>
+
+  <div class="nav-user">
+    <span id="user-greeting"></span>
+  </div>
+  <div id="greeting-banner" class="greeting-banner"></div>
+
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="nav-links" id="navLinks">
+    <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+    <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+    <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
+    <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
+    <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+    <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+    <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+    <!-- teacher-only nav link -->
+    <a href="teacher-rubric.html"
+       class="nav-link"
+       data-nav="teacher-rubrics">Teacher Rubrics</a>
+    <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
+  </div>
+</nav>
+</header>
+
+    <!-- MAIN CONTENT -->
+    <main class="teacher-rubric-page card">
+      <h2>Teacher Rubric – Presentacy</h2>
+
+      <p class="hint">
+        For all criteria except listening:
+        <strong>1 = Needs improvement, 2 = Satisfactory, 3 = Good, 4 = Excellent</strong>.<br>
+        Listening: <strong>-2 to +2</strong> (negative = weak listener, positive = excellent listener).
+      </p>
+
+      <!-- Sends data directly to your Apps Script -->
+     <form
+  id="rubrics-form"
+  class="teacher-rubric-form"
+  action="https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec"
+  method="POST"
+  target="rubrics-saver-frame"
+>
+
+        <!-- Teacher + student -->
+        <section class="teacher-info">
+  <div>
+    <label for="teacher">Teacher Name:</label>
+    <input
+      id="teacher"
+      name="teacher"
+      type="text"
+      placeholder="Ms/Mr ..."
+      required
+    >
+
+    <label for="teacherKey" class="teacher-code-label">Teacher code:</label>
+    <input
+      id="teacherKey"
+      name="teacherKey"
+      type="password"
+      placeholder="Secret code"
+      required
+    >
+  </div>
+
+  <div>
+    <label for="student">Student:</label>
+    <input
+      id="student"
+      name="student"
+      list="studentsList"
+      placeholder="Start typing a name..."
+      required
+    >
+    <datalist id="studentsList"></datalist>
+  </div>
+</section>
+
+        <!-- Topic -->
+        <section class="student-section">
+          <div>
+            <label for="topic">Topic:</label>
+            <input
+              id="topic"
+              name="topic"
+              type="text"
+              placeholder="Presentation topic"
+              required
+            >
+          </div>
+        </section>
+
+        <div class="form-row">
+  <label class="form-field">
+    <span class="form-label">Week</span>
+    <select name="week" id="rubric-week" class="input">
+      <option value="">Choose week…</option>
+      <option value="1">Week 1</option>
+      <option value="2">Week 2</option>
+      <option value="3">Week 3</option>
+      <option value="4">Week 4</option>
+      <option value="5">Week 5</option>
+      <option value="6">Week 6</option>
+      <option value="7">Week 7</option>
+      <option value="8">Week 8</option>
+      <option value="8">Week 9</option>
+      <option value="8">Week 10</option>
+      <option value="8">Week 11</option>
+      <option value="8">Week 12</option>
+      <option value="8">Week 13</option>
+      <option value="8">Week 14</option>
+      <option value="8">Week 15</option>
+    </select>
+  </label>
+</div>
+
+        <!-- Rubric scores -->
+        <section class="rubric-section">
+          <h3>Rubric Scores</h3>
+
+          <div class="rubric-row">
+            <label>Body language &amp; facial expressions (1–4):</label>
+            <select name="bodyLanguageFacial" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
+
+          <div class="rubric-row">
+            <label>Eye contact (1–4):</label>
+            <select name="eyeContact" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
+
+          <div class="rubric-row">
+            <label>Intonation (1–4):</label>
+            <select name="intonation" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
+
+          <div class="rubric-row">
+            <label>Preparation (1–4):</label>
+            <select name="preparation" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
+
+          <div class="rubric-row">
+            <label>Visual aids (1–4):</label>
+            <select name="visualAids" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
+
+          <div class="rubric-row">
+            <label>Time management (1–4):</label>
+            <select name="timeManagement" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
+
+          <div class="rubric-row">
+            <label>Fluency (1–4):</label>
+            <select name="fluency" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
+
+          <div class="rubric-row">
+            <label>Language accuracy (1–4):</label>
+            <select name="languageAccuracy" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
+
+          <div class="rubric-row">
+            <label>Pronunciation (1–4):</label>
+            <select name="pronunciation" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
+
+          <div class="rubric-row">
+            <label>Listening (audience behaviour) (-2 to +2):</label>
+            <select name="listening" required>
+              <option value="-2">-2 – Very weak listener</option>
+              <option value="-1">-1 – Weak listener</option>
+              <option value="0" selected>0 – Neutral</option>
+              <option value="1">1 – Good listener</option>
+              <option value="2">2 – Excellent listener</option>
+            </select>
+          </div>
+                </section>
+
+        <!-- HIDDEN iframe that will receive the Apps Script "Rubric saved" page -->
+        <iframe
+          name="rubrics-saver-frame"
+          id="rubrics-saver-frame"
+          style="display:none; visibility:hidden; width:0; height:0; border:0;"
+        ></iframe>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-button">
+            Save rubrics
+          </button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+    <div class="page">
+    <!-- navbar here -->
+
+
+    <footer>
+      Presentacy: School Presentation Project – Made by Omar
+    </footer>
+  </div>
+
+  <!-- Populates the students list + talks to backend -->
+  <script src="teacher-students.js"></script>
+
+  <!-- Tiny inline script just to open/close the mobile menu on this page -->
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('nav-links--open');
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Presentacy – My Scores</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body data-page="myscores">
+    <div class="page">
+      <!-- NAVBAR (same as other pages) -->
+      <header class="page-header">
+        <nav class="navbar">
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    <span>Presentacy</span>
+  </div>
+
+  <div class="nav-user">
+    <span id="user-greeting"></span>
+  </div>
+  <div id="greeting-banner" class="greeting-banner"></div>
+
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="nav-links" id="navLinks">
+    <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+    <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+    <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
+    <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
+    <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+    <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+    <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+    <!-- teacher-only nav link -->
+    <a href="teacher-rubric.html"
+       class="nav-link"
+       data-nav="teacher-rubrics">Teacher Rubrics</a>
+    <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
+  </div>
+</nav>
+      </header>
+
+      <main class="page-main">
+        <section class="page-header-block">
+          <h1 class="page-title">My Presentacy Scores</h1>
+          <p class="page-subtitle">
+            Check how you did in each presentation and see your total score grow.
+          </p>
+        </section>
+
+        <!-- Student view -->
+        <section class="card" id="myscores-student-section">
+          <h2 class="card-title">My Score</h2>
+          <p class="card-subtitle">
+            Only you and your teachers can see this page.
+          </p>
+
+          <div id="myscores-status" class="status-message"></div>
+
+          <div class="myscores-summary">
+            <div class="myscores-total">
+              <div class="myscores-total-number" id="myscores-total">–</div>
+              <div class="myscores-total-label">Total points</div>
+              <div class="myscores-badge" id="myscores-badge">–</div>
+            </div>
+
+            <div class="myscores-details" id="myscores-weeks">
+              <!-- Filled by JS (week 1, week 2, ...) -->
+            </div>
+          </div>
+
+          <hr class="card-divider" />
+
+          <h3 class="card-subtitle">Rubric breakdown</h3>
+          <p class="myscores-muted">
+            Each presentation is marked using these criteria:
+          </p>
+
+          <ul class="myscores-rubric-list">
+            <li><strong>Body language &amp; facial expressions</strong></li>
+            <li><strong>Eye contact</strong></li>
+            <li><strong>Intonation</strong></li>
+            <li><strong>Preparation</strong></li>
+            <li><strong>Visual aids</strong></li>
+            <li><strong>Time management</strong></li>
+            <li><strong>Fluency</strong></li>
+            <li><strong>Language accuracy</strong></li>
+            <li><strong>Pronunciation</strong></li>
+            <li><strong>Listeners</strong></li>
+          </ul>
+
+                    <div id="myscores-rubrics" class="myscores-rubrics">
+            <!-- Filled by JS with your detailed rubric scores -->
+          </div>
+        </section>
+
+        <!-- Teacher view -->
+        <section class="card" id="myscores-teacher-section">
+          <h2 class="card-title">Students’ Scores</h2>
+          <p class="card-subtitle">
+            Choose a class and student to see their total Presentacy score.
+          </p>
+
+          <div class="myscores-teacher-filters">
+            <label class="form-field">
+              <span class="form-label">Class</span>
+              <select id="teacher-myscores-class" class="input">
+                <option value="">All classes</option>
+                <!-- Options filled from JS -->
+              </select>
+            </label>
+
+            <label class="form-field">
+              <span class="form-label">Student name</span>
+              <input
+                type="text"
+                id="teacher-myscores-name"
+                class="input"
+                placeholder="Start typing a name…"
+                autocomplete="off"
+              />
+            </label>
+
+            <button id="teacher-myscores-search" class="btn-primary">
+              Search
+            </button>
+          </div>
+
+          <div id="teacher-myscores-status" class="status-message"></div>
+          <div id="teacher-myscores-result"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
