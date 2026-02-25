@@ -67,7 +67,7 @@ const STUDENTS = [
         password: "19684",
         role: "student",
         scores: {
-          week1: 10,
+          week1: 15,
         }
       },
       {
@@ -137,7 +137,7 @@ const STUDENTS = [
         password: "20489",
         role: "student",
         scores: {
-          week1: 19,
+          week1: 21,
         }
       },
       {
@@ -338,7 +338,7 @@ const STUDENTS = [
 { username: "iabdelmaboud", password: "30208", name: "Ibrahim Abdelmaboud", class: "3", role: "student", scores: { week1: 0 } },
 { username: "eislam", password: "53872", name: "Eyad Islam", class: "3", role: "student", scores: { week1: 20 } },
 { username: "tallah", password: "25687", name: "Taim Allah", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "tsherif", password: "62701", name: "Tamim Sherif", class: "3", role: "student", scores: { week1: 20 } },
+{ username: "tsherif", password: "62701", name: "Tamim Sherif", class: "3", role: "student", scores: { week1: 17 } },
 { username: "hmohamed", password: "76116", name: "Hamza Mohamed", class: "3", role: "student", scores: { week1: 0 } },
 { username: "amina ", password: "69796", name: "Abdallah Mina ", class: "3", role: "student", scores: { week1: 0 } },
 { username: "aahmed", password: "33293", name: "Amr Ahmed", class: "3", role: "student", scores: { week1: 0 } },
@@ -362,6 +362,7 @@ const STUDENTS = [
 { username: "mahmed ali", password: "89107", name: "Mohamed Ahmed Ali", class: "4", role: "student", scores: { week1: 0 } },
 { username: "mosama ", password: "31415", name: "Megdam Osama ", class: "4", role: "student", scores: { week1: 0 } },
 { username: "ymohamed", password: "34516", name: "Yassin Mohamed", class: "4", role: "student", scores: { week1: 0 } },
+{ username: "jhassan", password: "63881", name: "Judy Hassan", class: "4", role: "student", scores: { week1: 0 } },
 
 { username: "jabdelraziq ", password: "52912", name: "Judy Abdelraziq ", class: "5A", role: "student", scores: { week1: 0 } },
 { username: "dmarwan", password: "70556", name: "Dan Marwan", class: "5A", role: "student", scores: { week1: 0 } },
@@ -447,7 +448,7 @@ const STUDENTS = [
 { username: "mabdelmaboud", password: "12306", name: "Mahmoud Abdelmaboud", class: "8", role: "student", scores: { week1: 0 } },
 { username: "mahmed", password: "95140", name: "Mohsen Ahmed", class: "8", role: "student", scores: { week1: 0 } },
 { username: "nabdelrahman", password: "12687", name: "Nabil Abdelrahman", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "yhisham", password: "77616", name: "Youssef Hisham", class: "8", role: "student", scores: { week1: 0 } },
+{ username: "yhisham", password: "77616", name: "Youssef Hisham", class: "8", role: "student", scores: { week1: 17 } },
 
 { username: "hamin", password: "74475", name: "Hala Amin", class: "9", role: "student", scores: { week1: 0 } },
 { username: "ryoussef ", password: "96026", name: "Rodaina Youssef ", class: "9", role: "student", scores: { week1: 20 } },
@@ -549,6 +550,29 @@ function presentacyGetCurrentUser() {
   }
 }
 
+function applyRoleBasedNav() {
+  let currentUser = null;
+  try {
+    currentUser =
+      typeof presentacyGetCurrentUser === "function"
+        ? presentacyGetCurrentUser()
+        : null;
+  } catch (e) {
+    currentUser = null;
+  }
+
+  const teacherLink = document.querySelector('[data-nav="teacher-rubrics"]');
+
+  if (teacherLink) {
+    // Show only for teachers
+    if (!currentUser || currentUser.role !== "teacher") {
+      teacherLink.style.display = "none";
+    } else {
+      teacherLink.style.display = "";
+    }
+  }
+}
+
 function presentacyLogout() {
   try {
     localStorage.removeItem(PRESENTACY_USER_KEY);
@@ -627,13 +651,113 @@ function initPresentacyLoginPage() {
   });
 }
 
+
+// ============================
+// 3.5 LOAD SCORES FROM SPREADSHEET
+// ============================
+
+// TODO: paste your real API / web-app URL here
+const SCORES_API_URL = "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec";
+
+/**
+ * Fetch scores from the spreadsheet backend and merge into STUDENTS.
+ * Expected JSON shape:
+ * [
+ *   { "username": "ahassan", "week1": 25, "week2": 18 },
+ *   { "username": "jahmed",  "week1": 20 },
+ *   ...
+ * ]
+ */
+async function loadScoresFromAPI() {
+    if (
+    !SCORES_API_URL ||
+    SCORES_API_URL === "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec"
+  ) {
+    console.warn("SCORES_API_URL is not set yet.");
+    return;
+  }
+
+  if (!Array.isArray(STUDENTS)) {
+    console.error("STUDENTS array is missing, cannot inject scores.");
+    return;
+  }
+
+  try {
+    const response = await fetch(SCORES_API_URL, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      console.error("Failed to load scores from API:", response.status, response.statusText);
+      return;
+    }
+
+    const rows = await response.json();
+
+    if (!Array.isArray(rows)) {
+      console.error("Scores API did not return an array:", rows);
+      return;
+    }
+
+    // Build a lookup map: username -> student object
+    const byUsername = new Map();
+    STUDENTS.forEach((s) => {
+      const key = (s.username || "").trim().toLowerCase();
+      if (!key) return;
+      byUsername.set(key, s);
+      if (!s.scores) s.scores = {};
+    });
+
+    rows.forEach((row) => {
+      if (!row) return;
+      const rawUser = row.username || row.Username || row.USERNAME;
+      if (!rawUser) return;
+
+      const key = String(rawUser).trim().toLowerCase();
+      const student = byUsername.get(key);
+      if (!student) {
+        // Username from sheet does not exist in STUDENTS
+        // console.warn("No matching student for username from sheet:", key);
+        return;
+      }
+
+      const destScores = student.scores || (student.scores = {});
+
+      // Copy all numeric week values (week1, week2, week3, ...)
+      Object.keys(row).forEach((field) => {
+        if (/^week\d+$/i.test(field)) {
+          const value = Number(row[field]);
+          if (!Number.isNaN(value)) {
+            destScores[field.toLowerCase()] = value;
+          }
+        }
+      });
+    });
+
+    console.log("Scores successfully merged into STUDENTS from API.");
+  } catch (err) {
+    console.error("Error while loading scores from API:", err);
+  }
+}
+
+
 // ============================
 // 4. LEADERBOARD HELPERS
 // ============================
 
 // Sum of all weeks for leaderboard
-function getTotalPoints(student) {
-  const scores = student.scores || {};
+function getTotalPoints(studentOrScores) {
+  // This helper works with either:
+  //  - a full student object that has a .scores field
+  //  - OR a plain scores object with week1, week2, ...
+  const scores =
+    studentOrScores && studentOrScores.scores
+      ? studentOrScores.scores
+      : studentOrScores || {};
+
   return Object.values(scores).reduce(
     (sum, value) => sum + (typeof value === "number" ? value : 0),
     0
@@ -641,10 +765,29 @@ function getTotalPoints(student) {
 }
 
 function getBadgeForPoints(points) {
-  if (points >= 65) return "Presentacy Star";
+  if (points >= 85) return "Presentacy Star";
   if (points >= 55) return "Shining Star";
   if (points >= 30) return "Bright Star";
   return "Rising Star";
+}
+
+function calculateBadge(points) {
+  const label = getBadgeForPoints(points);
+  let text = "";
+
+  if (points >= 85) {
+    text = "You are a Presentacy Star! Keep inspiring us.";
+  } else if (points >= 55) {
+    text = "You are a Shining Star – wonderful work, keep going.";
+  } else if (points >= 30) {
+    text = "You are a Bright Star. Practice will make you even stronger.";
+  } else if (points > 0) {
+    text = "You are a Rising Star. Every presentation helps you grow.";
+  } else {
+    text = "Your badge will appear after your first score.";
+  }
+
+  return { label, text };
 }
 
 // Build the leaderboard table (top 5) for whole school or for a class
@@ -924,15 +1067,11 @@ function setupStudentViewOnLeaderboard(currentUser) {
   }
 
   // 3) Find this student in the data
-  // 3) Find this student in the data – match username *and* password
-  const me = STUDENTS.find((s) => {
-    const su = (s.username || "").trim().toLowerCase();
-    const cu = (currentUser.username || "").trim().toLowerCase();
-    const sp = (s.password || "").trim();
-    const cp = (currentUser.password || "").trim();
-
-    return su === cu && sp === cp;
-  });
+  const me = STUDENTS.find(
+    (s) =>
+      (s.username || "").trim().toLowerCase() ===
+      (currentUser.username || "").trim().toLowerCase()
+  );
 
   if (!me) {
     resultEl.innerHTML = `
@@ -980,31 +1119,27 @@ function setupAnonymousViewOnLeaderboard() {
 }
 
 function initLeaderboardPage() {
-  // Leaderboard table
-  const leaderboardClassFilter = document.getElementById(
-    "leaderboard-class-filter"
-  );
   const leaderboardBody = document.getElementById("leaderboard-table-body");
+  const leaderboardClassFilter = document.getElementById("leaderboard-class-filter");
 
-  if (leaderboardBody) {
-    renderLeaderboardTable("");
-    if (leaderboardClassFilter) {
-      leaderboardClassFilter.addEventListener("change", () => {
-        renderLeaderboardTable(leaderboardClassFilter.value);
-      });
-    }
-  }
+  if (!leaderboardBody) return;
 
-  // Search card behaviour depends on login
-  const user = presentacyGetCurrentUser();
-  if (!user) {
-    setupAnonymousViewOnLeaderboard();
-  } else if (user.role === "teacher") {
-    setupTeacherSearchOnLeaderboard();
-  } else {
-    setupStudentViewOnLeaderboard(user);
+  // Initial render: all classes
+  renderLeaderboardTable("");
+
+  // Filter by class
+  if (leaderboardClassFilter) {
+    leaderboardClassFilter.addEventListener("change", () => {
+      const selectedClass = leaderboardClassFilter.value || "";
+      renderLeaderboardTable(selectedClass);
+    });
   }
 }
+
+// ============================
+// 5.5 MY SCORES PAGE (student view with rubrics)
+// ============================
+const RUBRICS_API_URL = "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec";
 
 // ============================
 // 6. NAVBAR + HOME + GENERATOR + WALL
@@ -1097,27 +1232,28 @@ function initHomePage() {
 
 function initGeneratorPage() {
   const topicButton = document.getElementById("topic-button");
+  const topicLikeButton = document.getElementById("topic-like-button");
   const topicOutput = document.getElementById("topic-output");
+  const topicIdeas = document.getElementById("topic-ideas");
 
   if (!topicButton || !topicOutput) return;
 
-  // Get current user (saved in localStorage after login)
+  // ========= 1. WHO IS THE STUDENT? =========
   const currentUser =
     (typeof presentacyGetCurrentUser === "function" &&
       presentacyGetCurrentUser()) ||
     null;
 
-  // Get first name if possible
   let firstName = "";
   if (currentUser) {
     if (typeof getFirstName === "function") {
       firstName = getFirstName(currentUser.name || currentUser.username);
     } else {
-      firstName = (currentUser.name || currentUser.username || "").split(" ")[0];
+      firstName = (currentUser.name || currentUser.username || "")
+        .split(" ")[0];
     }
   }
 
-  // Time-of-day greeting (morning / afternoon / evening)
   function getTimeGreeting() {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -1125,53 +1261,715 @@ function initGeneratorPage() {
     return "Good evening";
   }
 
-  // Set the initial text before the button is clicked
+  // Initial message
   if (firstName) {
-    topicOutput.textContent = `Hi ${firstName}! Press the button to get your topic.`;
+    topicOutput.textContent =
+      'Hi ' +
+      firstName +
+      '! Press "Give me another topic" to get started.';
   } else {
-    topicOutput.textContent = "Press the button to get your first topic.";
+    topicOutput.textContent =
+      'Press "Give me another topic" to get your first topic.';
   }
 
+  // ========= 2. TOPICS LIST (more interesting ones) =========
   const topics = [
-    "My dream school day",
-    "A superpower I would love to have",
-    "The best trip I have ever taken",
-    "If I could meet any famous person",
-    "A hobby that makes me feel calm",
-    "The most interesting animal in the world",
-    "One invention that changed our lives",
-    "If I could design my own bedroom",
-    "A book or story that stayed with me",
-    "The perfect weekend for me",
-    "A time when I helped someone",
-    "If I could live in any country",
-    "Why we should be kind online",
-    "One rule I would add to our school",
-    "A job I might like in the future",
-    "Why teamwork is important",
-    "A place in nature I would like to visit",
-    "Something I learned from a mistake",
-    "My favorite memory with friends",
-    "If I could travel to the future",
-    "A food everyone should try at least once",
-    "Why sleep is more powerful than we think",
-    "The most impressive building or place I have seen",
+    // Cars & tech
+    "My dream car",
+    "Electric cars vs petrol cars",
+    "A cool invention that changed our lives",
+    "If I could design a new app",
+
+    // Games & media
+    "My favourite video game",
+    "A movie or series I can't forget",
+    "My favourite YouTuber or content creator",
+    "The power of music in my life",
+
+    // Sports
+    "My favourite football team",
+    "A sports player I admire",
+    "Team sports vs individual sports",
+
+    // Daily life & opinions
+    "Fast food: good or bad?",
+    "Should homework be banned?",
+    "Social media: helpful or harmful?",
+    "Being kind online",
+
+    // People & relationships
     "What makes a good friend",
+    "A time when I helped someone",
+    "Why teamwork is important",
+
+    // Animals & nature
+    "Pets vs wild animals",
+    "The most interesting animal in the world",
+    "A place in nature I would love to visit",
+
+    // Future & imagination
+    "Living on Mars in the future",
+    "Robots in our lives",
+    "If I could meet any famous person",
+    "If I could travel to the future",
+
+    // School & self
+    "One rule I would add to our school",
+    "A hobby that makes me feel calm",
+    "Something I learned from a mistake",
     "One small change that could improve our classroom"
   ];
 
-  topicButton.addEventListener("click", () => {
+  let currentTopic = "";
+
+  function clearTopicIdeas() {
+    if (!topicIdeas) return;
+    topicIdeas.innerHTML = "";
+    topicIdeas.classList.remove("topic-ideas--visible");
+  }
+
+  function pickRandomTopic() {
     const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+    currentTopic = randomTopic;
+    clearTopicIdeas();
 
     if (firstName) {
       const greeting = getTimeGreeting();
-      // Personalized sentence talking to the student
-      topicOutput.textContent = `${greeting}, ${firstName}! How about you talk about “${randomTopic}”?`;
+      topicOutput.textContent =
+        greeting + ', ' + firstName + '! How about you talk about "' + randomTopic + '"?';
     } else {
-      // Fallback if somehow no user is found
       topicOutput.textContent = randomTopic;
     }
-  });
+  }
+
+  // ========= 3. PRESENTATION STRUCTURE (what you already liked) =========
+  function getPresentationGuide(topic) {
+    const lower = topic.toLowerCase();
+
+    // Hobby
+    if (lower.includes("hobby")) {
+      return {
+        category: "Favourite hobby",
+        hook: [
+          "Guess what I love doing in my free time…",
+          "When I have some free time, there is one thing I always want to do."
+        ],
+        structure: [
+          "Say the name of the hobby and how you discovered it.",
+          "Explain where/when you do it and if you do it alone or with others.",
+          "Describe what you actually do, step by step.",
+          "Explain how it makes you feel and why it is important to you."
+        ],
+        ideas: [
+          "Who taught you this hobby or how you learned it.",
+          "A funny or special memory connected to this hobby.",
+          "What you need (equipment, place, people).",
+          "How this hobby could help your future or your skills."
+        ],
+        phrases: [
+          "In my free time, I really enjoy…",
+          "I started this hobby when…",
+          "One thing I love about it is…",
+          "That’s why this hobby is a big part of my life."
+        ]
+      };
+    }
+
+    // School / classroom
+    if (
+      lower.includes("school") ||
+      lower.includes("classroom") ||
+      lower.includes("rule")
+    ) {
+      return {
+        category: "School life",
+        hook: [
+          "Let me take you on a tour of my school day.",
+          "School is more than just lessons and homework for me."
+        ],
+        structure: [
+          "Introduce your school and which grade you are in.",
+          "Describe a normal day: morning, lessons, breaks.",
+          "Talk about one subject, activity or teacher you really like.",
+          "Mention one thing you would improve and why."
+        ],
+        ideas: [
+          "Describe the atmosphere in your class (quiet, noisy, friendly…).",
+          "Talk about a special event at school (trip, show, project).",
+          "Explain how school helps you build your future.",
+          "Say how you feel at the end of a school day."
+        ],
+        phrases: [
+          "A typical day at my school starts when…",
+          "One of my favourite things about my school is…",
+          "If I could change one thing, it would be…",
+          "School is important to me because…"
+        ]
+      };
+    }
+
+    // Travel / place / Mars
+    if (
+      lower.includes("place") ||
+      lower.includes("visit") ||
+      lower.includes("travel") ||
+      lower.includes("mars") ||
+      lower.includes("future")
+    ) {
+      return {
+        category: "Travel & places",
+        hook: [
+          "Close your eyes and imagine you are with me in this place.",
+          "There is one place I will never forget."
+        ],
+        structure: [
+          "Say where the place is and when you visited (or want to visit).",
+          "Describe what you saw, heard, smelt or tasted.",
+          "Explain who you were with and what you did together.",
+          "Tell why this place is special for you."
+        ],
+        ideas: [
+          "Describe the weather, colours and sounds around you.",
+          "A small story that happened during the trip.",
+          "How you felt when you arrived and when you left.",
+          "Would you recommend this place to others? Why?"
+        ],
+        phrases: [
+          "I still remember the moment when…",
+          "One thing that surprised me was…",
+          "If you ever go there, you should definitely…",
+          "That’s why this place is unforgettable for me."
+        ]
+      };
+    }
+
+    // Friends / teamwork
+    if (lower.includes("friend") || lower.includes("team")) {
+      return {
+        category: "Friends & teamwork",
+        hook: [
+          "We all need people around us – let me tell you about mine.",
+          "I understood the real meaning of friendship when…"
+        ],
+        structure: [
+          "Give your own definition of a good friend or good team.",
+          "Introduce one friend or one team you are part of.",
+          "Tell a short story where this friend/team helped you or needed you.",
+          "Explain what you learned from this experience."
+        ],
+        ideas: [
+          "How you met this friend / joined this team.",
+          "What makes this friend or team special (kind, funny, honest…).",
+          "How you solve problems or conflicts together.",
+          "Why friendship or teamwork is important in life."
+        ],
+        phrases: [
+          "For me, a real friend is someone who…",
+          "We worked together and…",
+          "This showed me that…",
+          "That’s why I am grateful for my friends / my team."
+        ]
+      };
+    }
+
+    // Life lessons / helping / mistakes
+    if (
+      lower.includes("helped") ||
+      lower.includes("mistake") ||
+      lower.includes("learned") ||
+      lower.includes("time when")
+    ) {
+      return {
+        category: "Life lessons",
+        hook: [
+          "There is one moment in my life that taught me something important.",
+          "Let me tell you a short story that changed me."
+        ],
+        structure: [
+          "Set the scene: when and where did it happen?",
+          "Introduce the people who were there.",
+          "Explain what happened step by step.",
+          "Say what you learned from this moment."
+        ],
+        ideas: [
+          "How you felt during the situation.",
+          "What you would do differently now.",
+          "How this lesson helps you today.",
+          "Why this memory stayed in your mind."
+        ],
+        phrases: [
+          "At first, I thought that…",
+          "Then something unexpected happened…",
+          "In the end, I realised that…",
+          "Since that day, I always remember…"
+        ]
+      };
+    }
+
+    // Sports
+    if (
+      lower.includes("football") ||
+      lower.includes("player") ||
+      lower.includes("sport")
+    ) {
+      return {
+        category: "Sports",
+        hook: [
+          "Sport is a big part of my life.",
+          "Let me tell you about the sport that I really enjoy."
+        ],
+        structure: [
+          "Introduce the sport or team and how you discovered it.",
+          "Explain the basic rules in a simple way.",
+          "Talk about your favourite team / player / match.",
+          "Say why this sport is special for you."
+        ],
+        ideas: [
+          "A special match or goal you remember.",
+          "How sport teaches teamwork and discipline.",
+          "How often you play or watch it.",
+          "How sport helps your health or your mood."
+        ],
+        phrases: [
+          "One match I will never forget is…",
+          "What I admire about this player is…",
+          "When I watch this sport, I feel…",
+          "That’s why this sport is important to me."
+        ]
+      };
+    }
+
+    // Tech, games, social media, robots, apps
+    if (
+      lower.includes("video game") ||
+      lower.includes("game") ||
+      lower.includes("social media") ||
+      lower.includes("app") ||
+      lower.includes("robot")
+    ) {
+      return {
+        category: "Technology & media",
+        hook: [
+          "Technology is everywhere in our lives.",
+          "There is one app / game / website I use a lot."
+        ],
+        structure: [
+          "Introduce the app / game / technology.",
+          "Explain what you use it for and how it works in simple words.",
+          "Talk about why you like it or what is dangerous about it.",
+          "Give your opinion: is it good, bad, or depends on how we use it?"
+        ],
+        ideas: [
+          "Screen time and how many hours per day is healthy.",
+          "Online safety and being kind on the internet.",
+          "How this technology makes life easier or harder.",
+          "What the future with this technology might look like."
+        ],
+        phrases: [
+          "One reason I like it is…",
+          "However, there is also a problem:",
+          "If we use it in a smart way, we can…",
+          "In my opinion, the most important thing is…"
+        ]
+      };
+    }
+
+    // Food, fast food, health
+    if (lower.includes("food")) {
+      return {
+        category: "Food & health",
+        hook: [
+          "We all eat every day, but today I want to talk about one type of food.",
+          "There is one kind of food many people love, but it can be a problem too."
+        ],
+        structure: [
+          "Introduce the type of food (fast food, traditional food, a dish).",
+          "Explain why people like it so much.",
+          "Talk about the good and bad effects on our health.",
+          "Give your opinion and maybe a suggestion."
+        ],
+        ideas: [
+          "Examples of fast food and what they contain.",
+          "Difference between eating it sometimes and every day.",
+          "Better choices you can make when you eat out.",
+          "A healthy version of this food you could try."
+        ],
+        phrases: [
+          "On the one hand,…",
+          "On the other hand,…",
+          "A simple change we can make is…",
+          "I think balance is the key because…"
+        ]
+      };
+    }
+
+    // Default guide
+    return {
+      category: "Any topic",
+      hook: [
+        "Let me share my ideas about this topic.",
+        "I chose this topic because it is close to my heart."
+      ],
+      structure: [
+        "Start with one clear opening sentence that introduces the topic.",
+        "Give 2–3 main ideas or reasons in the middle.",
+        "Use an example or short story to make it real.",
+        "Finish with one strong sentence that repeats your main message."
+      ],
+      ideas: [
+        "Think of one real situation from your life connected to the topic.",
+        "Explain your opinion and also the opposite opinion.",
+        "Use connecting words: first, also, however, finally.",
+        "Add feelings: how does this topic make you feel?"
+      ],
+      phrases: [
+        "First of all, I believe…",
+        "Another important point is…",
+        "For example,…",
+        "To sum up, I think…"
+      ]
+    };
+  }
+
+  // ========= 4. TOPIC CONTENT (facts & sub-ideas) =========
+  function getTopicContentIdeas(topic) {
+    const lower = topic.toLowerCase();
+
+    // Cars
+    if (lower.includes("car")) {
+      return {
+        title: "Ideas about cars",
+        intro:
+          "Here are some concrete things you can talk about if your topic is cars:",
+        bullets: [
+          "Different types of cars: small city cars, family cars, sports cars, electric cars, SUVs.",
+          "What engines do: they turn fuel (or electricity) into movement. You can mention petrol, diesel, hybrid and electric engines.",
+          "Basic parts: engine, wheels, brakes, seats, seat belts, air bags, lights – choose 2–3 to describe.",
+          "Safety and rules: wearing a seat belt, speed limits, traffic lights, driving tests.",
+          "Famous brands or models you like and why (for example: fast, safe, comfortable, eco-friendly).",
+          "Future of cars: self-driving cars, cars that use only electricity, or cars that can park themselves."
+        ],
+        extra:
+          "You can pick ONE car you like and describe its look, speed, colour, and why it is your dream car."
+      };
+    }
+
+    // Video games
+    if (lower.includes("video game") || lower.includes("game")) {
+      return {
+        title: "Ideas about video games",
+        intro:
+          "If you talk about video games, try to choose one game or one type of game:",
+        bullets: [
+          "Name of the game, the company (if you know it) and what kind of game it is (adventure, sport, racing, puzzle, etc.).",
+          "Basic story or goal: what do you have to do to win?",
+          "What skills the game uses: strategy, quick reactions, teamwork, creativity.",
+          "Positive sides: fun, relaxing, learning English, meeting friends online.",
+          "Negative sides: too much screen time, addiction, violent content, less sleep or less exercise.",
+          "Your own rules for yourself: how many hours you think is healthy and how you try to control it."
+        ],
+        extra:
+          "You can compare two games you know and say which one you recommend and why."
+      };
+    }
+
+    // Football / sports
+    if (
+      lower.includes("football") ||
+      lower.includes("player") ||
+      lower.includes("team")
+    ) {
+      return {
+        title: "Ideas about football and sports",
+        intro:
+          "You can focus on one team, one player, or sport in general:",
+        bullets: [
+          "Name of the team / player and which country or club they play for.",
+          "Basic rules of the sport in simple words (how to score, how many players, time of the match).",
+          "A famous match or moment you remember and what happened.",
+          "Qualities of a good player: fitness, teamwork, discipline, attitude.",
+          "Why people around the world love this sport (emotion, community, national pride).",
+          "How sport can help with health, confidence and stress."
+        ],
+        extra:
+          "Tell a short story about a time you played this sport and how you felt before and after the game."
+      };
+    }
+
+    // Social media
+    if (lower.includes("social media")) {
+      return {
+        title: "Ideas about social media",
+        intro:
+          "You can choose one platform (Instagram, TikTok, etc.) or talk about social media in general:",
+        bullets: [
+          "What people do on social media: sharing photos, making videos, chatting, following news.",
+          "Good sides: staying in touch with friends and family, learning new things, finding inspiration.",
+          "Problems: fake news, online bullying, comparing yourself to others, wasting time.",
+          "How algorithms work in simple words: they show you more of what you already like.",
+          "Rules you think are important for safe and kind use (age limits, privacy, blocking people).",
+          "Your personal experience: a positive or negative moment you had online."
+        ],
+        extra:
+          "You can end by giving your own three rules for healthy social media use."
+      };
+    }
+
+    // Apps / technology / robots
+    if (lower.includes("app") || lower.includes("robot")) {
+      return {
+        title: "Ideas about apps and robots",
+        intro:
+          "Choose one app or one type of robot and explain how it changes our life:",
+        bullets: [
+          "What the app/robot does and who uses it (students, doctors, drivers, etc.).",
+          "Everyday examples: maps apps, delivery apps, translation apps, cleaning robots.",
+          "Benefits: saving time, helping with difficult or dangerous work, giving information.",
+          "Risks: people becoming too lazy, less face-to-face communication, job changes.",
+          "Future ideas: what kind of app or robot you would like to invent.",
+          "One real situation where an app or robot helped you in your day."
+        ],
+        extra:
+          "Describe one day in the future where robots and apps help you from morning to night."
+      };
+    }
+
+    // Fast food / food
+    if (lower.includes("fast food") || lower.includes("food")) {
+      return {
+        title: "Ideas about food and fast food",
+        intro:
+          "Think of one type of fast food or one special dish you like:",
+        bullets: [
+          "What it looks like, tastes like and smells like.",
+          "Why people love it (quick, cheap, tasty, everywhere).",
+          "Ingredients: fat, salt, sugar, vegetables, meat, bread.",
+          "Health effects of eating it very often vs sometimes.",
+          "Healthier choices you can make when you order food.",
+          "Traditional food from your culture you are proud of and why."
+        ],
+        extra:
+          "Compare fast food with a homemade meal from your family and explain which you prefer and why."
+      };
+    }
+
+    // Pets / animals
+    if (lower.includes("pet") || lower.includes("animal")) {
+      return {
+        title: "Ideas about pets and animals",
+        intro:
+          "Choose one animal or compare pets with wild animals:",
+        bullets: [
+          "Basic facts: where it lives, what it eats, how long it lives.",
+          "Special abilities: speed, night vision, strong smell, camouflage.",
+          "How people use or help this animal (police dogs, guide dogs, farm animals, rescue animals).",
+          "Why having a pet can be good (company, responsibility, friendship).",
+          "Problems: animals in small cages, pollution, disappearing habitats.",
+          "One personal story with an animal in your life."
+        ],
+        extra:
+          "Imagine you are this animal for one day and describe what you see and do."
+      };
+    }
+
+    // Music
+    if (lower.includes("music")) {
+      return {
+        title: "Ideas about music",
+        intro:
+          "You can choose one song, one artist, or music in general:",
+        bullets: [
+          "What kind of music you enjoy (pop, rap, classical, traditional, etc.).",
+          "How music changes your mood (happy, calm, excited, motivated).",
+          "Times when you listen to music: studying, walking, cleaning, travelling.",
+          "Why some lyrics are meaningful or important to you (without saying the exact lyrics).",
+          "Differences between live concerts and listening with headphones.",
+          "How music connects people from different countries and cultures."
+        ],
+        extra:
+          "Describe a moment when a song helped you or stayed in your mind for a long time."
+      };
+    }
+
+    // Movies / series
+    if (
+      lower.includes("movie") ||
+      lower.includes("series") ||
+      lower.includes("film")
+    ) {
+      return {
+        title: "Ideas about movies and series",
+        intro:
+          "Pick ONE movie or series you really like so you can be detailed:",
+        bullets: [
+          "The name, genre (comedy, drama, action, etc.) and main characters.",
+          "The setting: where and when the story happens.",
+          "The main problem or question in the story (without full spoilers).",
+          "What you learned or felt from the story.",
+          "Why you recommend it (or why you don’t recommend it).",
+          "How it is different from other movies or series you know."
+        ],
+        extra:
+          "Imagine there is a part two of this movie/series and explain what you think should happen next."
+      };
+    }
+
+    // YouTubers / content creators
+    if (
+      lower.includes("youtuber") ||
+      lower.includes("content creator")
+    ) {
+      return {
+        title: "Ideas about YouTubers and content creators",
+        intro:
+          "Choose one creator and explain why you follow them:",
+        bullets: [
+          "What type of videos they make (gaming, education, comedy, lifestyle, etc.).",
+          "How often they post and how long their videos are.",
+          "What you like about their personality or style.",
+          "Positive things: learning, entertainment, inspiration.",
+          "Possible problems: copying dangerous challenges, unrealistic life, too many ads.",
+          "Your own advice on how to follow creators in a smart way."
+        ],
+        extra:
+          "If you could collaborate with this creator, describe the video you would make together."
+      };
+    }
+
+    // Homework / school rules
+    if (lower.includes("homework")) {
+      return {
+        title: "Ideas about homework",
+        intro:
+          "You can talk about both good and bad sides of homework:",
+        bullets: [
+          "What homework is supposed to do: practice, revision, responsibility.",
+          "Problems: too much homework, stress, no time for rest or hobbies.",
+          "Examples of useful homework you had and useless homework you had.",
+          "How homework could be improved (projects, group work, creative tasks).",
+          "Difference between homework in primary and secondary.",
+          "Your ideal amount of homework during a normal week."
+        ],
+        extra:
+          "End with a short 'homework rule' you would make for all schools."
+      };
+    }
+
+    // Mars / space
+    if (lower.includes("mars") || lower.includes("space")) {
+      return {
+        title: "Ideas about space and Mars",
+        intro:
+          "Imagine life beyond Earth and talk about what it would be like:",
+        bullets: [
+          "Why people are interested in exploring space and other planets.",
+          "Difficulties of living on Mars: air, water, temperature, distance.",
+          "What a house or city on Mars might look like.",
+          "Jobs people might have there (scientist, engineer, farmer, doctor).",
+          "How living on another planet would change daily life (food, school, free time).",
+          "Whether you would like to live there or just visit, and why."
+        ],
+        extra:
+          "Describe one day of your life as a student on Mars, from morning to night."
+      };
+    }
+
+    // Default content ideas
+    return {
+      title: "Ideas about this topic",
+      intro:
+        "Here are some simple things you can talk about to make your topic richer:",
+      bullets: [
+        "Give a short definition or explanation of the topic in your own words.",
+        "Give 2–3 real examples from your life or things you have seen.",
+        "Say why this topic is important for you or for other people.",
+        "Mention one problem connected to this topic and one possible solution."
+      ],
+      extra:
+        "Try to add at least one small story or real situation. Stories make every topic more interesting."
+    };
+  }
+
+  // ========= 5. RENDER EVERYTHING IN THE CARD =========
+  function renderTopicGuide(topic) {
+    if (!topicIdeas) return;
+
+    const guide = getPresentationGuide(topic);
+    const content = getTopicContentIdeas(topic);
+
+    const hookList = guide.hook.map((h) => "<li>" + h + "</li>").join("");
+    const structureList = guide.structure
+      .map((s) => "<li>" + s + "</li>")
+      .join("");
+    const ideasList = guide.ideas.map((i) => "<li>" + i + "</li>").join("");
+    const contentList = content.bullets
+      .map((b) => "<li>" + b + "</li>")
+      .join("");
+    const phrases = guide.phrases.join(" · ");
+
+    topicIdeas.innerHTML =
+      '<div class="topic-ideas-card">' +
+      '<h2>Let’s plan your talk 🎤</h2>' +
+      "<h3>" +
+      topic +
+      "</h3>" +
+      '<p class="topic-ideas-category">' +
+      guide.category +
+      "</p>" +
+      '<div class="topic-ideas-grid">' +
+      "<section>" +
+      '<p class="topic-ideas-section-title">1. How to start (hook)</p>' +
+      "<ul>" +
+      hookList +
+      "</ul>" +
+      "</section>" +
+      "<section>" +
+      '<p class="topic-ideas-section-title">2. Clear structure</p>' +
+      "<ul>" +
+      structureList +
+      "</ul>" +
+      "</section>" +
+      "<section>" +
+      '<p class="topic-ideas-section-title">3. What you can talk about</p>' +
+      "<ul>" +
+      ideasList +
+      "</ul>" +
+      "</section>" +
+      "<section>" +
+      '<p class="topic-ideas-section-title">4. Useful phrases</p>' +
+      '<p class="topic-ideas-phrases">' +
+      phrases +
+      "</p>" +
+      "</section>" +
+      "<section>" +
+      '<p class="topic-ideas-section-title">5. Topic facts & ideas</p>' +
+      '<p class="topic-ideas-content-intro">' +
+      content.intro +
+      "</p>" +
+      "<ul>" +
+      contentList +
+      "</ul>" +
+      (content.extra
+        ? '<p class="topic-ideas-content-extra">' + content.extra + "</p>"
+        : "") +
+      "</section>" +
+      "</div>" +
+      "</div>";
+
+    topicIdeas.classList.add("topic-ideas--visible");
+  }
+
+  // ========= 6. BUTTONS =========
+  topicButton.addEventListener("click", pickRandomTopic);
+
+  if (topicLikeButton) {
+    topicLikeButton.addEventListener("click", function () {
+      if (!currentTopic) {
+        pickRandomTopic();
+      }
+      renderTopicGuide(currentTopic);
+    });
+  }
 }
 
 function initPresentacyWallPage() {
@@ -1607,6 +2405,509 @@ function updateHomeHeroUserBadge() {
   }
 }
 
+// ---------- My Scores helpers ----------
+
+// Find a student in the STUDENTS array by username (case-insensitive)
+function findStudentByUsername(username) {
+  if (!username) return null;
+  const target = username.trim().toLowerCase();
+  return STUDENTS.find((s) => (s.username || "").trim().toLowerCase() === target) || null;
+}
+
+// Build a small table with week1, week2, ... scores
+function buildWeeksTable(student) {
+  const scores = (student && student.scores) || {};
+  const entries = Object.entries(scores).filter(([key]) => /^week\d+$/i.test(key));
+
+  if (!entries.length) {
+    return `
+      <p class="myscores-muted">
+        No presentation scores yet. Once you start presenting, your points will appear here.
+      </p>
+    `;
+  }
+
+  const rows = entries
+    .map(([key, value]) => {
+      const weekLabel = key.replace(/week/i, "Week ");
+      const safeValue = typeof value === "number" ? value : "–";
+      return `<tr><td>${weekLabel}</td><td>${safeValue}</td></tr>`;
+    })
+    .join("");
+
+  return `
+    <table class="myscores-table">
+      <thead>
+        <tr>
+          <th>Week</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+  `;
+}
+
+// Get unique class list for the teacher dropdown
+function getAllClasses() {
+  const set = new Set();
+  STUDENTS.forEach((s) => {
+    if (s.class) set.add(s.class);
+  });
+  return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+}
+
+function setupStudentMyScoresView(currentUser) {
+  const statusEl = document.getElementById("myscores-status");
+  const totalEl = document.getElementById("myscores-total");
+  const badgeEl = document.getElementById("myscores-badge");
+  const weeksContainer = document.getElementById("myscores-weeks");
+  const rubricsEl = document.getElementById("myscores-rubrics");
+
+  if (!statusEl || !totalEl || !badgeEl || !weeksContainer || !rubricsEl) return;
+
+  if (!currentUser || !currentUser.username) {
+    statusEl.textContent = "Please log in first to see your Presentacy score.";
+    totalEl.textContent = "–";
+    badgeEl.textContent = "–";
+    weeksContainer.innerHTML = "";
+    rubricsEl.innerHTML = "";
+    return;
+  }
+
+  // Reset UI
+  statusEl.textContent = "Loading your latest score…";
+  totalEl.textContent = "–";
+  badgeEl.textContent = "–";
+  weeksContainer.innerHTML = "";
+  rubricsEl.innerHTML = "";
+
+  // If the backend URL is not configured yet
+ // If the backend URL is not configured yet
+if (
+  !RUBRICS_API_URL ||
+  RUBRICS_API_URL === "https://script.google.com/macros/s/AKfycbxpjKvYddIV_paMpSTJB5DTT3o_xGK8O2n8fHsy2jCYDmo6c9jQnTmFiMDlvWxpilk1/exec"
+) {
+  statusEl.textContent =
+    "Scores are not connected yet. Please tell your teacher so they can link the spreadsheet.";
+  return;
+}
+
+  const username = (currentUser.username || "").trim().toLowerCase();
+  if (!username) {
+    statusEl.textContent = "We could not read your username. Please log in again or tell your teacher.";
+    return;
+  }
+
+  const params = new URLSearchParams({
+    action: "myscore",
+    username: username
+  });
+
+  fetch(`${RUBRICS_API_URL}?${params.toString()}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network error");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (!data || !data.ok) {
+        statusEl.textContent =
+          (data && data.error) ||
+          "We couldn’t load your score yet. Please ask your teacher to check the spreadsheet.";
+        return;
+      }
+
+      if (!data.result) {
+        statusEl.textContent =
+          data.message ||
+          "No rubric rows found yet for this student. After your first presentation, your score will appear here.";
+        return;
+      }
+
+      const result = data.result || {};
+      const total = typeof result.totalPoints === "number" ? result.totalPoints : 0;
+
+      // Summary area
+      if (total > 0) {
+        totalEl.textContent = total;
+      } else {
+        totalEl.textContent = "–";
+      }
+
+      const badgeInfo = calculateBadge(total);
+      badgeEl.textContent = badgeInfo.label || badgeInfo.text || "Presentacy Speaker";
+
+      const week = result.week || "";
+      const topic = result.topic || "";
+      const className = result.class || currentUser.class || "";
+      const teacherName = result.teacher || "";
+
+      weeksContainer.innerHTML = `
+        <table class="myscores-table">
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Topic</th>
+              <th>Total points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${week || "–"}</td>
+              <td>${topic || "–"}</td>
+              <td>${total || 0}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      // Rubric breakdown – LETTERS ONLY for students
+      const rubricLetters = result.rubricsLetters || {};
+      const rubricKeys = Object.keys(rubricLetters);
+
+      if (!rubricKeys.length) {
+        rubricsEl.innerHTML = `
+          <p class="myscores-muted">
+            Your teacher has not added detailed rubric scores yet. Once they are added, they will appear here.
+          </p>
+        `;
+      } else {
+        const rows = rubricKeys
+          .map((key) => {
+            const letter = rubricLetters[key] || "";
+            const safeLabel = String(key)
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
+
+            return `
+              <tr>
+                <td>${safeLabel}</td>
+                <td>${letter}</td>
+              </tr>
+            `;
+          })
+          .join("");
+
+        rubricsEl.innerHTML = `
+          <table class="myscores-table rubrics-table">
+            <thead>
+              <tr>
+                <th>Skill</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+        `;
+      }
+
+      statusEl.textContent = "";
+    })
+    .catch((err) => {
+      console.error("Error loading myscore", err);
+      statusEl.textContent =
+        "We had a problem loading your score. Please try again later or tell your teacher.";
+    });
+}
+function setupTeacherMyScoresView() {
+  const classSelect = document.getElementById("teacher-myscores-class");
+  const nameInput = document.getElementById("teacher-myscores-name");
+  const searchBtn = document.getElementById("teacher-myscores-search");
+  const statusEl = document.getElementById("teacher-myscores-status");
+  const resultEl = document.getElementById("teacher-myscores-result");
+
+  if (!classSelect || !nameInput || !searchBtn || !statusEl || !resultEl) return;
+
+  // Fill classes dropdown from static STUDENTS list
+  const classes = getAllClasses();
+  classSelect.innerHTML =
+    `<option value="">All classes</option>` +
+    classes.map((c) => `<option value="${c}">${c}</option>`).join("");
+
+  function performSearch() {
+    const classFilter = classSelect.value;
+    const nameQuery = nameInput.value.trim().toLowerCase();
+
+    resultEl.innerHTML = "";
+
+    if (!nameQuery) {
+      statusEl.textContent = "Type at least part of the student’s name.";
+      return;
+    }
+
+    const matches = STUDENTS.filter((s) => {
+      const matchClass = !classFilter || s.class === classFilter;
+      const matchName =
+        (s.name || "").toLowerCase().includes(nameQuery) ||
+        (s.username || "").toLowerCase().includes(nameQuery);
+      return matchClass && matchName;
+    });
+
+    if (!matches.length) {
+      statusEl.textContent = "No students found with that name in this class.";
+      return;
+    }
+
+    if (matches.length > 1) {
+      statusEl.textContent =
+        "More than one student matched. Please type the full name or username.";
+      return;
+    }
+
+    const student = matches[0];
+    loadTeacherStudentRubrics(student);
+  }
+
+  function loadTeacherStudentRubrics(student) {
+    const username = (student.username || "").trim().toLowerCase();
+    if (!username) {
+      statusEl.textContent = "This student does not have a username set.";
+      resultEl.innerHTML = "";
+      return;
+    }
+
+    // ❗ No more "Scores are not connected yet" check here.
+    // We always try to call the backend URL you set.
+    statusEl.textContent = `Loading detailed scores for ${student.name}…`;
+    resultEl.innerHTML = "";
+
+    const params = new URLSearchParams({
+      action: "studentrubrics",
+      username: username
+    });
+
+    const url = `${RUBRICS_API_URL}?${params.toString()}`;
+    console.log("Teacher fetching:", url);
+
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) throw new Error("Network error");
+        return response.json();
+      })
+      .then((data) => {
+        if (!data || !data.ok) {
+          statusEl.textContent =
+            (data && data.error) ||
+            "We couldn’t load this student’s scores from the spreadsheet.";
+          resultEl.innerHTML = "";
+          return;
+        }
+
+        const rubricRows = data.rubricRows || [];
+        const info = data.student || {};
+
+        if (!rubricRows.length) {
+          statusEl.textContent =
+            "No rubric rows found yet for this student in the spreadsheet.";
+          resultEl.innerHTML = `
+            <article class="student-card">
+              <h3>${student.name}</h3>
+              <p class="myscores-muted">Class: ${student.class || info.class || "-"}</p>
+              <p><strong>Total points:</strong> 0</p>
+              <p><strong>Badge:</strong> Rising Star</p>
+            </article>
+          `;
+          return;
+        }
+
+        statusEl.textContent = "";
+
+        // Unique list of weeks
+        const weekSet = new Set();
+        rubricRows.forEach((row) => {
+          if (row.week && String(row.week).trim() !== "") {
+            weekSet.add(String(row.week).trim());
+          }
+        });
+        const weekList = Array.from(weekSet).sort((a, b) => Number(a) - Number(b));
+
+        const latestRow = rubricRows[rubricRows.length - 1];
+        const latestTotal =
+          typeof latestRow.totalPoints === "number" ? latestRow.totalPoints : 0;
+        const badgeLabel = getBadgeForPoints(latestTotal);
+
+        resultEl.innerHTML = `
+          <article class="student-card">
+            <h3>${student.name}</h3>
+            <p class="myscores-muted">Class: ${student.class || info.class || "-"}</p>
+            <p><strong>Total points (latest):</strong> ${latestTotal}</p>
+            <p><strong>Badge:</strong> ${badgeLabel}</p>
+
+            <div class="teacher-week-filter" style="margin-top: 1rem;">
+              <label class="form-field">
+                <span class="form-label">Week</span>
+                <select id="teacher-week-select" class="input">
+                  <option value="latest">Latest</option>
+                  ${weekList
+                    .map((w) => `<option value="${w}">Week ${w}</option>`)
+                    .join("")}
+                </select>
+              </label>
+            </div>
+
+            <div id="teacher-week-summary" class="teacher-week-summary" style="margin-top: 1rem;"></div>
+            <div id="teacher-week-rubrics" class="teacher-week-rubrics" style="margin-top: 1rem;"></div>
+          </article>
+        `;
+
+        const weekSelect = document.getElementById("teacher-week-select");
+        const summaryEl = document.getElementById("teacher-week-summary");
+        const rubricsEl = document.getElementById("teacher-week-rubrics");
+
+        function renderWeek(selectedValue) {
+          let row;
+
+          if (selectedValue === "latest" || !selectedValue) {
+            row = latestRow;
+          } else {
+            row =
+              rubricRows.find(
+                (r) => String(r.week || "").trim() === String(selectedValue).trim()
+              ) || latestRow;
+          }
+
+          const total =
+            typeof row.totalPoints === "number" ? row.totalPoints : 0;
+          const badge = getBadgeForPoints(total);
+          const weekLabel = row.week ? `Week ${row.week}` : "Latest";
+          const topic = row.topic || "";
+          const teacherName = row.teacher || "";
+
+          summaryEl.innerHTML = `
+            <p><strong>Selected:</strong> ${weekLabel}</p>
+            <p><strong>Topic:</strong> ${topic || "–"}</p>
+            <p><strong>Total points:</strong> ${total}</p>
+            <p><strong>Badge:</strong> ${badge}</p>
+            <p><strong>Teacher:</strong> ${teacherName || "–"}</p>
+          `;
+
+          const nums = row.rubricsNumbers || {};
+          const letters = row.rubricsLetters || {};
+          const keys = Object.keys(nums);
+
+          if (!keys.length) {
+            rubricsEl.innerHTML = `
+              <p class="myscores-muted">
+                No detailed rubric scores were found for this week.
+              </p>
+            `;
+            return;
+          }
+
+          const rowsHtml = keys
+            .map((key) => {
+              const safeLabel = String(key)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+              const num = nums[key];
+              const letter = letters[key] || "";
+              const safeNum =
+                typeof num === "number"
+                  ? num
+                  : num !== undefined && num !== null
+                  ? num
+                  : "–";
+
+              return `
+                <tr>
+                  <td>${safeLabel}</td>
+                  <td>${safeNum}</td>
+                  <td>${letter}</td>
+                </tr>
+              `;
+            })
+            .join("");
+
+          rubricsEl.innerHTML = `
+            <table class="myscores-table rubrics-table">
+              <thead>
+                <tr>
+                  <th>Skill</th>
+                  <th>Score</th>
+                  <th>Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          `;
+        }
+
+        renderWeek("latest");
+
+        if (weekSelect) {
+          weekSelect.addEventListener("change", () => {
+            renderWeek(weekSelect.value);
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading studentrubrics", err);
+        statusEl.textContent =
+          "We had a problem loading this student’s scores. Please try again later.";
+        resultEl.innerHTML = "";
+      });
+  }
+
+  searchBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    performSearch();
+  });
+
+  nameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      performSearch();
+    }
+  });
+}
+
+function initMyScoresPage() {
+  const raw = localStorage.getItem("presentacy_current_user");
+  let currentUser = null;
+
+  try {
+    currentUser = raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    currentUser = null;
+  }
+
+  const studentSection = document.getElementById("myscores-student-section");
+  const teacherSection = document.getElementById("myscores-teacher-section");
+
+  if (!currentUser) {
+    // Not logged in – hide both sections
+    if (studentSection) studentSection.style.display = "none";
+    if (teacherSection) teacherSection.style.display = "none";
+
+    const statusEl = document.getElementById("myscores-status");
+    if (statusEl) {
+      statusEl.textContent = "Please log in first to see scores.";
+    }
+    return;
+  }
+
+  // Teacher vs student
+  if (currentUser.role === "teacher") {
+    if (studentSection) studentSection.style.display = "none";
+    if (teacherSection) teacherSection.style.display = "block";
+    setupTeacherMyScoresView();
+  } else {
+    if (teacherSection) teacherSection.style.display = "none";
+    if (studentSection) studentSection.style.display = "block";
+    setupStudentMyScoresView(currentUser);
+  }
+}
+
 // ========================
 // DOMContentLoaded – FINAL
 // ========================
@@ -1617,6 +2918,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof setupNavHighlight === "function") setupNavHighlight();
   if (typeof setupMobileNav === "function") setupMobileNav();
   if (typeof setupLogoutButton === "function") setupLogoutButton();
+  if (typeof applyRoleBasedNav === "function") applyRoleBasedNav();
 
   // Home hero (greeting + badge)
   if (typeof updateHomeHeroCard === "function") updateHomeHeroCard();
@@ -1643,7 +2945,39 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "videos" && typeof initVideoReactions === "function") {
     initVideoReactions();
   }
+
+    if (page === "myscores" && typeof initMyScoresPage === "function") {
+    initMyScoresPage();
+  }
+
+    // ============================
+  // TEACHER RUBRICS: stay on page + popup on save
+  // ============================
+  const rubricsForm = document.getElementById("rubrics-form");
+  const rubricsFrame = document.getElementById("rubrics-saver-frame");
+
+  if (rubricsForm && rubricsFrame) {
+    let firstLoad = true; // ignore the first empty load of the iframe
+
+    rubricsFrame.addEventListener("load", () => {
+      if (firstLoad) {
+        firstLoad = false;
+        return;
+      }
+
+      // At this point Apps Script has replied → the row should be saved
+      alert("Rubrics saved! You can enter the next student.");
+
+      // Clear the form for the next student
+      rubricsForm.reset();
+
+      // Optional: put the cursor back on the student select / input
+      const studentField =
+        rubricsForm.querySelector('[name="student"]') ||
+        rubricsForm.querySelector('[name="studentId"]');
+      if (studentField) {
+        studentField.focus();
+      }
+    });
+  }
 });
-
-
-
