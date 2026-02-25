@@ -7,80 +7,38 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="main.js" defer></script>
 </head>
-<body data-page="leaderboard">
-  <div class="page">
-   <nav class="navbar">
+<<header class="page-header">
+  <nav class="navbar">
   <div class="logo">
     <div class="logo-mark">P</div>
     <span>Presentacy</span>
   </div>
+
   <div class="nav-user">
-  <span id="user-greeting"></span>
-</div>
-<div id="greeting-banner" class="greeting-banner"></div>
-  <!-- index.html -->
+    <span id="user-greeting"></span>
+  </div>
+  <div id="greeting-banner" class="greeting-banner"></div>
 
-
-  <!-- Hamburger button (mobile) -->
-  <button class="nav-toggle" aria-label="Toggle navigation">
-    <span></span>
-    <span></span>
-    <span></span>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
   </button>
 
-  <div class="nav-links">
+  <div class="nav-links" id="navLinks">
     <a href="index.html" class="nav-link" data-page-link="home">Home</a>
     <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+    <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
     <a href="presentacywall.html" class="nav-link" data-page-link="presentacywall">Presentacy Wall</a>
     <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
     <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
     <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+    <!-- teacher-only nav link -->
+    <a href="teacher-rubric.html"
+       class="nav-link"
+       data-nav="teacher-rubrics">Teacher Rubrics</a>
     <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
   </div>
 </nav>
-
-    <!-- Student search card -->
-       <!-- Student search card -->
-    <section class="card" id="student-search">
-      <h1>Find Your Score</h1>
-      <p style="font-size: 0.9rem; color: var(--text-muted);">
-        1) Choose your class. 2) Type your name to see your Presentacy score for Week&nbsp;1.
-      </p>
-
-      <div class="search-row">
-        <select id="class-filter" class="class-select">
-          <option value="">All classes</option>
-          <option value="1A">Grade 1A</option>
-          <option value="1B">Grade 1B</option>
-          <option value="2A">Grade 2A</option>
-          <option value="2B">Grade 2B</option>
-          <option value="3">Grade 3</option>
-          <option value="4">Grade 4</option>
-          <option value="5A">Grade 5A</option>
-          <option value="5B">Grade 5B</option>
-          <option value="6">Grade 6</option>
-          <option value="7">Grade 7</option>
-          <option value="8">Grade 8</option>
-          <option value="9">Grade 9</option>
-        </select>
-
-        <input
-          type="text"
-          id="student-search-input"
-          class="search-input"
-          placeholder="Type your name, e.g. Mohammed A"
-          autocomplete="off"
-        />
-        <button type="button" id="student-search-button" class="primary-button">
-          Search
-        </button>
-      </div>
-
-      <div id="student-result" class="student-result-area">
-        <!-- search result or messages will appear here -->
-      </div>
-    </section>
-    <!-- Student search card -->
+</header>
 
 
         <!-- Top 5 leaderboard card (coming soon) -->
