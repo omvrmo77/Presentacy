@@ -510,11 +510,16 @@ var WORDLE_UNLIMITED = IS_TEACHER || DEMO_MODE;
         }
       }
 
-      if (guessWord === SECRET_WORD) {
-  gameStatus = "won";
-  lockBoard();
-  saveWordlePlayedToday();
-  showWordleWinMessage(SECRET_WORD);
+      // WIN CHECK (fixed)
+if (guess === secret) {
+  gameOver = true;
+  saveState(true, true);
+  showMessage("You got it! ✅", "success");
+
+  updateFormHrefWithSecret();
+  if (wordleFormLink) {
+    wordleFormLink.style.display = "block";
+  }
   return;
 }
 
@@ -593,4 +598,5 @@ var WORDLE_UNLIMITED = IS_TEACHER || DEMO_MODE;
 </script>
 </body>
 </html>
+
 
