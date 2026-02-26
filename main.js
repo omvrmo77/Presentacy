@@ -1058,6 +1058,82 @@ function initGeneratorPage() {
     "One small change that could improve our classroom"
   ];
 
+  // ========= 2.1 LEVEL TOGGLE (Grades 1–3 vs 4–9) =========
+
+// Young topics (Grades 1–3): very simple, personal, easy
+const topicsYoung = [
+  "My weekend",
+  "My family",
+  "My best friend",
+  "My favourite food",
+  "My favourite animal",
+  "My favourite toy or game",
+  "My favourite cartoon",
+  "A place I like to go",
+  "What makes me happy",
+  "My favourite school day"
+];
+
+// Upper topics (Grades 4–9): your existing list + NEW topics
+const topicsUpper = topics; // use your existing topics array as the upper pool
+
+// Active pool state
+let topicLevel = "upper"; // "young" | "upper"
+
+// ========= UI: add Level Buttons (Young / Upper) =========
+if (document.getElementById("presentacy-grade-controls")) return;
+const controls = document.createElement("div");
+controls.id = "presentacy-grade-controls";
+controls.style.display = "flex";
+controls.style.gap = "0.5rem";
+controls.style.flexWrap = "wrap";
+controls.style.margin = "0.75rem 0 0.5rem";
+
+controls.innerHTML = `
+  <button type="button" id="level-young" class="primary-button secondary-button"
+    style="padding:0.35rem 0.9rem; font-size:0.85rem;">
+    👶 Grades 1–3
+  </button>
+  <button type="button" id="level-upper" class="primary-button"
+    style="padding:0.35rem 0.9rem; font-size:0.85rem;">
+    🧠 Grades 4–9
+  </button>
+  <span class="myscores-muted" id="level-label" style="align-self:center;">
+    Current: Grades 4–9
+  </span>
+`;
+
+// Put controls right above the topic output text
+topicOutput.parentElement.insertBefore(controls, topicOutput);
+
+const youngBtn = document.getElementById("level-young");
+const upperBtn = document.getElementById("level-upper");
+const levelLabel = document.getElementById("level-label");
+
+function setLevel(level) {
+  topicLevel = level;
+
+  if (topicLevel === "young") {
+    youngBtn.classList.remove("secondary-button");
+    upperBtn.classList.add("secondary-button");
+    levelLabel.textContent = "Current: Grades 1–3";
+  } else {
+    upperBtn.classList.remove("secondary-button");
+    youngBtn.classList.add("secondary-button");
+    levelLabel.textContent = "Current: Grades 4–9";
+  }
+
+  // Optional: immediately give a topic when switching
+  pickRandomTopic();
+}
+
+youngBtn.addEventListener("click", () => setLevel("young"));
+upperBtn.addEventListener("click", () => setLevel("upper"));
+
+function getActiveTopics() {
+  return topicLevel === "young" ? topicsYoung : topicsUpper;
+}
+
   let currentTopic = "";
 
   function clearTopicIdeas() {
@@ -1067,18 +1143,19 @@ function initGeneratorPage() {
   }
 
   function pickRandomTopic() {
-    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-    currentTopic = randomTopic;
-    clearTopicIdeas();
+  const pool = getActiveTopics();
+  const randomTopic = pool[Math.floor(Math.random() * pool.length)];
+  currentTopic = randomTopic;
+  clearTopicIdeas();
 
-    if (firstName) {
-      const greeting = getTimeGreeting();
-      topicOutput.textContent =
-        greeting + ', ' + firstName + '! How about you talk about "' + randomTopic + '"?';
-    } else {
-      topicOutput.textContent = randomTopic;
-    }
+  if (firstName) {
+    const greeting = getTimeGreeting();
+    topicOutput.textContent =
+      greeting + ", " + firstName + '! How about you talk about "' + randomTopic + '"?';
+  } else {
+    topicOutput.textContent = randomTopic;
   }
+}
 
   // ========= 3. PRESENTATION STRUCTURE (what you already liked) =========
   function getPresentationGuide(topic) {
@@ -1244,6 +1321,471 @@ function initGeneratorPage() {
       };
     }
 
+    
+
+    /* =======================
+   PRESENTACY TOPIC PACK (25 topics)
+   Paste this into main.js where your topic generator topics live.
+   If you already have a TOPICS array, you can do:
+   TOPICS.push(...NEW_PRESENTACY_TOPICS);
+   ======================= */
+
+   
+
+const NEW_PRESENTACY_TOPICS = [
+  {
+    title: "Cars: from the first engine to today",
+    info: {
+      hook: [
+        "Cars aren’t just “transport”—they changed cities, jobs, travel, and even how people live.",
+        "This topic lets you mix history + brands + safety + future tech in one presentation."
+      ],
+      keyFacts: [
+        "The first practical automobile is usually credited to Karl Benz (Benz Patent-Motorwagen) in 1885–1886.",
+        "Early cars were rare and expensive; mass production made them common.",
+        "Ford popularized assembly-line mass production for cars (Model T era), making cars affordable for more people.",
+        "BMW was founded in 1916 (as an aircraft-engine company). The first BMW car is commonly cited as the BMW 3/15 in 1929 (BMW took over Dixi and produced the 3/15).",
+        "Mercedes-Benz as a brand formed in 1926 (merger of Daimler-Motoren-Gesellschaft and Benz & Cie.).",
+        "Toyota Motor Corporation dates to 1937; it later became famous for reliability and efficient production.",
+        "Today, big changes include electric cars, hybrids, driver-assist systems, and smarter safety tech."
+      ],
+      talkingPoints: [
+        "What a car is (engine/motor, transmission, brakes, steering, safety systems).",
+        "How cars evolved: steam → gasoline → diesel → hybrid → electric.",
+        "Famous brands and what they’re known for (examples below).",
+        "Safety: seatbelts, airbags, ABS, ESC, crash tests—how they save lives.",
+        "Why people choose certain cars: price, fuel, reliability, maintenance, parts availability.",
+        "Environmental impact: emissions, fuel economy, EV charging, recycling batteries.",
+        "The future: self-driving levels, smart sensors, car-sharing, cleaner fuels."
+      ],
+      brandMiniCards: [
+        { brand: "BMW", knownFor: "performance + driving feel", started: "Company founded 1916; first car era 1929 (BMW 3/15)" },
+        { brand: "Mercedes-Benz", knownFor: "luxury + engineering + safety", started: "Brand formed 1926; Benz’s first car 1885–86" },
+        { brand: "Ford", knownFor: "mass production + popular models", started: "Company founded 1903" },
+        { brand: "Toyota", knownFor: "reliability + efficiency", started: "Company founded 1937" },
+        { brand: "Honda", knownFor: "efficient engines + motorcycles + cars", started: "Company founded 1948" },
+        { brand: "Tesla", knownFor: "EVs + software features", started: "Company founded 2003" }
+      ],
+      vocabulary: [
+        "engine / motor", "horsepower", "torque", "fuel economy", "hybrid", "electric vehicle (EV)",
+        "battery", "charging", "transmission", "ABS", "airbags", "stability control", "autopilot/driver assist",
+        "emissions", "maintenance", "warranty"
+      ],
+      questionsToAnswer: [
+        "What makes a car ‘good’ for a student/family?",
+        "Which matters more: brand name or reliability?",
+        "Are electric cars better for the environment in our country right now?",
+        "What safety feature do you think is the most important—and why?"
+      ],
+      miniOutline: [
+        "1) Quick intro: why cars matter",
+        "2) Short history timeline (1886 → mass production → modern era)",
+        "3) Brands & identity (what each brand is known for)",
+        "4) Safety & rules (how cars protect people)",
+        "5) Future (EVs, smarter tech) + your opinion"
+      ],
+      quickActivity: [
+        "Show 3 car types (sedan/SUV/hatchback) and ask: which is best for a family of 5 and why?",
+        "Ask the audience: ‘What’s one feature you cannot live without?’ (AC, safety, fuel economy, etc.)"
+      ]
+    }
+  },
+
+  {
+    title: "My ‘future me’ message",
+    info: {
+      hook: ["Imagine you can send ONE voice note to yourself one year from now—what would you say?"],
+      keyPoints: [
+        "One skill I want stronger",
+        "One habit I will stop",
+        "One habit I will build",
+        "One promise and why it matters",
+        "One fear I want to defeat"
+      ],
+      vocabulary: ["goal", "habit", "discipline", "progress", "mindset", "challenge"],
+      miniOutline: ["Intro → my life now → my plan → obstacles → message to future me"]
+    }
+  },
+
+  {
+    title: "If my school had one new rule",
+    info: {
+      hook: ["One small rule can change a whole school day."],
+      keyPoints: [
+        "The rule",
+        "Why it helps students",
+        "How teachers/parents might react",
+        "Possible problems",
+        "A simple fix"
+      ],
+      vocabulary: ["policy", "fair", "responsibility", "discipline", "respect"],
+      miniOutline: ["Problem → new rule → benefits → concerns → conclusion"]
+    }
+  },
+
+  {
+    title: "The best teacher (without saying a name)",
+    info: {
+      hook: ["A great teacher doesn’t just teach a subject—they change confidence."],
+      keyPoints: [
+        "What they do differently",
+        "A moment that proved it",
+        "How it changed me",
+        "How students can learn better with them"
+      ],
+      vocabulary: ["supportive", "encouraging", "feedback", "motivation", "growth"],
+      miniOutline: ["Intro → story → what makes them great → lesson"]
+    }
+  },
+
+  {
+    title: "My ideal class: the perfect 45 minutes",
+    info: {
+      hook: ["If you could design one lesson that students actually love, what would it look like?"],
+      keyPoints: [
+        "Warm-up",
+        "Main activity",
+        "How we practice",
+        "How we end the class",
+        "Why it works"
+      ],
+      vocabulary: ["engaging", "interactive", "teamwork", "challenge", "reflection"],
+      miniOutline: ["Intro → class plan → why it’s effective"]
+    }
+  },
+
+  {
+    title: "A time I improved at something",
+    info: {
+      hook: ["Improvement has a turning point—one moment where you decide to level up."],
+      keyPoints: [
+        "What I struggled with",
+        "The turning point",
+        "What I practiced",
+        "The result",
+        "The lesson"
+      ],
+      vocabulary: ["practice", "repeat", "fail", "improve", "confidence"],
+      miniOutline: ["Before → turning point → practice → after → lesson"]
+    }
+  },
+
+  {
+    title: "A small invention I wish existed",
+    info: {
+      hook: ["If you could invent a tiny tool to fix one daily problem, what would it be?"],
+      keyPoints: [
+        "The problem",
+        "The invention",
+        "Who needs it",
+        "How it works",
+        "Why it matters"
+      ],
+      vocabulary: ["invent", "feature", "prototype", "solve", "design"],
+      miniOutline: ["Problem → invention → how it works → impact"]
+    }
+  },
+
+  {
+    title: "My confidence ‘cheat code’",
+    info: {
+      hook: ["Confidence isn’t magic—it’s a system."],
+      keyPoints: [
+        "What confidence looks like",
+        "What destroys confidence",
+        "My 3-step routine",
+        "A phrase I tell myself",
+        "How to use it before a presentation"
+      ],
+      vocabulary: ["mindset", "body language", "voice", "practice", "calm"],
+      miniOutline: ["Intro → problems → routine → example → conclusion"]
+    }
+  },
+
+  {
+    title: "If I had a school app",
+    info: {
+      hook: ["One app can save time for students, teachers, and parents."],
+      keyPoints: [
+        "Features for students",
+        "Features for teachers",
+        "Features for parents",
+        "Safety/privacy idea",
+        "What makes it easy to use"
+      ],
+      vocabulary: ["feature", "dashboard", "notifications", "privacy", "user-friendly"],
+      miniOutline: ["Need → features → benefits → safety → wrap-up"]
+    }
+  },
+
+  {
+    title: "My favorite place in Egypt",
+    info: {
+      hook: ["A place can feel like a memory you can walk inside."],
+      keyPoints: [
+        "Where it is",
+        "What you see/hear/smell",
+        "A personal memory",
+        "Why people should visit"
+      ],
+      vocabulary: ["atmosphere", "landmark", "culture", "crowded", "peaceful"],
+      miniOutline: ["Intro → description → story → why it matters"]
+    }
+  },
+
+  {
+    title: "A rule I disagree with (respectfully)",
+    info: {
+      hook: ["You can disagree and still be respectful—and that’s a real skill."],
+      keyPoints: [
+        "The rule",
+        "Why it exists",
+        "Why it doesn’t work",
+        "A better solution",
+        "How to communicate it politely"
+      ],
+      vocabulary: ["respectfully", "reasonable", "solution", "improve", "suggest"],
+      miniOutline: ["Rule → why → problem → solution → respectful ending"]
+    }
+  },
+
+  {
+    title: "The most useful skill for teenagers",
+    info: {
+      hook: ["One skill can make school, friends, and future jobs easier."],
+      keyPoints: [
+        "Choose the skill",
+        "Why it matters now",
+        "How to practice in a week",
+        "What changes if you master it"
+      ],
+      vocabulary: ["communication", "discipline", "time management", "focus", "habits"],
+      miniOutline: ["Pick skill → why → plan → results"]
+    }
+  },
+
+  {
+    title: "Handling stress before exams",
+    info: {
+      hook: ["Stress is normal—panic is optional."],
+      keyPoints: [
+        "What triggers my stress",
+        "What makes it worse",
+        "3 things that help",
+        "A simple exam-week plan"
+      ],
+      vocabulary: ["stress", "panic", "schedule", "breaks", "sleep"],
+      miniOutline: ["Triggers → problems → solutions → plan"]
+    }
+  },
+
+  {
+    title: "Upgrade my brain like a phone",
+    info: {
+      hook: ["If your brain had updates, what would you install today?"],
+      keyPoints: [
+        "New feature",
+        "Bug I’d delete",
+        "Storage I’d clean",
+        "Battery-saving habits",
+        "One app I’d keep forever (a skill)"
+      ],
+      vocabulary: ["upgrade", "bug", "reset", "focus", "habits"],
+      miniOutline: ["Intro → upgrades → example day → conclusion"]
+    }
+  },
+
+  {
+    title: "A friendship I’m grateful for",
+    info: {
+      hook: ["Good friends don’t just make you laugh—they make you better."],
+      keyPoints: [
+        "What makes it special",
+        "A story that shows it",
+        "How we solve problems",
+        "What I learned"
+      ],
+      vocabulary: ["trust", "support", "loyal", "honest", "conflict"],
+      miniOutline: ["Intro → story → what I learned → thank-you ending"]
+    }
+  },
+
+  {
+    title: "A sport/game that teaches real life",
+    info: {
+      hook: ["Games are training for real life—teamwork, patience, and strategy."],
+      keyPoints: [
+        "The game",
+        "How it works (quick)",
+        "What it teaches",
+        "A real example"
+      ],
+      vocabulary: ["strategy", "teamwork", "focus", "practice", "competition"],
+      miniOutline: ["Intro → rules → life lesson → example"]
+    }
+  },
+
+  {
+    title: "A day without the internet",
+    info: {
+      hook: ["If the internet disappears for 24 hours… what happens to your life?"],
+      keyPoints: [
+        "What would be hard",
+        "What would be peaceful",
+        "What I’d do instead",
+        "What I’d learn"
+      ],
+      vocabulary: ["offline", "bored", "creative", "connected", "peaceful"],
+      miniOutline: ["Hard parts → good parts → new plan → lesson"]
+    }
+  },
+
+  {
+    title: "My dream school trip",
+    info: {
+      hook: ["Trips can teach lessons you never forget."],
+      keyPoints: [
+        "Where we go",
+        "What we do",
+        "What students learn",
+        "How it builds memories",
+        "Budget-friendly idea"
+      ],
+      vocabulary: ["trip", "experience", "explore", "learn", "team"],
+      miniOutline: ["Destination → activities → learning → why it’s worth it"]
+    }
+  },
+
+  {
+    title: "A mistake I’m happy I made",
+    info: {
+      hook: ["Some mistakes are expensive—but they make you smarter forever."],
+      keyPoints: [
+        "The mistake",
+        "What I felt",
+        "What it taught me",
+        "How it helped later"
+      ],
+      vocabulary: ["mistake", "lesson", "regret", "growth", "improve"],
+      miniOutline: ["Story → feelings → lesson → advice"]
+    }
+  },
+
+  {
+    title: "The most underrated school subject",
+    info: {
+      hook: ["Some subjects look boring… until you realize they’re secretly powerful."],
+      keyPoints: [
+        "The subject",
+        "Why people ignore it",
+        "Why it matters",
+        "How to make it fun"
+      ],
+      vocabulary: ["underrated", "useful", "skills", "practice", "real life"],
+      miniOutline: ["Pick → why ignored → why important → improvements"]
+    }
+  },
+
+  {
+    title: "My perfect morning routine",
+    info: {
+      hook: ["The morning decides your mood. Your mood decides your day."],
+      keyPoints: [
+        "Wake up time (realistic)",
+        "3 steps",
+        "Busy-day version",
+        "How it changes my mood"
+      ],
+      vocabulary: ["routine", "habit", "energy", "focus", "discipline"],
+      miniOutline: ["Intro → routine → busy routine → results"]
+    }
+  },
+
+  {
+    title: "How to deal with bullying",
+    info: {
+      hook: ["Bullying grows in silence. It shrinks when people act smart and together."],
+      keyPoints: [
+        "What bullying looks like",
+        "What not to do",
+        "What to do (steps)",
+        "How to support a friend"
+      ],
+      vocabulary: ["bullying", "support", "report", "safe", "confidence"],
+      miniOutline: ["Define → wrong responses → right steps → support"]
+    }
+  },
+
+  {
+    title: "If I had 1 million pounds for my school",
+    info: {
+      hook: ["Money doesn’t fix everything, but smart spending can change everything."],
+      keyPoints: [
+        "3 priorities",
+        "Why each matters",
+        "Who benefits",
+        "How to measure success"
+      ],
+      vocabulary: ["budget", "priority", "impact", "improve", "resources"],
+      miniOutline: ["Intro → plan → impact → conclusion"]
+    }
+  },
+
+  {
+    title: "One thing I would teach every parent",
+    info: {
+      hook: ["Teenagers don’t need perfect parents—just parents who understand the basics."],
+      keyPoints: [
+        "The message",
+        "Why teens need it",
+        "What parents do wrong sometimes",
+        "A better way"
+      ],
+      vocabulary: ["understand", "support", "pressure", "listen", "trust"],
+      miniOutline: ["Message → why → common mistakes → better way"]
+    }
+  },
+
+  {
+    title: "My hero isn’t famous",
+    info: {
+      hook: ["Heroes aren’t always on TV. Sometimes they’re in your real life."],
+      keyPoints: [
+        "Who they are (role)",
+        "What they do daily",
+        "Why it inspires me",
+        "What I want to copy"
+      ],
+      vocabulary: ["inspire", "example", "values", "hardworking", "kind"],
+      miniOutline: ["Intro → description → story → lesson"]
+    }
+  },
+
+  {
+    title: "Presentations: how to make people listen",
+    info: {
+      hook: ["If people don’t listen, your ideas don’t land. Let’s fix that."],
+      keyPoints: [
+        "The biggest mistake",
+        "A strong opening",
+        "Body language tips",
+        "Voice tips",
+        "Ending with impact"
+      ],
+      vocabulary: ["hook", "pause", "intonation", "eye contact", "structure"],
+      miniOutline: ["Mistakes → opening → delivery → ending"]
+    }
+  }
+];
+
+/* Optional: if your generator expects a simple array of titles, use this: */
+const NEW_PRESENTACY_TOPIC_TITLES = NEW_PRESENTACY_TOPICS.map(t => t.title);
+
+/* Optional: quick lookup by title */
+const NEW_PRESENTACY_TOPIC_BY_TITLE = Object.fromEntries(
+  NEW_PRESENTACY_TOPICS.map(t => [t.title.toLowerCase(), t])
+);
+
     // Sports
     if (
       lower.includes("football") ||
@@ -1370,263 +1912,401 @@ function initGeneratorPage() {
   }
 
   // ========= 4. TOPIC CONTENT (facts & sub-ideas) =========
-  function getTopicContentIdeas(topic) {
-    const lower = topic.toLowerCase();
+  // ========= 4. TOPIC CONTENT (facts & sub-ideas) =========
+function getTopicContentIdeas(topic) {
+  const TOPIC_EXACT_DETAILS = window.TOPIC_EXACT_DETAILS || {};
 
-    // Cars
-    if (lower.includes("car")) {
-      return {
-        title: "Ideas about cars",
-        intro:
-          "Here are some concrete things you can talk about if your topic is cars:",
-        bullets: [
-          "Different types of cars: small city cars, family cars, sports cars, electric cars, SUVs.",
-          "What engines do: they turn fuel (or electricity) into movement. You can mention petrol, diesel, hybrid and electric engines.",
-          "Basic parts: engine, wheels, brakes, seats, seat belts, air bags, lights – choose 2–3 to describe.",
-          "Safety and rules: wearing a seat belt, speed limits, traffic lights, driving tests.",
-          "Famous brands or models you like and why (for example: fast, safe, comfortable, eco-friendly).",
-          "Future of cars: self-driving cars, cars that use only electricity, or cars that can park themselves."
-        ],
-        extra:
-          "You can pick ONE car you like and describe its look, speed, colour, and why it is your dream car."
-      };
-    }
+  const key = String(topic || "").trim().toLowerCase();
+  const exact = TOPIC_EXACT_DETAILS[key];
+  if (exact) return exact; // in case you add custom objects later
 
-    // Video games
-    if (lower.includes("video game") || lower.includes("game")) {
-      return {
-        title: "Ideas about video games",
-        intro:
-          "If you talk about video games, try to choose one game or one type of game:",
-        bullets: [
-          "Name of the game, the company (if you know it) and what kind of game it is (adventure, sport, racing, puzzle, etc.).",
-          "Basic story or goal: what do you have to do to win?",
-          "What skills the game uses: strategy, quick reactions, teamwork, creativity.",
-          "Positive sides: fun, relaxing, learning English, meeting friends online.",
-          "Negative sides: too much screen time, addiction, violent content, less sleep or less exercise.",
-          "Your own rules for yourself: how many hours you think is healthy and how you try to control it."
-        ],
-        extra:
-          "You can compare two games you know and say which one you recommend and why."
-      };
-    }
+  const text = String(topic || "").trim();
+  const lower = text.toLowerCase();
 
-    // Football / sports
-    if (
-      lower.includes("football") ||
-      lower.includes("player") ||
-      lower.includes("team")
-    ) {
-      return {
-        title: "Ideas about football and sports",
-        intro:
-          "You can focus on one team, one player, or sport in general:",
-        bullets: [
-          "Name of the team / player and which country or club they play for.",
-          "Basic rules of the sport in simple words (how to score, how many players, time of the match).",
-          "A famous match or moment you remember and what happened.",
-          "Qualities of a good player: fitness, teamwork, discipline, attitude.",
-          "Why people around the world love this sport (emotion, community, national pride).",
-          "How sport can help with health, confidence and stress."
-        ],
-        extra:
-          "Tell a short story about a time you played this sport and how you felt before and after the game."
-      };
-    }
+  // 🌟 SPECIAL: Younger topics (Grades 1–3) – fully personalised
 
-    // Social media
-    if (lower.includes("social media")) {
-      return {
-        title: "Ideas about social media",
-        intro:
-          "You can choose one platform (Instagram, TikTok, etc.) or talk about social media in general:",
-        bullets: [
-          "What people do on social media: sharing photos, making videos, chatting, following news.",
-          "Good sides: staying in touch with friends and family, learning new things, finding inspiration.",
-          "Problems: fake news, online bullying, comparing yourself to others, wasting time.",
-          "How algorithms work in simple words: they show you more of what you already like.",
-          "Rules you think are important for safe and kind use (age limits, privacy, blocking people).",
-          "Your personal experience: a positive or negative moment you had online."
-        ],
-        extra:
-          "You can end by giving your own three rules for healthy social media use."
-      };
-    }
-
-    // Apps / technology / robots
-    if (lower.includes("app") || lower.includes("robot")) {
-      return {
-        title: "Ideas about apps and robots",
-        intro:
-          "Choose one app or one type of robot and explain how it changes our life:",
-        bullets: [
-          "What the app/robot does and who uses it (students, doctors, drivers, etc.).",
-          "Everyday examples: maps apps, delivery apps, translation apps, cleaning robots.",
-          "Benefits: saving time, helping with difficult or dangerous work, giving information.",
-          "Risks: people becoming too lazy, less face-to-face communication, job changes.",
-          "Future ideas: what kind of app or robot you would like to invent.",
-          "One real situation where an app or robot helped you in your day."
-        ],
-        extra:
-          "Describe one day in the future where robots and apps help you from morning to night."
-      };
-    }
-
-    // Fast food / food
-    if (lower.includes("fast food") || lower.includes("food")) {
-      return {
-        title: "Ideas about food and fast food",
-        intro:
-          "Think of one type of fast food or one special dish you like:",
-        bullets: [
-          "What it looks like, tastes like and smells like.",
-          "Why people love it (quick, cheap, tasty, everywhere).",
-          "Ingredients: fat, salt, sugar, vegetables, meat, bread.",
-          "Health effects of eating it very often vs sometimes.",
-          "Healthier choices you can make when you order food.",
-          "Traditional food from your culture you are proud of and why."
-        ],
-        extra:
-          "Compare fast food with a homemade meal from your family and explain which you prefer and why."
-      };
-    }
-
-    // Pets / animals
-    if (lower.includes("pet") || lower.includes("animal")) {
-      return {
-        title: "Ideas about pets and animals",
-        intro:
-          "Choose one animal or compare pets with wild animals:",
-        bullets: [
-          "Basic facts: where it lives, what it eats, how long it lives.",
-          "Special abilities: speed, night vision, strong smell, camouflage.",
-          "How people use or help this animal (police dogs, guide dogs, farm animals, rescue animals).",
-          "Why having a pet can be good (company, responsibility, friendship).",
-          "Problems: animals in small cages, pollution, disappearing habitats.",
-          "One personal story with an animal in your life."
-        ],
-        extra:
-          "Imagine you are this animal for one day and describe what you see and do."
-      };
-    }
-
-    // Music
-    if (lower.includes("music")) {
-      return {
-        title: "Ideas about music",
-        intro:
-          "You can choose one song, one artist, or music in general:",
-        bullets: [
-          "What kind of music you enjoy (pop, rap, classical, traditional, etc.).",
-          "How music changes your mood (happy, calm, excited, motivated).",
-          "Times when you listen to music: studying, walking, cleaning, travelling.",
-          "Why some lyrics are meaningful or important to you (without saying the exact lyrics).",
-          "Differences between live concerts and listening with headphones.",
-          "How music connects people from different countries and cultures."
-        ],
-        extra:
-          "Describe a moment when a song helped you or stayed in your mind for a long time."
-      };
-    }
-
-    // Movies / series
-    if (
-      lower.includes("movie") ||
-      lower.includes("series") ||
-      lower.includes("film")
-    ) {
-      return {
-        title: "Ideas about movies and series",
-        intro:
-          "Pick ONE movie or series you really like so you can be detailed:",
-        bullets: [
-          "The name, genre (comedy, drama, action, etc.) and main characters.",
-          "The setting: where and when the story happens.",
-          "The main problem or question in the story (without full spoilers).",
-          "What you learned or felt from the story.",
-          "Why you recommend it (or why you don’t recommend it).",
-          "How it is different from other movies or series you know."
-        ],
-        extra:
-          "Imagine there is a part two of this movie/series and explain what you think should happen next."
-      };
-    }
-
-    // YouTubers / content creators
-    if (
-      lower.includes("youtuber") ||
-      lower.includes("content creator")
-    ) {
-      return {
-        title: "Ideas about YouTubers and content creators",
-        intro:
-          "Choose one creator and explain why you follow them:",
-        bullets: [
-          "What type of videos they make (gaming, education, comedy, lifestyle, etc.).",
-          "How often they post and how long their videos are.",
-          "What you like about their personality or style.",
-          "Positive things: learning, entertainment, inspiration.",
-          "Possible problems: copying dangerous challenges, unrealistic life, too many ads.",
-          "Your own advice on how to follow creators in a smart way."
-        ],
-        extra:
-          "If you could collaborate with this creator, describe the video you would make together."
-      };
-    }
-
-    // Homework / school rules
-    if (lower.includes("homework")) {
-      return {
-        title: "Ideas about homework",
-        intro:
-          "You can talk about both good and bad sides of homework:",
-        bullets: [
-          "What homework is supposed to do: practice, revision, responsibility.",
-          "Problems: too much homework, stress, no time for rest or hobbies.",
-          "Examples of useful homework you had and useless homework you had.",
-          "How homework could be improved (projects, group work, creative tasks).",
-          "Difference between homework in primary and secondary.",
-          "Your ideal amount of homework during a normal week."
-        ],
-        extra:
-          "End with a short 'homework rule' you would make for all schools."
-      };
-    }
-
-    // Mars / space
-    if (lower.includes("mars") || lower.includes("space")) {
-      return {
-        title: "Ideas about space and Mars",
-        intro:
-          "Imagine life beyond Earth and talk about what it would be like:",
-        bullets: [
-          "Why people are interested in exploring space and other planets.",
-          "Difficulties of living on Mars: air, water, temperature, distance.",
-          "What a house or city on Mars might look like.",
-          "Jobs people might have there (scientist, engineer, farmer, doctor).",
-          "How living on another planet would change daily life (food, school, free time).",
-          "Whether you would like to live there or just visit, and why."
-        ],
-        extra:
-          "Describe one day of your life as a student on Mars, from morning to night."
-      };
-    }
-
-    // Default content ideas
+  if (text === "My weekend") {
     return {
-      title: "Ideas about this topic",
-      intro:
-        "Here are some simple things you can talk about to make your topic richer:",
+      title: text,
+      intro: "Use these ideas to talk about your weekend in a clear, simple way:",
       bullets: [
-        "Give a short definition or explanation of the topic in your own words.",
-        "Give 2–3 real examples from your life or things you have seen.",
-        "Say why this topic is important for you or for other people.",
-        "Mention one problem connected to this topic and one possible solution."
+        "Say which days are your weekend and why you like them.",
+        "Talk about one relaxing thing you usually do (sleep late, watch cartoons, play games, etc.).",
+        "Describe one place you often go on the weekend (club, park, mall, grandparents’ house).",
+        "Tell a story about a special weekend you remember and what happened.",
+        "Explain how the weekend helps you feel ready for the new school week."
       ],
       extra:
-        "Try to add at least one small story or real situation. Stories make every topic more interesting."
+        "Choose one normal weekend and one special weekend to talk about. That gives you a nice mix of routine and story."
     };
   }
+
+  if (text === "My family") {
+    return {
+      title: text,
+      intro: "Here are ideas to help you talk about your family:",
+      bullets: [
+        "Say who is in your family (parents, brothers/sisters, maybe grandparents or cousins).",
+        "Give one or two nice things about each person (kind, funny, helpful, strict but caring, etc.).",
+        "Describe something you all do together (eating, travelling, watching a show, playing a game).",
+        "Tell a happy family memory like a trip, birthday, or funny moment at home.",
+        "Explain why your family is important to you and how they support you."
+      ],
+      extra:
+        "You don’t need to talk about every single person. Choose 3–4 people and give nice details about each one."
+    };
+  }
+
+  if (text === "My best friend") {
+    return {
+      title: text,
+      intro: "These ideas will help you give a sweet talk about your best friend:",
+      bullets: [
+        "Say your friend’s name and how old they are or which class they are in.",
+        "Tell how you met and when you became friends.",
+        "Describe what your friend looks like or what kind of person they are (kind, funny, shy, loud, etc.).",
+        "Explain what you like to do together (games, sports, studying, talking, online games).",
+        "Tell one short story that shows why this person is your best friend."
+      ],
+      extra:
+        "End with a sentence about why you are thankful for this friend or why you hope to stay friends for a long time."
+    };
+  }
+
+  if (text === "My favourite food") {
+    return {
+      title: text,
+      intro: "Make your audience hungry with these ideas about your favourite food:",
+      bullets: [
+        "Say the name of your favourite food and if it is sweet, salty, or spicy.",
+        "Talk about the main ingredients (rice, pasta, chicken, vegetables, cheese, etc.).",
+        "Explain how it is cooked or served (fried, baked, grilled, hot/cold, with bread or rice).",
+        "Say where you usually eat it (at home, in a restaurant, street food, at family visits).",
+        "Explain why you love this food (taste, smell, memories with family or friends)."
+      ],
+      extra:
+        "You can add one funny or cute story about a time you ate too much or tried to cook it yourself!"
+    };
+  }
+
+  if (text === "My favourite animal") {
+    return {
+      title: text,
+      intro: "Here are ideas to make your favourite animal sound exciting:",
+      bullets: [
+        "Say the animal’s name and if it is a pet, farm animal, zoo animal, or wild animal.",
+        "Describe what it looks like (size, colour, fur/feathers, tail, special body parts).",
+        "Explain where it lives (home, desert, forest, sea, jungle, farm, etc.).",
+        "Say what it eats and how it moves (runs, jumps, flies, swims, climbs).",
+        "Explain why you like this animal and how it makes you feel (safe, happy, excited, brave)."
+      ],
+      extra:
+        "You can add a short story about a time you saw this animal in real life or on TV/online."
+    };
+  }
+
+  if (text === "My favourite toy or game") {
+    return {
+      title: text,
+      intro: "Make your favourite toy or game come alive with these ideas:",
+      bullets: [
+        "Say the name of the toy or game (board game, doll, football, Lego, etc.).",
+        "Explain who gave it to you or how you got it.",
+        "Describe how you play with it and if you play alone or with other people.",
+        "Tell one favourite memory when you played with this toy or game.",
+        "Explain why this toy or game is special for you (fun, relaxing, makes you think, reminds you of someone)."
+      ],
+      extra:
+        "You could finish by saying what you would do if you lost this toy/game or couldn’t play it anymore."
+    };
+  }
+
+  if (text === "My favourite cartoon") {
+    return {
+      title: text,
+      intro: "Use these ideas to talk about your favourite cartoon:",
+      bullets: [
+        "Say the name of the cartoon and where you watch it (TV, YouTube, streaming app).",
+        "Describe the main character and what they are like.",
+        "Explain where the story happens (school, city, another world, space, under the sea, etc.).",
+        "Say what usually happens in one episode (problem, funny parts, how it ends).",
+        "Explain what you feel or learn when you watch it (happy, relaxed, brave, kinder, etc.)."
+      ],
+      extra:
+        "You can compare this cartoon with another one you used to like when you were younger."
+    };
+  }
+
+  if (text === "A place I like to go") {
+    return {
+      title: text,
+      intro: "These ideas will help you take your audience to your special place:",
+      bullets: [
+        "Say the name of the place (park, club, beach, mall, grandparent’s house, etc.).",
+        "Explain where it is (near your home, in another city, far away, etc.).",
+        "Describe what it looks and feels like (quiet/noisy, colourful, big/small, nature or buildings).",
+        "Talk about what you usually do there and who you go with.",
+        "Explain why this place is special or important for you."
+      ],
+      extra:
+        "You can add one special memory that happened in this place to make your talk more like a story."
+    };
+  }
+
+  if (text === "What makes me happy") {
+    return {
+      title: text,
+      intro: "Here are ideas to help you talk about what makes you happy:",
+      bullets: [
+        "Talk about people who make you happy (family, friends, teachers, pets).",
+        "Mention things that make you happy (hobbies, games, music, books, food).",
+        "Tell a short story about a time when you felt really happy and what happened.",
+        "Describe places where you feel happy and relaxed (home, park, club, your room).",
+        "Explain how you can make other people happy too (kind words, helping, sharing)."
+      ],
+      extra:
+        "You can connect happiness to your daily life: what small things make your normal day better?"
+    };
+  }
+
+  if (text === "My favourite school day") {
+    return {
+      title: text,
+      intro: "Use these ideas to talk about your favourite school day:",
+      bullets: [
+        "Say which day of the week it is and why it is your favourite.",
+        "List the subjects you have that day and which one you enjoy the most.",
+        "Describe something nice that usually happens (club, activity, game, project, break with friends).",
+        "Tell a special memory from that day (a funny moment, a good mark, a teacher’s comment).",
+        "Explain how you feel at the end of that school day and why."
+      ],
+      extra:
+        "You can compare this day with another day that you don’t like so much to show the difference."
+    };
+  }
+
+  // ✨ Older / general topics – keep them more general but still structured
+
+  // Cars
+  if (lower.includes("car")) {
+    return {
+      title: "Ideas about cars",
+      intro:
+        "Here are some concrete things you can talk about if your topic is cars:",
+      bullets: [
+        "Different types of cars: small city cars, family cars, sports cars, electric cars, SUVs.",
+        "What engines do: they turn fuel (or electricity) into movement. You can mention petrol, diesel, hybrid and electric engines.",
+        "Basic parts: engine, wheels, brakes, seats, seat belts, air bags, lights – choose 2–3 to describe.",
+        "Safety and rules: wearing a seat belt, speed limits, traffic lights, driving tests.",
+        "Famous brands or models you like and why (fast, safe, comfortable, cheap, electric, etc.)."
+      ],
+      extra:
+        "You can pick ONE car you like and describe its look, speed, colour, and why it is your dream car."
+    };
+  }
+
+  // Video games
+  if (lower.includes("video game") || lower.includes("game")) {
+    return {
+      title: "Ideas about video games",
+      intro:
+        "If you talk about video games, try to choose one game or one type of game:",
+      bullets: [
+        "Name of the game, the company (if you know it) and what kind of game it is (adventure, sport, racing, puzzle, etc.).",
+        "Basic story or goal: what do you have to do to win?",
+        "What skills the game uses: strategy, quick reactions, teamwork, creativity.",
+        "Positive sides: fun, relaxing, learning English, meeting friends online.",
+        "Negative sides: too much screen time, addiction, violent content, not enough sleep."
+      ],
+      extra:
+        "You can finish with your opinion about how many hours per day are healthy for gaming."
+    };
+  }
+
+  // Social media / phones / apps / tech
+  if (
+    lower.includes("social media") ||
+    lower.includes("instagram") ||
+    lower.includes("tiktok") ||
+    lower.includes("phone") ||
+    lower.includes("mobile") ||
+    lower.includes("app")
+  ) {
+    return {
+      title: "Ideas about phones & social media",
+      intro:
+        "Here are some angles you can use if your topic is about phones, apps or social media:",
+      bullets: [
+        "What you mainly use your phone or social media for (chatting, school, games, videos).",
+        "Good sides: quick communication, learning, entertainment, staying in touch with family.",
+        "Bad sides: addiction, wasting time, cyberbullying, fake news.",
+        "How to use phones and social media safely and in a healthy way.",
+        "Your own rules for yourself: when you use it, when you stop, and how you balance it with study and sleep."
+      ],
+      extra:
+        "You can add a short story about a time when using your phone helped you – and a time when it caused a problem."
+    };
+  }
+
+  // Food / health
+  if (
+    lower.includes("food") ||
+    lower.includes("fast food") ||
+    lower.includes("healthy") ||
+    lower.includes("diet")
+  ) {
+    return {
+      title: "Ideas about food & health",
+      intro:
+        "If your topic is food, health or fast food, try to cover both sides:",
+      bullets: [
+        "Give examples of healthy foods and why they are good (vegetables, fruit, water, home-cooked meals).",
+        "Give examples of unhealthy foods or habits (too much sugar, fried food, soft drinks).",
+        "Explain how food affects your energy, sleep and mood.",
+        "Talk about your own eating habits and what you would like to change.",
+        "Give one or two tips for students who want to eat more healthily."
+      ],
+      extra:
+        "You can compare a healthy day of eating with an unhealthy day to make your point clear."
+    };
+  }
+
+  // Sports
+  if (
+    lower.includes("football") ||
+    lower.includes("player") ||
+    lower.includes("sport") ||
+    lower.includes("team")
+  ) {
+    return {
+      title: "Ideas about sports",
+      intro:
+        "Here are some ideas if your topic is about a sport, a team or a player:",
+      bullets: [
+        "Explain the basic rules of the sport in a simple way.",
+        "Talk about why people like this sport (fun, fitness, teamwork, competition).",
+        "If you talk about a team, say where it is from, its colours and some famous players.",
+        "If you talk about a player, describe their skills, hard work and personality.",
+        "Mention both the fun side of sport and the discipline needed (training, diet, sleep)."
+      ],
+      extra:
+        "You can add a story about an important match you watched or played in."
+    };
+  }
+
+  // School / homework / exams
+  if (
+    lower.includes("school") ||
+    lower.includes("teacher") ||
+    lower.includes("homework") ||
+    lower.includes("exam") ||
+    lower.includes("test")
+  ) {
+    return {
+      title: "Ideas about school",
+      intro:
+        "These ideas work for topics about school life, homework or exams:",
+      bullets: [
+        "Describe one normal school day or one part of the day (morning, break, last period).",
+        "Talk about subjects you like and dislike, and why.",
+        "Explain how homework or exams make you feel and how you prepare.",
+        "Give one good thing about your school and one thing you would like to improve.",
+        "Share one funny or memorable moment that happened at school."
+      ],
+      extra:
+        "You can end with advice for younger students about how to enjoy school more."
+    };
+  }
+
+  // Environment / our planet
+  if (
+    lower.includes("environment") ||
+    lower.includes("planet") ||
+    lower.includes("pollution") ||
+    lower.includes("plastic") ||
+    lower.includes("climate")
+  ) {
+    return {
+      title: "Ideas about the environment",
+      intro:
+        "If your topic is about the planet, pollution or climate, you can use these ideas:",
+      bullets: [
+        "Explain the problem in simple words (air pollution, plastic in the sea, global warming).",
+        "Give one or two real examples from your country or from the news.",
+        "Talk about how this problem affects people, animals or plants.",
+        "Tell what governments or big companies can do to help.",
+        "Say what children and teenagers can do in their daily life (use less plastic, save water, recycle)."
+      ],
+      extra:
+        "Try to finish with a hopeful message, not just problems – show that people can change things."
+    };
+  }
+
+  // Travel / places / countries
+  if (
+    lower.includes("travel") ||
+    lower.includes("trip") ||
+    lower.includes("country") ||
+    lower.includes("city") ||
+    lower.includes("tourism")
+  ) {
+    return {
+      title: "Ideas about travel",
+      intro:
+        "For topics about travel or places, try to make your audience feel they are there with you:",
+      bullets: [
+        "Say where the place is and how you travelled there (car, bus, train, plane).",
+        "Describe what you saw, heard and ate there.",
+        "Explain something you learned about the people, culture or history.",
+        "Tell a short story about something that happened on the trip.",
+        "Say whether you would like to go back and why."
+      ],
+      extra:
+        "You can compare this place with your hometown to show the differences."
+    };
+  }
+
+  // Future / dreams / technology
+  if (
+    lower.includes("future") ||
+    lower.includes("robot") ||
+    lower.includes("invention") ||
+    lower.includes("technology") ||
+    lower.includes("job") ||
+    lower.includes("dream")
+  ) {
+    return {
+      title: "Ideas about the future",
+      intro:
+        "Here are ideas for topics about the future, your dreams or new technology:",
+      bullets: [
+        "Describe your dream job, dream invention or dream life in the future.",
+        "Explain why this dream is interesting or important for you.",
+        "Talk about what skills or steps you need to reach this dream.",
+        "Say how technology might change school, work or home life.",
+        "Mention one positive and one negative thing about this future."
+      ],
+      extra:
+        "You can finish with a sentence starting with “In my opinion, the future will be…”"
+    };
+  }
+
+  // Default: works for any topic
+  return {
+    title: "Ideas for your topic",
+    intro:
+      "If your topic doesn’t match any of the special categories, you can still build a strong presentation:",
+    bullets: [
+      "Start by saying what your topic is and give a simple definition in your own words.",
+      "Explain why you chose this topic and why it is important or interesting.",
+      "Give 2–3 real examples or short stories connected to the topic.",
+      "Add at least one advantage and one disadvantage or one problem and one solution.",
+      "Finish with your own opinion or message for the audience."
+    ],
+    extra:
+      "When you feel stuck, imagine you are explaining this topic to a younger student: keep it clear, simple and friendly."
+  };
+}
 
   // ========= 5. RENDER EVERYTHING IN THE CARD =========
   function renderTopicGuide(topic) {
@@ -2216,22 +2896,18 @@ function setupStudentMyScoresView(currentUser) {
   }
 
   // Reset UI
-  statusEl.textContent = "Loading your latest score…";
+  statusEl.textContent = "Loading your scores…";
   totalEl.textContent = "–";
   badgeEl.textContent = "–";
   weeksContainer.innerHTML = "";
   rubricsEl.innerHTML = "";
 
   // If the backend URL is not configured yet
- // If the backend URL is not configured yet
-if (
-  !RUBRICS_API_URL ||
-  RUBRICS_API_URL === "https://script.google.com/macros/s/AKfycbxpjKvYddIV_paMpSTJB5DTT3o_xGK8O2n8fHsy2jCYDmo6c9jQnTmFiMDlvWxpilk1/exec"
-) {
-  statusEl.textContent =
-    "Scores are not connected yet. Please tell your teacher so they can link the spreadsheet.";
-  return;
-}
+  if (!RUBRICS_API_URL) {
+    statusEl.textContent =
+      "Scores are not connected yet. Please tell your teacher so they can link the spreadsheet.";
+    return;
+  }
 
   const username = (currentUser.username || "").trim().toLowerCase();
   if (!username) {
@@ -2240,118 +2916,157 @@ if (
   }
 
   const params = new URLSearchParams({
-    action: "myscore",
+    action: "studentrubrics",
     username: username
   });
 
+  // Small helper to render one selected week row
+  function renderRubricRow(row) {
+    const total = typeof row.totalPoints === "number" ? row.totalPoints : Number(row.totalPoints || 0);
+    totalEl.textContent = total > 0 ? total : "–";
+
+    const badgeInfo = calculateBadge(total);
+    badgeEl.textContent = badgeInfo.label || badgeInfo.text || "Presentacy Speaker";
+
+    // Show selected week/topic/total table
+    weeksContainer.querySelector("#myscores-selected-table").innerHTML = `
+      <table class="myscores-table">
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Topic</th>
+            <th>Total points</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>${row.week || "–"}</td>
+            <td>${row.topic || "–"}</td>
+            <td>${Number.isFinite(total) ? total : 0}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+
+    // Rubric breakdown – LETTERS ONLY for students
+    const rubricLetters = row.rubricsLetters || {};
+    const rubricKeys = Object.keys(rubricLetters);
+
+    if (!rubricKeys.length) {
+      rubricsEl.innerHTML = `
+        <p class="myscores-muted">
+          Your teacher has not added detailed rubric scores yet. Once they are added, they will appear here.
+        </p>
+      `;
+      return;
+    }
+
+    const rowsHtml = rubricKeys
+      .map((key) => {
+        const letter = rubricLetters[key] || "";
+        const safeLabel = String(key)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+        return `
+          <tr>
+            <td>${safeLabel}</td>
+            <td>${letter}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    rubricsEl.innerHTML = `
+      <table class="myscores-table rubrics-table">
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    `;
+  }
+
   fetch(`${RUBRICS_API_URL}?${params.toString()}`)
     .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network error");
-      }
+      if (!response.ok) throw new Error("Network error");
       return response.json();
     })
     .then((data) => {
       if (!data || !data.ok) {
         statusEl.textContent =
           (data && data.error) ||
-          "We couldn’t load your score yet. Please ask your teacher to check the spreadsheet.";
+          "We couldn’t load your scores yet. Please ask your teacher to check the spreadsheet.";
         return;
       }
 
-      if (!data.result) {
+      const rows = (data.rubricRows || []).slice();
+
+      if (!rows.length) {
         statusEl.textContent =
-          data.message ||
-          "No rubric rows found yet for this student. After your first presentation, your score will appear here.";
+          "No scores yet. After your first presentation, your score will appear here.";
         return;
       }
 
-      const result = data.result || {};
-      const total = typeof result.totalPoints === "number" ? result.totalPoints : 0;
+      // Make sure newest is last (sort by timestamp if available)
+      rows.sort((a, b) => {
+        const ta = Date.parse(a.timestamp || "") || 0;
+        const tb = Date.parse(b.timestamp || "") || 0;
+        return ta - tb;
+      });
 
-      // Summary area
-      if (total > 0) {
-        totalEl.textContent = total;
-      } else {
-        totalEl.textContent = "–";
-      }
+      const latest = rows[rows.length - 1];
 
-      const badgeInfo = calculateBadge(total);
-      badgeEl.textContent = badgeInfo.label || badgeInfo.text || "Presentacy Speaker";
-
-      const week = result.week || "";
-      const topic = result.topic || "";
-      const className = result.class || currentUser.class || "";
-      const teacherName = result.teacher || "";
+      // Build Week buttons
+      const buttonsHtml = rows
+        .map((r, idx) => {
+          const label = r.week ? String(r.week) : `Week ${idx + 1}`;
+          return `<button class="primary-button secondary-button" data-idx="${idx}" style="padding:0.35rem 0.9rem; font-size:0.85rem; margin:0.25rem;">
+                    ${label}
+                  </button>`;
+        })
+        .join("");
 
       weeksContainer.innerHTML = `
-        <table class="myscores-table">
-          <thead>
-            <tr>
-              <th>Week</th>
-              <th>Topic</th>
-              <th>Total points</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>${week || "–"}</td>
-              <td>${topic || "–"}</td>
-              <td>${total || 0}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div style="display:flex; flex-wrap:wrap; gap:0.35rem; align-items:center; margin-bottom:0.6rem;">
+          <span class="myscores-muted" style="margin-right:0.25rem;">Choose week:</span>
+          ${buttonsHtml}
+          <button class="primary-button" data-latest="1" style="padding:0.35rem 0.9rem; font-size:0.85rem; margin:0.25rem;">
+            Latest
+          </button>
+        </div>
+        <div id="myscores-selected-table"></div>
       `;
 
-      // Rubric breakdown – LETTERS ONLY for students
-      const rubricLetters = result.rubricsLetters || {};
-      const rubricKeys = Object.keys(rubricLetters);
+      // Click handling
+      weeksContainer.addEventListener("click", (ev) => {
+        const btn = ev.target.closest("button");
+        if (!btn) return;
 
-      if (!rubricKeys.length) {
-        rubricsEl.innerHTML = `
-          <p class="myscores-muted">
-            Your teacher has not added detailed rubric scores yet. Once they are added, they will appear here.
-          </p>
-        `;
-      } else {
-        const rows = rubricKeys
-          .map((key) => {
-            const letter = rubricLetters[key] || "";
-            const safeLabel = String(key)
-              .replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
+        if (btn.dataset.latest === "1") {
+          renderRubricRow(latest);
+          return;
+        }
 
-            return `
-              <tr>
-                <td>${safeLabel}</td>
-                <td>${letter}</td>
-              </tr>
-            `;
-          })
-          .join("");
+        const idx = Number(btn.dataset.idx);
+        if (!Number.isFinite(idx) || !rows[idx]) return;
+        renderRubricRow(rows[idx]);
+      });
 
-        rubricsEl.innerHTML = `
-          <table class="myscores-table rubrics-table">
-            <thead>
-              <tr>
-                <th>Skill</th>
-                <th>Grade</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rows}
-            </tbody>
-          </table>
-        `;
-      }
-
+      // Default: show latest
+      renderRubricRow(latest);
       statusEl.textContent = "";
     })
     .catch((err) => {
-      console.error("Error loading myscore", err);
+      console.error("Error loading studentrubrics", err);
       statusEl.textContent =
-        "We had a problem loading your score. Please try again later or tell your teacher.";
+        "We had a problem loading your score history. Please try again later or tell your teacher.";
     });
 }
 function setupTeacherMyScoresView() {
