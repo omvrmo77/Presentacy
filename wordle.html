@@ -283,6 +283,23 @@
 
     var STORAGE_KEY = "presentacy_wordle_daily";
 
+    // ===== Teacher unlimited mode =====
+var PRESENTACY_USER_KEY = "presentacy_current_user";
+var IS_TEACHER = false;
+
+try {
+  var u = JSON.parse(localStorage.getItem(PRESENTACY_USER_KEY) || "null");
+  IS_TEACHER = u && String(u.role || "").toLowerCase() === "teacher";
+} catch (e) {
+  IS_TEACHER = false;
+}
+
+// Optional: demo=1 also unlocks
+var DEMO_MODE = (new URLSearchParams(window.location.search).get("demo") === "1");
+
+// Teachers OR demo mode = unlimited plays
+var WORDLE_UNLIMITED = IS_TEACHER || DEMO_MODE;
+
     function getTodayDate() {
       return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     }
@@ -395,7 +412,7 @@
       ) {
         secret = saved.secret;
 
-        if (saved.played) {
+        if (!WORDLE_UNLIMITED && saved.played) {
           gameOver = true;
           if (saved.won) {
             wordleMessage.textContent =
@@ -576,3 +593,4 @@
 </script>
 </body>
 </html>
+
