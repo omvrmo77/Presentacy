@@ -8,6 +8,8 @@
   <!-- keep your main.js for navbar etc. -->
   <script src="main.js" defer></script>
 </head>
+<body data-page="wordle">
+
 <header class="page-header">
   <nav class="navbar">
   <div class="logo">
@@ -135,9 +137,15 @@
 </div>
     </section>
 
-    <footer>
-      Presentacy · PresentacyWordle for presentation vocabulary · Made by Omar
-    </footer>
+    <footer class="site-footer">
+  <div class="footer-text">Presentacy: School Presentation Project – Made by Omar</div>
+
+  <img
+    class="footer-logo"
+    src="english-logo.png"
+    alt="English Department - Voice Builders - Al Omran College Semi-International School"
+  />
+</footer>
   </div>
 
   <!-- SIMPLE INLINE JS: no backticks, no arrows -->
@@ -283,23 +291,6 @@
 
     var STORAGE_KEY = "presentacy_wordle_daily";
 
-    // ===== Teacher unlimited mode =====
-var PRESENTACY_USER_KEY = "presentacy_current_user";
-var IS_TEACHER = false;
-
-try {
-  var u = JSON.parse(localStorage.getItem(PRESENTACY_USER_KEY) || "null");
-  IS_TEACHER = u && String(u.role || "").toLowerCase() === "teacher";
-} catch (e) {
-  IS_TEACHER = false;
-}
-
-// Optional: demo=1 also unlocks
-var DEMO_MODE = (new URLSearchParams(window.location.search).get("demo") === "1");
-
-// Teachers OR demo mode = unlimited plays
-var WORDLE_UNLIMITED = IS_TEACHER || DEMO_MODE;
-
     function getTodayDate() {
       return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     }
@@ -412,7 +403,7 @@ var WORDLE_UNLIMITED = IS_TEACHER || DEMO_MODE;
       ) {
         secret = saved.secret;
 
-        if (!WORDLE_UNLIMITED && saved.played) {
+        if (saved.played) {
           gameOver = true;
           if (saved.won) {
             wordleMessage.textContent =
@@ -510,16 +501,10 @@ var WORDLE_UNLIMITED = IS_TEACHER || DEMO_MODE;
         }
       }
 
-      // WIN CHECK (fixed)
-if (guess === secret) {
+      if (guess === secret) {
+  showMessage("You got it! 🎉", "success");
   gameOver = true;
   saveState(true, true);
-  showMessage("You got it! ✅", "success");
-
-  updateFormHrefWithSecret();
-  if (wordleFormLink) {
-    wordleFormLink.style.display = "block";
-  }
   return;
 }
 
@@ -598,5 +583,3 @@ if (guess === secret) {
 </script>
 </body>
 </html>
-
-

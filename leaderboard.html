@@ -7,7 +7,9 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="main.js" defer></script>
 </head>
-<<header class="page-header">
+<body data-page="leaderboard">
+
+<header class="page-header">
   <nav class="navbar">
   <div class="logo">
     <div class="logo-mark">P</div>
@@ -48,7 +50,7 @@
     <label for="leaderboard-class-filter" style="font-size: 0.85rem; color: var(--text-muted);">
       View leaderboard for:
     </label>
-    <select id="leaderboard-class-filter" class="class-select" disabled>
+    <select id="leaderboard-class-filter" class="class-select" enabled>
       <option value="">Whole school</option>
       <option value="1A">Grade 1A</option>
       <option value="1B">Grade 1B</option>
@@ -80,26 +82,28 @@
     </tbody>
   </table>
 
-  <p class="updated-note">
-    The leaderboard will be visible after Week&nbsp;2.
-  </p>
-
-  <!-- Overlay text in the center -->
   <div class="leaderboard-blur-overlay">
-    <div class="leaderboard-blur-message">
-      <div class="leaderboard-blur-title">Leaderboard coming soon</div>
-      <div class="leaderboard-blur-subtitle">
-        Starts from Week 2 after the second round of presentations.
-      </div>
+  <div class="leaderboard-blur-message">
+    <div class="leaderboard-blur-title">Leaderboard coming soon</div>
+    <div class="leaderboard-blur-subtitle">
+      Starts after Week 3, once the third round of presentations is completed.
     </div>
   </div>
+</div>
+
 </section>
 
 
 
-    <footer>
-      Presentacy · School Presentation Project · Leaderboard · Made by Omar
-    </footer>
+    <footer class="site-footer">
+  <div class="footer-text">Presentacy: School Presentation Project – Made by Omar</div>
+
+  <img
+    class="footer-logo"
+    src="english-logo.png"
+    alt="English Department - Voice Builders - Al Omran College Semi-International School"
+  />
+</footer>
   </div>
 </body>
 

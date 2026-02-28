@@ -1,3 +1,4 @@
+// ============================
 const STUDENTS = [
 { username: "asha624", password: "58241", name: "Asya Hassan ", class: "1A", role: "student", scores: { week1: 0 } },
 { username: "asis050", password: "93706", name: "Asel Ismail", class: "1A", role: "student", scores: { week1: 0 } },
@@ -344,7 +345,7 @@ function initPresentacyLoginPage() {
   // Already logged in? Go to leaderboard
   const existing = presentacyGetCurrentUser();
   if (existing) {
-    window.location.href = "leaderboard.html";
+    window.location.href = "index.html";
     return;
   }
 
@@ -385,7 +386,7 @@ function initPresentacyLoginPage() {
     if (errorEl) errorEl.textContent = "";
 
     presentacySetCurrentUser(account);
-    window.location.href = "leaderboard.html";
+    window.location.href = "index.html";
   });
 }
 
@@ -407,78 +408,54 @@ const SCORES_API_URL = "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF
  * ]
  */
 async function loadScoresFromAPI() {
-    if (
-    !SCORES_API_URL ||
-    SCORES_API_URL === "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec"
-  ) {
-    console.warn("SCORES_API_URL is not set yet.");
+  if (!SCORES_API_URL) {
+    console.warn("SCORES_API_URL is missing.");
     return;
   }
 
-  if (!Array.isArray(STUDENTS)) {
-    console.error("STUDENTS array is missing, cannot inject scores.");
-    return;
-  }
+  const url = `${SCORES_API_URL}?action=allscores`;
 
+  let payload;
   try {
-    const response = await fetch(SCORES_API_URL, {
+    const res = await fetch(url, {
       method: "GET",
-      headers: {
-        "Accept": "application/json"
-      }
+      cache: "no-store",
+      headers: { Accept: "application/json" },
     });
-
-    if (!response.ok) {
-      console.error("Failed to load scores from API:", response.status, response.statusText);
-      return;
-    }
-
-    const rows = await response.json();
-
-    if (!Array.isArray(rows)) {
-      console.error("Scores API did not return an array:", rows);
-      return;
-    }
-
-    // Build a lookup map: username -> student object
-    const byUsername = new Map();
-    STUDENTS.forEach((s) => {
-      const key = (s.username || "").trim().toLowerCase();
-      if (!key) return;
-      byUsername.set(key, s);
-      if (!s.scores) s.scores = {};
-    });
-
-    rows.forEach((row) => {
-      if (!row) return;
-      const rawUser = row.username || row.Username || row.USERNAME;
-      if (!rawUser) return;
-
-      const key = String(rawUser).trim().toLowerCase();
-      const student = byUsername.get(key);
-      if (!student) {
-        // Username from sheet does not exist in STUDENTS
-        // console.warn("No matching student for username from sheet:", key);
-        return;
-      }
-
-      const destScores = student.scores || (student.scores = {});
-
-      // Copy all numeric week values (week1, week2, week3, ...)
-      Object.keys(row).forEach((field) => {
-        if (/^week\d+$/i.test(field)) {
-          const value = Number(row[field]);
-          if (!Number.isNaN(value)) {
-            destScores[field.toLowerCase()] = value;
-          }
-        }
-      });
-    });
-
-    console.log("Scores successfully merged into STUDENTS from API.");
-  } catch (err) {
-    console.error("Error while loading scores from API:", err);
+    const text = await res.text();
+    payload = JSON.parse(text);
+  } catch (e) {
+    console.warn("Failed to load allscores from backend.", e);
+    return;
   }
+
+  if (!payload || !payload.ok || !Array.isArray(payload.scores)) {
+    console.warn("Backend allscores returned unexpected data:", payload);
+    return;
+  }
+
+  // Map local students by username
+  const byUsername = new Map();
+  STUDENTS.forEach((s) => {
+    const key = (s.username || "").trim().toLowerCase();
+    if (!key) return;
+    byUsername.set(key, s);
+    if (!s.scores) s.scores = {};
+  });
+
+  // Merge backend totals into local STUDENTS
+  payload.scores.forEach((row) => {
+    const u = String(row.username || "").trim().toLowerCase();
+    if (!u) return;
+
+    const student = byUsername.get(u);
+    if (!student) return;
+
+    // Store spreadsheet totalPoints (latest or summed depending on backend)
+    student.scores.totalPoints = Number(row.totalPoints || 0);
+  });
+
+  console.log("Merged backend allscores into STUDENTS.");
 }
 
 
@@ -487,19 +464,22 @@ async function loadScoresFromAPI() {
 // ============================
 
 // Sum of all weeks for leaderboard
-function getTotalPoints(studentOrScores) {
-  // This helper works with either:
-  //  - a full student object that has a .scores field
-  //  - OR a plain scores object with week1, week2, ...
-  const scores =
-    studentOrScores && studentOrScores.scores
-      ? studentOrScores.scores
-      : studentOrScores || {};
+function getTotalPoints(student) {
+  if (!student || !student.scores) return 0;
 
-  return Object.values(scores).reduce(
-    (sum, value) => sum + (typeof value === "number" ? value : 0),
-    0
-  );
+  // ✅ If spreadsheet provided a total, use it
+  const apiTotal = Number(student.scores.totalPoints);
+  if (Number.isFinite(apiTotal) && apiTotal > 0) return apiTotal;
+
+  // Otherwise fall back to summing week1/week2/... in local JS
+  let total = 0;
+  for (const [k, v] of Object.entries(student.scores)) {
+    if (/^week\d+$/i.test(k)) {
+      const n = Number(v);
+      if (Number.isFinite(n)) total += n;
+    }
+  }
+  return total;
 }
 
 function getBadgeForPoints(points) {
@@ -856,20 +836,28 @@ function setupAnonymousViewOnLeaderboard() {
   `;
 }
 
-function initLeaderboardPage() {
+async function initLeaderboardPage() {
   const leaderboardBody = document.getElementById("leaderboard-table-body");
   const leaderboardClassFilter = document.getElementById("leaderboard-class-filter");
-
   if (!leaderboardBody) return;
 
-  // Initial render: all classes
+  // Show something immediately (local STUDENTS)
   renderLeaderboardTable("");
 
-  // Filter by class
+  // Merge spreadsheet scores on top
+  if (typeof loadScoresFromAPI === "function") {
+    await loadScoresFromAPI();
+  }
+
+  // Re-render with merged scores (this is the real leaderboard)
+  const selectedClass = (leaderboardClassFilter && leaderboardClassFilter.value) || "";
+  renderLeaderboardTable(selectedClass);
+
+  // Keep filter working
   if (leaderboardClassFilter) {
     leaderboardClassFilter.addEventListener("change", () => {
-      const selectedClass = leaderboardClassFilter.value || "";
-      renderLeaderboardTable(selectedClass);
+      const cls = leaderboardClassFilter.value || "";
+      renderLeaderboardTable(cls);
     });
   }
 }

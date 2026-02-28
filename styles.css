@@ -719,7 +719,7 @@ tr:last-child td {
 .leaderboard-card--coming-soon table,
 .leaderboard-card--coming-soon .search-row,
 .leaderboard-card--coming-soon .updated-note {
-  filter: blur(3px);
+  filter: blur(9px);
   pointer-events: none;
   user-select: none;
 }
@@ -1764,4 +1764,20 @@ footer {
   margin-top: 0.35rem;
   font-size: 0.9rem;
   font-style: italic;
+}
+
+.site-footer{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  padding:18px 12px;
+  text-align:center;
+}
+
+.footer-logo{
+  max-width: 260px;   /* change to 300 or 200 if you want */
+  width: 70%;
+  height: auto;
+  opacity: 0.95;
 }

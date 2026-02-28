@@ -1,134 +1,78 @@
 const API_URL =
   "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec";
 
-function getScoreSelect(id) {
-  const el = document.getElementById(id);
-  const n = parseInt(el ? el.value : "", 10);
-  if (isNaN(n)) return 1;
-  return Math.min(4, Math.max(1, n)); // clamp 1–4
+function ensureStatusEl(form) {
+  let status = document.getElementById("status");
+  if (status) return status;
+
+  status = document.createElement("div");
+  status.id = "status";
+  status.className = "hint";
+  status.style.marginTop = "10px";
+
+  // Put it right above the submit button area if possible
+  const actions = form.querySelector(".form-actions");
+  if (actions && actions.parentElement) {
+    actions.parentElement.insertBefore(status, actions);
+  } else {
+    form.appendChild(status);
+  }
+  return status;
 }
 
-function getListeningSelect(id) {
-  const el = document.getElementById(id);
-  const n = parseInt(el ? el.value : "", 10);
-  if (isNaN(n)) return 0;
-  return Math.min(2, Math.max(-2, n)); // clamp -2..2
+function setStatus(statusEl, msg) {
+  if (!statusEl) return;
+  statusEl.textContent = msg || "";
 }
 
-async function loadStudents() {
-  const status = document.getElementById("status");
-  const sel = document.getElementById("studentSelect");
+async function submitRubricsWithKeyCheck(e) {
+  e.preventDefault();
 
-  if (!sel) return;
-  if (status) status.textContent = "Loading students...";
+  const form = e.currentTarget;
+  const status = ensureStatusEl(form);
+
+  setStatus(status, "Saving...");
 
   try {
-    const res = await fetch(`${API_URL}?action=students`, { cache: "no-store" });
-    const data = await res.json();
-
-    if (!data.ok) {
-      if (status) status.textContent = "Failed to load students: " + (data.error || "");
-      return;
-    }
-
-    sel.innerHTML = "";
-
-    // ✅ Backend returns: {id,name,username,class}
-    data.students.forEach((s) => {
-      const id = String((s && (s.id || s.studentId)) || "").trim();
-      const name = String((s && (s.name || s.studentName)) || "").trim();
-      if (!id && !name) return;
-
-      const opt = document.createElement("option");
-      opt.value = id || name; // prefer id
-      opt.textContent = id ? `${name} (${id})` : name;
-      opt.dataset.name = name;
-      opt.dataset.id = id;
-      sel.appendChild(opt);
-    });
-
-    if (status) status.textContent = "";
-  } catch (err) {
-    if (status) status.textContent = "Error loading students: " + err;
-  }
-}
-
-async function submitRubric() {
-  const status = document.getElementById("status");
-  if (status) status.textContent = "Saving...";
-
-  const teacher = (document.getElementById("teacherName")?.value || "").trim();
-  const teacherKey = (document.getElementById("teacherKey")?.value || "").trim();
-
-  const week = (document.getElementById("week")?.value || "").trim(); // if you have a week input
-  const topic = (document.getElementById("topic")?.value || "").trim();
-
-  const sel = document.getElementById("studentSelect");
-  if (!sel || !sel.value) {
-    if (status) status.textContent = "Please select a student.";
-    return;
-  }
-
-  const studentId = String(sel.options[sel.selectedIndex].dataset.id || sel.value || "").trim();
-  const studentName = String(sel.options[sel.selectedIndex].dataset.name || "").trim();
-
-  // ✅ Your Apps Script doPost(e) expects:
-  // teacherKey, week, student (name), studentId, topic, teacher, and rubric fields
-  const payload = {
-    teacherKey,
-    teacher,
-    week,
-    student: studentName,     // ✅ IMPORTANT: backend uses p.student
-    studentId,                // ✅ backend uses p.studentId
-    topic,
-
-    bodyLanguageFacial: getScoreSelect("bodyLanguageFacial"),
-    eyeContact:         getScoreSelect("eyeContact"),
-    intonation:         getScoreSelect("intonation"),
-    preparation:        getScoreSelect("preparation"),
-    visualAids:         getScoreSelect("visualAids"),
-    timeManagement:     getScoreSelect("timeManagement"),
-    fluency:            getScoreSelect("fluency"),
-    languageAccuracy:   getScoreSelect("languageAccuracy"),
-    pronunciation:      getScoreSelect("pronunciation"),
-    listening:          getListeningSelect("listening"),
-  };
-
-  try {
-    // ✅ Send as FORM ENCODED so Apps Script e.parameter works
-    const form = new URLSearchParams();
-    Object.keys(payload).forEach((k) => form.append(k, payload[k]));
+    // Send as form-urlencoded so Apps Script can read e.parameter
+    const formData = new FormData(form);
+    const body = new URLSearchParams();
+    for (const [k, v] of formData.entries()) body.append(k, String(v));
 
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body: form.toString(),
+      body: body.toString(),
     });
 
     const text = await res.text();
 
-    // If you later change backend to return JSON, this will still work:
+    // ✅ Backend MUST return JSON:
+    // { ok:false, error:"Wrong teacher code" } OR { ok:true }
+    let data;
     try {
-      const data = JSON.parse(text);
-      if (!data.ok) {
-        if (status) status.textContent = "Error: " + (data.error || "Unknown error");
-        return;
-      }
-      if (status) status.textContent = `Saved ✅ Total score = ${data.total ?? ""}`;
-      return;
-    } catch (_) {
-      // Backend currently returns HTML ("Rubric saved ✅")
-      if (status) status.textContent = "Saved ✅";
+      data = JSON.parse(text);
+    } catch {
+      setStatus(status, "Server response is not JSON. Fix Apps Script to return JSON.");
+      console.error("Non-JSON response:", text);
       return;
     }
+
+    if (!data.ok) {
+      setStatus(status, data.error || "Wrong teacher code");
+      return;
+    }
+
+    setStatus(status, "Saved ✅");
   } catch (err) {
-    if (status) status.textContent = "Error saving rubric: " + err;
+    setStatus(status, "Error: " + err);
   }
 }
 
-// Run when the page is loaded
 window.addEventListener("DOMContentLoaded", () => {
-  loadStudents();
-  const btn = document.getElementById("saveRubricButton");
-  if (btn) btn.addEventListener("click", submitRubric);
+  const form = document.getElementById("rubrics-form");
+  if (!form) return;
+
+  // Stop iframe-submit behavior and use fetch instead
+  form.addEventListener("submit", submitRubricsWithKeyCheck);
 });
