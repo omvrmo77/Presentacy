@@ -483,7 +483,8 @@ function getTotalPoints(student) {
 }
 
 function getBadgeForPoints(points) {
-  if (points >= 85) return "Presentacy Star";
+  if (points >= 100) return "Presentacy Star";    
+  if (points >= 85) return "Golden Star";
   if (points >= 55) return "Shining Star";
   if (points >= 30) return "Bright Star";
   return "Rising Star";
@@ -492,9 +493,11 @@ function getBadgeForPoints(points) {
 function calculateBadge(points) {
   const label = getBadgeForPoints(points);
   let text = "";
-
-  if (points >= 85) {
-    text = "You are a Presentacy Star! Keep inspiring us.";
+    
+  if (points >= 100) {
+    text = "Your confidence and clarity made you number one."
+  } else if (points >= 85) {
+    text = "You are a Golden Star! Keep inspiring us.";
   } else if (points >= 55) {
     text = "You are a Shining Star – wonderful work, keep going.";
   } else if (points >= 30) {
@@ -3423,3 +3426,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
