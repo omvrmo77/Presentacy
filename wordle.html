@@ -501,10 +501,17 @@
         }
       }
 
-      if (guess === secret) {
+     if (guess === secret) {
   showMessage("You got it! 🎉", "success");
   gameOver = true;
   saveState(true, true);
+
+  // ✅ show the google form link
+  updateFormHrefWithSecret();
+  if (wordleFormLink) {
+    wordleFormLink.style.display = "block";
+  }
+
   return;
 }
 
