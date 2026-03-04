@@ -3427,3 +3427,41 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
+function trackVisitAuto() {
+  try {
+    // Page name (uses <body data-page="..."> if you have it)
+    const page =
+      document.body?.dataset?.page ||
+      document.body?.getAttribute("data-page") ||
+      location.pathname.split("/").pop() ||
+      "unknown";
+
+    // Who is visiting (adjust keys if yours are different)
+    const userId =
+      localStorage.getItem("studentId") ||
+      localStorage.getItem("teacherId") ||
+      localStorage.getItem("userId") ||
+      "guest";
+
+    const role = localStorage.getItem("role") || "unknown";
+
+    // Send 1 tracking request (fire-and-forget)
+    fetch(
+      `${API_URL}?action=track` +
+        `&userId=${encodeURIComponent(userId)}` +
+        `&role=${encodeURIComponent(role)}` +
+        `&page=${encodeURIComponent(page)}` +
+        `&event=page_view` +
+        `&ua=${encodeURIComponent(navigator.userAgent)}`
+    ).catch(() => {});
+  } catch (e) {
+    // ignore
+  }
+}
+
+// Run ONCE per page load
+document.addEventListener("DOMContentLoaded", trackVisitAuto);
+
+
+
