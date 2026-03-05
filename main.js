@@ -9,11 +9,13 @@ const STUDENTS = [
 { username: "lakh445", password: "19684", name: "Layan Khaled", class: "1A", role: "student", scores: { week1: 10 } },
 { username: "yaeh795", password: "52897", name: "Yasmin Ehab ", class: "1A", role: "student", scores: { week1: 0 } },
 { username: "ahta415", password: "64072", name: "Ahmed Talal", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "khwa816", password: "64072", name: "Khaled Waleed", class: "1A", role: "student", scores: { week1: 0 } },
+{ username: "khwa816", password: "64038", name: "Khaled Waleed", class: "1A", role: "student", scores: { week1: 0 } },
 { username: "fara469", password: "87402", name: "Fayad Raed", class: "1A", role: "student", scores: { week1: 0 } },
 { username: "mamo681", password: "95268", name: "Malek Mohamed", class: "1A", role: "student", scores: { week1: 10 } },
 { username: "mome226", password: "73145", name: "Mobasher Megahed", class: "1A", role: "student", scores: { week1: 9 } },
 { username: "yaah934", password: "20489", name: "Yahia Ahmed ", class: "1A", role: "student", scores: { week1: 19 } },
+{ username: "limo666", password: "74114", name: "Lilyan Mohamed ", class: "1A", role: "student", scores: { week1: 0 } },
+
 
 { username: "gaah897", password: "11835", name: "Gamila Ahmed", class: "1B", role: "student", scores: { week1: 0 } },
 { username: "gamo591", password: "22764", name: "Ganna Mohamed", class: "1B", role: "student", scores: { week1: 0 } },
@@ -47,6 +49,8 @@ const STUDENTS = [
 { username: "naad568", password: "25451", name: "Nael Adam", class: "2A", role: "student", scores: { week1: 0 } },
 { username: "ommo139", password: "53703", name: "Omar Mohamed", class: "2A", role: "student", scores: { week1: 0 } },
 { username: "zaal888", password: "55568", name: "Zain Aldin", class: "2A", role: "student", scores: { week1: 0 } },
+{ username: "soel983", password: "71004", name: "Sobhy elmoataz", class: "2A", role: "student", scores: { week1: 0 } },
+{ username: "yowa309", password: "35598", name: "Youssef Waleed", class: "2A", role: "student", scores: { week1: 0 } },
 
 { username: "ammo868", password: "95264", name: "Amira Montser", class: "2B", role: "student", scores: { week1: 0 } },
 { username: "hawa219", password: "16655", name: "Hayat Walid ", class: "2B", role: "student", scores: { week1: 0 } },
@@ -64,6 +68,7 @@ const STUDENTS = [
 { username: "rais904", password: "71377", name: "Rayan Islam", class: "2B", role: "student", scores: { week1: 0 } },
 { username: "saho643", password: "28880", name: "Sajed Hossain", class: "2B", role: "student", scores: { week1: 0 } },
 { username: "sega162", password: "64323", name: "Selim Gamal", class: "2B", role: "student", scores: { week1: 0 } },
+{ username: "gaah467", password: "82995", name: "Gamila Ahmed", class: "2B", role: "student", scores: { week1: 0 } },
 
 { username: "asta019", password: "42580", name: "Aseel Tamer ", class: "3", role: "student", scores: { week1: 0 } },
 { username: "ayah007", password: "76790", name: "Ayla Ahmed ", class: "3", role: "student", scores: { week1: 0 } },
@@ -82,6 +87,7 @@ const STUDENTS = [
 { username: "abmi106", password: "69796", name: "Abdallah Mina ", class: "3", role: "student", scores: { week1: 0 } },
 { username: "amah089", password: "33293", name: "Amr Ahmed", class: "3", role: "student", scores: { week1: 0 } },
 { username: "more287", password: "19211", name: "Mohamed Reda", class: "3", role: "student", scores: { week1: 0 } },
+{ username: "joel892", password: "86306", name: "Joury elmoataz", class: "3", role: "student", scores: { week1: 0 } },
 
 { username: "asah790", password: "44605", name: "Asia Ahmed ", class: "4", role: "student", scores: { week1: 0 } },
 { username: "alam941", password: "27237", name: "Alma Amer", class: "4", role: "student", scores: { week1: 0 } },
@@ -129,6 +135,7 @@ const STUDENTS = [
 { username: "samo186", password: "19580", name: "Saif Mohamed ", class: "5B", role: "student", scores: { week1: 0 } },
 { username: "moos876", password: "23162", name: "Moaaz Osama ", class: "5B", role: "student", scores: { week1: 0 } },
 { username: "yomo619", password: "47781", name: "Youssef Mosaab", class: "5B", role: "student", scores: { week1: 0 } },
+{ username: "miel293", password: "54795", name: "Miral elmoataz", class: "5B", role: "student", scores: { week1: 0 } },
 
 { username: "alah746", password: "92810", name: "Alma Ahmed ", class: "6", role: "student", scores: { week1: 16 } },
 { username: "jamo590", password: "89471", name: "Jana Mostafa", class: "6", role: "student", scores: { week1: 0 } },
@@ -166,6 +173,7 @@ const STUDENTS = [
 { username: "yaos973", password: "94389", name: "Yassien Osama", class: "7", role: "student", scores: { week1: 0 } },
 { username: "yomo901", password: "56349", name: "Youssef Mohamed", class: "7", role: "student", scores: { week1: 0 } },
 { username: "yomo742", password: "33167", name: "Youssef Mostafa", class: "7", role: "student", scores: { week1: 0 } },
+{ username: "meel734", password: "92175", name: "Menna elmoataz", class: "7", role: "student", scores: { week1: 0 } },
 
 { username: "arah495", password: "37869", name: "Arwa Ahmed ", class: "8", role: "student", scores: { week1: 0 } },
 { username: "aseh225", password: "48328", name: "Aseel Ehab", class: "8", role: "student", scores: { week1: 0 } },
@@ -3462,6 +3470,7 @@ function trackVisitAuto() {
 
 // Run ONCE per page load
 document.addEventListener("DOMContentLoaded", trackVisitAuto);
+
 
 
 
