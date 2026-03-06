@@ -99,7 +99,7 @@ const STUDENTS = [
 { username: "mare951", password: "87790", name: "Malka Reda", class: "4", role: "student", scores: { week1: 0 } },
 { username: "ahma010", password: "51994", name: "Ahmed Mahmoud ", class: "4", role: "student", scores: { week1: 0 } },
 { username: "admo788", password: "77509", name: "Adam Mostafa", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "haah720", password: "65276", name: "Hamza Ahmed ", class: "4", role: "student", scores: { week1: 0 } },
+{ username: "haah720", password: "65276", name: "Hamza Ahmed Rabee", class: "4", role: "student", scores: { week1: 0 } },
 { username: "abmo519", password: "92483", name: "Abdallah Mohsen", class: "4", role: "student", scores: { week1: 0 } },
 { username: "omho833", password: "22486", name: "Omar hossain", class: "4", role: "student", scores: { week1: 0 } },
 { username: "slmo354", password: "19424", name: "Slim Mostafa", class: "4", role: "student", scores: { week1: 0 } },
@@ -3470,6 +3470,7 @@ function trackVisitAuto() {
 
 // Run ONCE per page load
 document.addEventListener("DOMContentLoaded", trackVisitAuto);
+
 
 
 
