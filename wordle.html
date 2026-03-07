@@ -7,206 +7,6 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="main.js" defer></script>
-
-  <style>
-    .wordle-leaderboard-card {
-      margin-top: 1rem;
-      border-radius: 24px;
-      padding: 1.25rem;
-      background: linear-gradient(180deg, rgba(37, 99, 235, 0.06), rgba(255, 255, 255, 0.95));
-      border: 1px solid rgba(37, 99, 235, 0.16);
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .wordle-leaderboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .wordle-leaderboard-title-wrap h2 {
-      margin: 0;
-    }
-
-    .wordle-leaderboard-title-wrap p {
-      margin: 0.35rem 0 0;
-      color: #64748b;
-      font-size: 0.95rem;
-    }
-
-    .wordle-leaderboard-badge {
-      background: #2563eb;
-      color: #fff;
-      border-radius: 999px;
-      padding: 0.45rem 0.8rem;
-      font-size: 0.85rem;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .wordle-top3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.9rem;
-      margin-bottom: 1rem;
-    }
-
-    .wordle-podium-card {
-      border-radius: 20px;
-      padding: 1rem;
-      background: #fff;
-      border: 1px solid rgba(37, 99, 235, 0.12);
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .wordle-podium-card--1 {
-      background: linear-gradient(180deg, rgba(250, 204, 21, 0.2), #fff);
-      border-color: rgba(234, 179, 8, 0.35);
-    }
-
-    .wordle-podium-card--2 {
-      background: linear-gradient(180deg, rgba(148, 163, 184, 0.18), #fff);
-    }
-
-    .wordle-podium-card--3 {
-      background: linear-gradient(180deg, rgba(251, 146, 60, 0.16), #fff);
-    }
-
-    .wordle-podium-rank {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 1rem;
-      margin-bottom: 0.75rem;
-      background: rgba(37, 99, 235, 0.1);
-      color: #1e3a8a;
-    }
-
-    .wordle-podium-name {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: #0f172a;
-      margin-bottom: 0.35rem;
-    }
-
-    .wordle-podium-grade {
-      color: #64748b;
-      font-size: 0.92rem;
-      margin-bottom: 0.9rem;
-    }
-
-    .wordle-podium-score {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.5rem 0.75rem;
-      border-radius: 999px;
-      background: rgba(37, 99, 235, 0.08);
-      font-weight: 800;
-      color: #1d4ed8;
-    }
-
-    .wordle-ranking-list {
-      display: grid;
-      gap: 0.75rem;
-    }
-
-    .wordle-ranking-row {
-      display: grid;
-      grid-template-columns: 62px 1fr auto;
-      align-items: center;
-      gap: 0.9rem;
-      padding: 0.9rem 1rem;
-      background: #fff;
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      border-radius: 18px;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
-    }
-
-    .wordle-ranking-rank {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #eff6ff;
-      color: #1d4ed8;
-      font-weight: 800;
-      font-size: 1rem;
-    }
-
-    .wordle-ranking-main {
-      min-width: 0;
-    }
-
-    .wordle-ranking-name {
-      font-size: 1rem;
-      font-weight: 800;
-      color: #0f172a;
-      line-height: 1.2;
-      word-break: break-word;
-    }
-
-    .wordle-ranking-meta {
-      margin-top: 0.25rem;
-      color: #64748b;
-      font-size: 0.9rem;
-    }
-
-    .wordle-ranking-points {
-      text-align: right;
-      min-width: 88px;
-    }
-
-    .wordle-ranking-points-value {
-      font-size: 1.2rem;
-      font-weight: 900;
-      color: #2563eb;
-      line-height: 1;
-    }
-
-    .wordle-ranking-points-label {
-      font-size: 0.78rem;
-      color: #64748b;
-      margin-top: 0.2rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .wordle-empty-state {
-      padding: 1rem;
-      text-align: center;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.8);
-      color: #64748b;
-    }
-
-    @media (max-width: 720px) {
-      .wordle-top3 {
-        grid-template-columns: 1fr;
-      }
-
-      .wordle-ranking-row {
-        grid-template-columns: 52px 1fr;
-      }
-
-      .wordle-ranking-points {
-        grid-column: 2;
-        text-align: left;
-        min-width: 0;
-      }
-    }
-  </style>
 </head>
 <body data-page="wordle">
 
@@ -244,7 +44,7 @@
     <h1>PresentacyWordle</h1>
     <p class="card-subtitle">
       Guess the 5-letter presentation word in 6 tries.
-      Use your keyboard and press Enter. You can play once per day on this device.
+      Use your keyboard and press Enter. Wordle points are saved for your logged-in account.
     </p>
 
     <div class="wordle-legend">
@@ -430,242 +230,273 @@
       }
 
       function saveState(played, won) {
-        var today = getTodayDate();
-        var data = { date: today, secret: secret, played: played, won: won };
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        } catch (e) {}
-      }
+  return;
+}
 
       function getCurrentUser() {
-        try {
-          return JSON.parse(localStorage.getItem("presentacy_current_user") || "null");
-        } catch (e) {
-          return null;
-        }
-      }
+  try {
+    var raw = localStorage.getItem("presentacy_current_user");
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error("Could not read current user from storage:", e);
+    return null;
+  }
+}
 
       function getCurrentUsername() {
-        var user = getCurrentUser();
-        if (!user) return "";
-        return String(
-          user.username ||
-          user.user_name ||
-          user.student_id ||
-          user.id ||
-          ""
-        ).trim();
-      }
+  var user = getCurrentUser();
+  if (!user) return "";
+  return String(
+    user.username ||
+    user.user_name ||
+    user.studentId ||
+    user.student_id ||
+    user.id ||
+    ""
+  ).trim().toLowerCase();
+}
 
       function getCurrentDisplayName() {
-        var user = getCurrentUser();
-        if (!user) return "";
-        return String(
-          user.name ||
-          user.full_name ||
-          user.student_name ||
-          user.username ||
-          ""
-        ).trim();
-      }
+  var user = getCurrentUser();
+  if (!user) return "";
+  return String(
+    user.name ||
+    user.studentName ||
+    user.student_name ||
+    user.username ||
+    ""
+  ).trim();
+}
 
       async function saveWordlePointToSupabase() {
-        var username = getCurrentUsername();
+  var user = getCurrentUser();
+  var username = getCurrentUsername();
 
-        if (!username) {
-          showWinBox("You won 🎉 but your login session was not found, so the Wordle point was not saved.");
-          return;
-        }
+  if (!user || !username) {
+    showWinBox("You won 🎉 but your login session was not found, so the Wordle point was not saved.");
+    return false;
+  }
 
-        var result = await supabaseClient.rpc("award_wordle_point", {
-          p_username: username
-        });
+  if ((user.role || "").toLowerCase() !== "student") {
+    showWinBox("You won 🎉 but only student accounts can save Wordle points.");
+    return false;
+  }
 
-        if (result.error) {
-          console.error(result.error);
-          showWinBox("You won 🎉 but saving the Wordle point failed: " + result.error.message);
-          return;
-        }
+  var studentId = String(user.studentId || user.password || "").trim();
+  var studentName = String(user.name || username).trim();
+  var studentClass = String(user.class || "").trim();
+  var today = new Date().toISOString().slice(0, 10);
 
-        showWinBox("You won 🎉 Your Wordle point has been saved for " + (getCurrentDisplayName() || username) + ".");
-        await loadWordleLeaderboard();
+  if (!studentId) {
+    showWinBox("You won 🎉 but your student ID was not found, so the point was not saved.");
+    return false;
+  }
+
+  var existing = await supabaseClient
+    .from("WordleWins")
+    .select("id")
+    .eq("studentId", studentId)
+    .eq("playedOn", today)
+    .limit(1);
+
+  if (existing.error) {
+    console.error(existing.error);
+    showWinBox("You won 🎉 but we could not check your previous Wordle result: " + existing.error.message);
+    return false;
+  }
+
+  if (existing.data && existing.data.length > 0) {
+    showWinBox("You already got your Wordle point today 🎉");
+    await loadWordleLeaderboard();
+    return true;
+  }
+
+  var result = await supabaseClient
+    .from("WordleWins")
+    .insert([
+      {
+        studentId: studentId,
+        studentName: studentName,
+        class: studentClass,
+        points: 1,
+        playedOn: today
       }
+    ]);
 
-      function renderWordleLeaderboard(rows) {
-        if (!leaderboardList) return;
+  if (result.error) {
+    console.error(result.error);
+    showWinBox("You won 🎉 but saving the Wordle point failed: " + result.error.message);
+    return false;
+  }
 
-        if (!rows.length) {
-          leaderboardList.innerHTML = '<div class="wordle-empty-state">No Wordle points yet.</div>';
-          return;
-        }
-
-        var top3 = rows.slice(0, 3);
-        var rest = rows.slice(3);
-
-        var html = "";
-
-        if (top3.length) {
-          html += '<div class="wordle-top3">';
-          for (var i = 0; i < top3.length; i++) {
-            var topRow = top3[i] || {};
-            var topRank = i + 1;
-            var topName = escapeHtml(topRow.name || topRow.studentId || "Student");
-            var topGrade = escapeHtml(topRow.grade || "");
-            var topPoints = Number(topRow.points || 0);
-
-            html +=
-              '<div class="wordle-podium-card wordle-podium-card--' + topRank + '">' +
-                '<div class="wordle-podium-rank">#' + topRank + '</div>' +
-                '<div class="wordle-podium-name">' + topName + '</div>' +
-                (topGrade ? '<div class="wordle-podium-grade">' + topGrade + '</div>' : '<div class="wordle-podium-grade">—</div>') +
-                '<div class="wordle-podium-score">' + topPoints + ' pts</div>' +
-              '</div>';
-          }
-          html += '</div>';
-        }
-
-        html += '<div class="wordle-ranking-list">';
-        for (var j = 0; j < rows.length; j++) {
-          var row = rows[j] || {};
-          var rank = j + 1;
-          var name = escapeHtml(row.name || row.studentId || "Student");
-          var grade = escapeHtml(row.grade || "");
-          var points = Number(row.points || 0);
-
-          html +=
-            '<div class="wordle-ranking-row">' +
-              '<div class="wordle-ranking-rank">#' + rank + '</div>' +
-              '<div class="wordle-ranking-main">' +
-                '<div class="wordle-ranking-name">' + name + '</div>' +
-                '<div class="wordle-ranking-meta">' + (grade || "No class") + '</div>' +
-              '</div>' +
-              '<div class="wordle-ranking-points">' +
-                '<div class="wordle-ranking-points-value">' + points + '</div>' +
-                '<div class="wordle-ranking-points-label">Points</div>' +
-              '</div>' +
-            '</div>';
-        }
-        html += "</div>";
-
-        leaderboardList.innerHTML = html;
-      }
+  showWinBox("You won 🎉 Your Wordle point has been saved for " + studentName + ".");
+  await loadWordleLeaderboard();
+  return true;
+}
 
       async function loadWordleLeaderboard() {
-        if (!leaderboardStatus || !leaderboardList) return;
+  if (!leaderboardStatus || !leaderboardList) return;
 
-        leaderboardStatus.textContent = "Loading...";
-        leaderboardList.innerHTML = "";
+  leaderboardStatus.textContent = "Loading...";
+  leaderboardList.innerHTML = "";
 
-        try {
-          var TABLES = window.PRESENTACY_TABLES || {};
-          var WORDLE_WINS_TABLE = TABLES.WORDLE_WINS || "WordleWins";
+  try {
+    var result = await supabaseClient
+      .from("WordleWins")
+      .select("studentId, studentName, class, points, playedOn");
 
-          var winsResponse = await supabaseClient
-            .from(WORDLE_WINS_TABLE)
-            .select("studentId, studentName, class, points, playedOn");
+    if (result.error) {
+      console.error(result.error);
+      leaderboardStatus.textContent =
+        result.error.message || "Could not load Wordle leaderboard.";
+      return;
+    }
 
-          if (winsResponse.error) {
-            console.error(winsResponse.error);
-            leaderboardStatus.textContent =
-              winsResponse.error.message || "Could not load Wordle wins.";
-            return;
-          }
+    var wins = result.data || [];
 
-          var wins = winsResponse.data || [];
+    if (!wins.length) {
+      leaderboardStatus.textContent = "";
+      leaderboardList.innerHTML =
+        '<div class="wordle-empty-state">No Wordle points yet.</div>';
+      return;
+    }
 
-          if (!wins.length) {
-            leaderboardStatus.textContent = "";
-            leaderboardList.innerHTML = '<div class="wordle-empty-state">No Wordle points yet.</div>';
-            return;
-          }
+    var totalsByStudentId = {};
 
-          var totalsByStudentId = {};
+    for (var i = 0; i < wins.length; i++) {
+      var row = wins[i] || {};
+      var studentId = String(row.studentId || "").trim();
+      if (!studentId) continue;
 
-          for (var i = 0; i < wins.length; i++) {
-            var row = wins[i] || {};
-            var studentId = String(row.studentId || "").trim();
-            if (!studentId) continue;
-
-            if (!totalsByStudentId[studentId]) {
-              totalsByStudentId[studentId] = {
-                studentId: studentId,
-                name: row.studentName || studentId,
-                grade: row.class || "",
-                points: 0
-              };
-            }
-
-            totalsByStudentId[studentId].points += Number(row.points || 0);
-
-            if (!totalsByStudentId[studentId].name && row.studentName) {
-              totalsByStudentId[studentId].name = row.studentName;
-            }
-
-            if (!totalsByStudentId[studentId].grade && row.class) {
-              totalsByStudentId[studentId].grade = row.class;
-            }
-          }
-
-          var rows = Object.keys(totalsByStudentId).map(function (studentId) {
-            return totalsByStudentId[studentId];
-          });
-
-          rows.sort(function (a, b) {
-            if (b.points !== a.points) return b.points - a.points;
-            return String(a.name || "").localeCompare(String(b.name || ""));
-          });
-
-          rows = rows.slice(0, 20);
-
-          leaderboardStatus.textContent = "";
-          renderWordleLeaderboard(rows);
-        } catch (err) {
-          console.error(err);
-          leaderboardStatus.textContent =
-            err.message || "Unexpected error loading leaderboard.";
-        }
+      if (!totalsByStudentId[studentId]) {
+        totalsByStudentId[studentId] = {
+          studentId: studentId,
+          name: row.studentName || studentId,
+          grade: row.class || "",
+          points: 0
+        };
       }
 
-      function loadOrPickDailyWord() {
-        var today = getTodayDate();
-        var saved = null;
+      totalsByStudentId[studentId].points += Number(row.points || 0);
 
-        try {
-          saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-        } catch (e) {
-          saved = null;
-        }
-
-        if (saved && saved.date === today && WORDS.indexOf(saved.secret) !== -1) {
-          secret = saved.secret;
-
-          if (saved.played) {
-            gameOver = true;
-            if (saved.won) {
-              wordleMessage.textContent =
-                "You already solved today's word on this device. Come back tomorrow!";
-              wordleMessage.className =
-                "wordle-message wordle-message--success";
-
-              showWinBox("You already got today's Wordle point.");
-            } else {
-              wordleMessage.textContent =
-                "You already played today's word. The word was " +
-                secret +
-                ". Come back tomorrow!";
-              wordleMessage.className =
-                "wordle-message wordle-message--error";
-            }
-            return;
-          }
-        } else {
-          var index = Math.floor(Math.random() * WORDS.length);
-          secret = WORDS[index];
-          saveState(false, false);
-        }
-
-        resetGridState();
+      if (!totalsByStudentId[studentId].name && row.studentName) {
+        totalsByStudentId[studentId].name = row.studentName;
       }
+
+      if (!totalsByStudentId[studentId].grade && row.class) {
+        totalsByStudentId[studentId].grade = row.class;
+      }
+    }
+
+    var rows = Object.keys(totalsByStudentId).map(function (studentId) {
+      return totalsByStudentId[studentId];
+    });
+
+    rows.sort(function (a, b) {
+      if (b.points !== a.points) return b.points - a.points;
+      return String(a.name || "").localeCompare(String(b.name || ""));
+    });
+
+    rows = rows.slice(0, 20);
+
+    leaderboardStatus.textContent = "";
+    renderWordleLeaderboard(rows);
+  } catch (err) {
+    console.error(err);
+    leaderboardStatus.textContent =
+      err.message || "Unexpected error loading leaderboard.";
+  }
+}
+
+function renderWordleLeaderboard(rows) {
+  if (!leaderboardList) return;
+
+  if (!rows || !rows.length) {
+    leaderboardList.innerHTML =
+      '<div class="wordle-empty-state">No Wordle points yet.</div>';
+    return;
+  }
+
+  var top3 = rows.slice(0, 3);
+  var html = "";
+
+  if (top3.length) {
+    html += '<div class="wordle-top3">';
+
+    for (var i = 0; i < top3.length; i++) {
+      var row = top3[i] || {};
+      var rank = i + 1;
+      var name = escapeHtml(row.name || row.studentId || "Student");
+      var grade = escapeHtml(row.grade || "");
+      var points = Number(row.points || 0);
+
+      html +=
+        '<div class="wordle-podium-card wordle-podium-card--' + rank + '">' +
+          '<div class="wordle-podium-rank">#' + rank + '</div>' +
+          '<div class="wordle-podium-name">' + name + '</div>' +
+          '<div class="wordle-podium-grade">' + (grade || "—") + '</div>' +
+          '<div class="wordle-podium-score">' + points + ' pts</div>' +
+        '</div>';
+    }
+
+    html += "</div>";
+  }
+
+  html += '<div class="wordle-ranking-list">';
+
+  for (var j = 0; j < rows.length; j++) {
+    var item = rows[j] || {};
+    var itemRank = j + 1;
+    var itemName = escapeHtml(item.name || item.studentId || "Student");
+    var itemGrade = escapeHtml(item.grade || "");
+    var itemPoints = Number(item.points || 0);
+
+    html +=
+      '<div class="wordle-ranking-row">' +
+        '<div class="wordle-ranking-rank">#' + itemRank + '</div>' +
+        '<div class="wordle-ranking-main">' +
+          '<div class="wordle-ranking-name">' + itemName + '</div>' +
+          '<div class="wordle-ranking-meta">' + (itemGrade || "No class") + '</div>' +
+        '</div>' +
+        '<div class="wordle-ranking-points">' +
+          '<div class="wordle-ranking-points-value">' + itemPoints + '</div>' +
+          '<div class="wordle-ranking-points-label">Points</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  html += "</div>";
+  leaderboardList.innerHTML = html;
+}
+function hashString(str) {
+  var hash = 0;
+  for (var i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function hashString(str) {
+  var hash = 0;
+  for (var i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function loadOrPickDailyWord() {
+  var today = getTodayDate();
+  var username = getCurrentUsername() || "guest";
+  var seedSource = username + "|" + today;
+  var seed = hashString(seedSource);
+  var index = seed % WORDS.length;
+
+  secret = WORDS[index];
+  resetGridState();
+}
 
       function showMessage(text, type) {
         wordleMessage.textContent = text;
@@ -677,7 +508,7 @@
         }
       }
 
-      function submitGuess() {
+      async function submitGuess() {
         if (gameOver) return;
 
         if (currentGuess.length !== wordLength) {
@@ -732,7 +563,7 @@
           showMessage("You got it! 🎉", "success");
           gameOver = true;
           saveState(true, true);
-          saveWordlePointToSupabase();
+          await saveWordlePointToSupabase();
           return;
         }
 
@@ -748,11 +579,11 @@
         }
       }
 
-      function handleKeyInput(key) {
+      async function handleKeyInput(key) {
         if (gameOver) return;
 
         if (key === "Enter") {
-          submitGuess();
+          await submitGuess();
           return;
         }
 
@@ -773,23 +604,23 @@
         }
       }
 
-      function handleKeyDown(e) {
-        var key = e.key;
-        if (key.length === 1) key = key.toUpperCase();
-        handleKeyInput(key);
-      }
+      async function handleKeyDown(e) {
+  var key = e.key;
+  if (key.length === 1) key = key.toUpperCase();
+  await handleKeyInput(key);
+}
 
       window.addEventListener("keydown", handleKeyDown);
 
       if (wordleKeyboard) {
-        wordleKeyboard.addEventListener("click", function (e) {
+        wordleKeyboard.addEventListener("click", async function (e) {
           var target = e.target;
           if (!target.classList.contains("wordle-key")) return;
 
           var key = target.getAttribute("data-key");
           if (!key) return;
 
-          handleKeyInput(key);
+          await handleKeyInput(key);
         });
       }
 
@@ -797,6 +628,7 @@
       loadOrPickDailyWord();
       loadWordleLeaderboard();
     })();
+
   </script>
 </body>
 </html>
