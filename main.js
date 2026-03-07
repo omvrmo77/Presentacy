@@ -480,7 +480,7 @@ function getTotalPoints(student) {
 }
 
 function getBadgeForPoints(points) {
-  if (points >= 100) return "Presentacy Star";    
+  if (points >= 100) return "Presentacy Star";
   if (points >= 85) return "Diamond Star";
   if (points >= 55) return "Golden Star";
   if (points >= 30) return "Silver Star";
@@ -490,17 +490,17 @@ function getBadgeForPoints(points) {
 function calculateBadge(points) {
   const label = getBadgeForPoints(points);
   let text = "";
-    
+
   if (points >= 100) {
-    text = "Your confidence and clarity made you number one."
+    text = "You are a Presentacy Star! Your talent, confidence, and hard work truly stand out.";
   } else if (points >= 85) {
-    text = "You are a Golden Star! Keep inspiring us.";
+    text = "You are a Diamond Star! A brilliant performance with confidence and skill.";
   } else if (points >= 55) {
-    text = "You are a Shining Star – wonderful work, keep going.";
+    text = "You are a Golden Star! Your effort and progress are shining beautifully.";
   } else if (points >= 30) {
-    text = "You are a Bright Star. Practice will make you even stronger.";
+    text = "You are a Silver Star! You are growing stronger with every presentation.";
   } else if (points > 0) {
-    text = "You are a Rising Star. Every presentation helps you grow.";
+    text = "You are a Rising Star! Keep going—your journey is just beginning.";
   } else {
     text = "Your badge will appear after your first score.";
   }
@@ -3564,7 +3564,6 @@ function convertSupabaseRubricRow(row) {
 
   // Run ONCE per page load
   document.addEventListener("DOMContentLoaded", trackVisitAuto);
-
 
 
 
