@@ -1,5 +1,3 @@
-
-// ============================
 // 2. AUTH HELPERS (LOGIN DATA)
 // ============================
 
@@ -3564,3 +3562,4 @@ function convertSupabaseRubricRow(row) {
 
   // Run ONCE per page load
   document.addEventListener("DOMContentLoaded", trackVisitAuto);
+
