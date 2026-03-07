@@ -2995,10 +2995,10 @@ function convertSupabaseRubricRow(row) {
       }
 
       const { data, error } = await supabase
-    .from("Rubrics")
-    .select("*")
-    .eq("Student ID", studentId)
-    .order("week", { ascending: true });
+  .from("Rubrics")
+  .select("*")
+  .eq("Student ID", studentId)
+  .order("week", { ascending: true });
 
       if (error) {
         console.error(error);
@@ -3562,4 +3562,5 @@ function convertSupabaseRubricRow(row) {
 
   // Run ONCE per page load
   document.addEventListener("DOMContentLoaded", trackVisitAuto);
+
 
