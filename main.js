@@ -481,9 +481,9 @@ function getTotalPoints(student) {
 
 function getBadgeForPoints(points) {
   if (points >= 100) return "Presentacy Star";    
-  if (points >= 85) return "Golden Star";
-  if (points >= 55) return "Shining Star";
-  if (points >= 30) return "Bright Star";
+  if (points >= 85) return "Diamond Star";
+  if (points >= 55) return "Golden Star";
+  if (points >= 30) return "Silver Star";
   return "Rising Star";
 }
 
@@ -3564,6 +3564,7 @@ function convertSupabaseRubricRow(row) {
 
   // Run ONCE per page load
   document.addEventListener("DOMContentLoaded", trackVisitAuto);
+
 
 
 
