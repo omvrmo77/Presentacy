@@ -5,588 +5,798 @@
   <title>Presentacy – PresentacyWordle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
-  <!-- keep your main.js for navbar etc. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="main.js" defer></script>
+
+  <style>
+    .wordle-leaderboard-card {
+      margin-top: 1rem;
+      border-radius: 24px;
+      padding: 1.25rem;
+      background: linear-gradient(180deg, rgba(37, 99, 235, 0.06), rgba(255, 255, 255, 0.95));
+      border: 1px solid rgba(37, 99, 235, 0.16);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .wordle-leaderboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .wordle-leaderboard-title-wrap h2 {
+      margin: 0;
+    }
+
+    .wordle-leaderboard-title-wrap p {
+      margin: 0.35rem 0 0;
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .wordle-leaderboard-badge {
+      background: #2563eb;
+      color: #fff;
+      border-radius: 999px;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .wordle-top3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .wordle-podium-card {
+      border-radius: 20px;
+      padding: 1rem;
+      background: #fff;
+      border: 1px solid rgba(37, 99, 235, 0.12);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wordle-podium-card--1 {
+      background: linear-gradient(180deg, rgba(250, 204, 21, 0.2), #fff);
+      border-color: rgba(234, 179, 8, 0.35);
+    }
+
+    .wordle-podium-card--2 {
+      background: linear-gradient(180deg, rgba(148, 163, 184, 0.18), #fff);
+    }
+
+    .wordle-podium-card--3 {
+      background: linear-gradient(180deg, rgba(251, 146, 60, 0.16), #fff);
+    }
+
+    .wordle-podium-rank {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+      background: rgba(37, 99, 235, 0.1);
+      color: #1e3a8a;
+    }
+
+    .wordle-podium-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 0.35rem;
+    }
+
+    .wordle-podium-grade {
+      color: #64748b;
+      font-size: 0.92rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .wordle-podium-score {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.08);
+      font-weight: 800;
+      color: #1d4ed8;
+    }
+
+    .wordle-ranking-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .wordle-ranking-row {
+      display: grid;
+      grid-template-columns: 62px 1fr auto;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 0.9rem 1rem;
+      background: #fff;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 18px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .wordle-ranking-rank {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .wordle-ranking-main {
+      min-width: 0;
+    }
+
+    .wordle-ranking-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .wordle-ranking-meta {
+      margin-top: 0.25rem;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    .wordle-ranking-points {
+      text-align: right;
+      min-width: 88px;
+    }
+
+    .wordle-ranking-points-value {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #2563eb;
+      line-height: 1;
+    }
+
+    .wordle-ranking-points-label {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .wordle-empty-state {
+      padding: 1rem;
+      text-align: center;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.8);
+      color: #64748b;
+    }
+
+    @media (max-width: 720px) {
+      .wordle-top3 {
+        grid-template-columns: 1fr;
+      }
+
+      .wordle-ranking-row {
+        grid-template-columns: 52px 1fr;
+      }
+
+      .wordle-ranking-points {
+        grid-column: 2;
+        text-align: left;
+        min-width: 0;
+      }
+    }
+  </style>
 </head>
 <body data-page="wordle">
 
-<header class="page-header">
-  <nav class="navbar">
-  <div class="logo">
-    <div class="logo-mark">P</div>
-    <span>Presentacy</span>
-  </div>
-
-  <div class="nav-user">
-    <span id="user-greeting"></span>
-  </div>
-  <div id="greeting-banner" class="greeting-banner"></div>
-
-  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-    <span></span><span></span><span></span>
-  </button>
-
-  <div class="nav-links" id="navLinks">
-    <a href="index.html" class="nav-link" data-page-link="home">Home</a>
-    <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
-    <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
-    <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
-    <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
-    <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
-    <!-- teacher-only nav link -->
-    <a href="teacher-rubric.html"
-       class="nav-link"
-       data-nav="teacher-rubrics">Teacher Rubrics</a>
-    <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
-  </div>
-</nav>
-</header>
-
-    <!-- PresentacyWordle -->
-    <section class="card" id="wordle-card">
-      <h1>PresentacyWordle</h1>
-      <p class="card-subtitle">
-        Guess the 5-letter presentation word in 6 tries.
-        Use your keyboard and press Enter. You can play once per day on this device.
-      </p>
-
-      <!-- Legend -->
-      <div class="wordle-legend">
-        <div class="legend-item">
-          <div class="wordle-cell wordle-cell--correct">T</div>
-          <span>Correct spot</span>
-        </div>
-        <div class="legend-item">
-          <div class="wordle-cell wordle-cell--present">E</div>
-          <span>Wrong spot</span>
-        </div>
-        <div class="legend-item">
-          <div class="wordle-cell wordle-cell--absent">R</div>
-          <span>Not in word</span>
-        </div>
+  <header class="page-header">
+    <nav class="navbar">
+      <div class="logo">
+        <div class="logo-mark">P</div>
+        <span>Presentacy</span>
       </div>
 
-            <!-- Grid (JS will fill the cells) -->
-      <div id="wordle-grid" class="wordle-grid">
-        <!-- JS will create the 6 × 5 cells -->
+      <div class="nav-user">
+        <span id="user-greeting"></span>
       </div>
 
-      <!-- On-screen keyboard for phones -->
-      <div id="wordle-keyboard" class="wordle-keyboard">
-  <div class="wordle-keyboard-row">
-    <div class="wordle-key" data-key="Q">Q</div>
-    <div class="wordle-key" data-key="W">W</div>
-    <div class="wordle-key" data-key="E">E</div>
-    <div class="wordle-key" data-key="R">R</div>
-    <div class="wordle-key" data-key="T">T</div>
-    <div class="wordle-key" data-key="Y">Y</div>
-    <div class="wordle-key" data-key="U">U</div>
-    <div class="wordle-key" data-key="I">I</div>
-    <div class="wordle-key" data-key="O">O</div>
-    <div class="wordle-key" data-key="P">P</div>
-  </div>
+      <div id="greeting-banner" class="greeting-banner"></div>
 
-  <div class="wordle-keyboard-row">
-    <div class="wordle-key" data-key="A">A</div>
-    <div class="wordle-key" data-key="S">S</div>
-    <div class="wordle-key" data-key="D">D</div>
-    <div class="wordle-key" data-key="F">F</div>
-    <div class="wordle-key" data-key="G">G</div>
-    <div class="wordle-key" data-key="H">H</div>
-    <div class="wordle-key" data-key="J">J</div>
-    <div class="wordle-key" data-key="K">K</div>
-    <div class="wordle-key" data-key="L">L</div>
-  </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
 
-  <div class="wordle-keyboard-row">
-    <div class="wordle-key wordle-key--wide" data-key="Enter">Enter</div>
-    <div class="wordle-key" data-key="Z">Z</div>
-    <div class="wordle-key" data-key="X">X</div>
-    <div class="wordle-key" data-key="C">C</div>
-    <div class="wordle-key" data-key="V">V</div>
-    <div class="wordle-key" data-key="B">B</div>
-    <div class="wordle-key" data-key="N">N</div>
-    <div class="wordle-key" data-key="M">M</div>
-    <div class="wordle-key wordle-key--wide" data-key="Backspace">⌫</div>
-  </div>
-</div>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+        <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+        <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
+        <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+        <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+        <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+        <a href="teacher-rubric.html" class="nav-link" data-nav="teacher-rubrics">Teacher Rubrics</a>
+        <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
+      </div>
+    </nav>
+  </header>
 
-      <p id="wordle-message" class="wordle-message"></p>
+  <section class="card" id="wordle-card">
+    <h1>PresentacyWordle</h1>
+    <p class="card-subtitle">
+      Guess the 5-letter presentation word in 6 tries.
+      Use your keyboard and press Enter. You can play once per day on this device.
+    </p>
 
-      <!-- Grid (JS will fill the cells) -->
-      <div id="wordle-grid" class="wordle-grid">
-        <!-- JS will create the 6 × 5 cells -->
+    <div class="wordle-legend">
+      <div class="legend-item">
+        <div class="wordle-cell wordle-cell--correct">T</div>
+        <span>Correct spot</span>
+      </div>
+      <div class="legend-item">
+        <div class="wordle-cell wordle-cell--present">E</div>
+        <span>Wrong spot</span>
+      </div>
+      <div class="legend-item">
+        <div class="wordle-cell wordle-cell--absent">R</div>
+        <span>Not in word</span>
+      </div>
+    </div>
+
+    <div id="wordle-grid" class="wordle-grid"></div>
+
+    <div id="wordle-keyboard" class="wordle-keyboard">
+      <div class="wordle-keyboard-row">
+        <div class="wordle-key" data-key="Q">Q</div>
+        <div class="wordle-key" data-key="W">W</div>
+        <div class="wordle-key" data-key="E">E</div>
+        <div class="wordle-key" data-key="R">R</div>
+        <div class="wordle-key" data-key="T">T</div>
+        <div class="wordle-key" data-key="Y">Y</div>
+        <div class="wordle-key" data-key="U">U</div>
+        <div class="wordle-key" data-key="I">I</div>
+        <div class="wordle-key" data-key="O">O</div>
+        <div class="wordle-key" data-key="P">P</div>
       </div>
 
-      <p id="wordle-message" class="wordle-message"></p>
+      <div class="wordle-keyboard-row">
+        <div class="wordle-key" data-key="A">A</div>
+        <div class="wordle-key" data-key="S">S</div>
+        <div class="wordle-key" data-key="D">D</div>
+        <div class="wordle-key" data-key="F">F</div>
+        <div class="wordle-key" data-key="G">G</div>
+        <div class="wordle-key" data-key="H">H</div>
+        <div class="wordle-key" data-key="J">J</div>
+        <div class="wordle-key" data-key="K">K</div>
+        <div class="wordle-key" data-key="L">L</div>
+      </div>
 
-      <!-- Google Form link – hidden until they win -->
-      <div
-  id="wordle-form-link"
-  style="display:none; margin-top:0.5rem; text-align:center;"
->
-  <a
-    id="wordle-form-anchor"
-    data-base-href="https://docs.google.com/forms/d/e/1FAIpQLScQBbwMSpOD2tMfUdV1lnEByAC3GzHOvCRQP1fGWfp2rZMDjA/viewform?usp=pp_url&entry.740921488=SECRET_CODE_HERE"
-    href="https://docs.google.com/forms/d/e/1FAIpQLScQBbwMSpOD2tMfUdV1lnEByAC3GzHOvCRQP1fGWfp2rZMDjA/viewform?usp=pp_url&entry.740921488=SECRET_CODE_HERE"
-    target="_blank"
-    class="primary-link"
-  >
-    Click here to submit your name and get your Wordle point
-  </a>
-</div>
+      <div class="wordle-keyboard-row">
+        <div class="wordle-key wordle-key--wide" data-key="Enter">Enter</div>
+        <div class="wordle-key" data-key="Z">Z</div>
+        <div class="wordle-key" data-key="X">X</div>
+        <div class="wordle-key" data-key="C">C</div>
+        <div class="wordle-key" data-key="V">V</div>
+        <div class="wordle-key" data-key="B">B</div>
+        <div class="wordle-key" data-key="N">N</div>
+        <div class="wordle-key" data-key="M">M</div>
+        <div class="wordle-key wordle-key--wide" data-key="Backspace">⌫</div>
+      </div>
+    </div>
+
+    <p id="wordle-message" class="wordle-message"></p>
+
+    <div id="wordle-win-box" class="card" style="display:none; margin-top:1rem; text-align:center;">
+      <p id="wordle-win-text" class="hint" style="margin-bottom:0.75rem;"></p>
+    </div>
+
+    <section class="wordle-leaderboard-card">
+      <div class="wordle-leaderboard-header">
+        <div class="wordle-leaderboard-title-wrap">
+          <h2>Wordle Leaderboard</h2>
+          <p>Top students with the highest Wordle points</p>
+        </div>
+        <div class="wordle-leaderboard-badge">Top 20</div>
+      </div>
+
+      <div id="wordle-leaderboard-status" class="hint">Loading...</div>
+      <div id="wordle-leaderboard-list"></div>
     </section>
+  </section>
 
-    <footer class="site-footer">
-  <div class="footer-text">Presentacy: School Presentation Project – Made by Omar</div>
+  <footer class="site-footer">
+    <div class="footer-text">Presentacy: School Presentation Project – Made by Omar</div>
+    <img
+      class="footer-logo"
+      src="english-logo.png"
+      alt="English Department - Voice Builders - Al Omran College Semi-International School"
+    />
+  </footer>
 
-  <img
-    class="footer-logo"
-    src="english-logo.png"
-    alt="English Department - Voice Builders - Al Omran College Semi-International School"
-  />
-</footer>
-  </div>
-
-  <!-- SIMPLE INLINE JS: no backticks, no arrows -->
   <script>
-  (function () {
-    var wordleGrid = document.getElementById("wordle-grid");
-    var wordleMessage = document.getElementById("wordle-message");
-    var wordleFormLink = document.getElementById("wordle-form-link");
-    var wordleFormAnchor = document.getElementById("wordle-form-anchor");
-    var wordleKeyboard = document.getElementById("wordle-keyboard");
+    (function () {
+      var wordleGrid = document.getElementById("wordle-grid");
+      var wordleMessage = document.getElementById("wordle-message");
+      var wordleKeyboard = document.getElementById("wordle-keyboard");
+      var wordleWinBox = document.getElementById("wordle-win-box");
+      var wordleWinText = document.getElementById("wordle-win-text");
+      var leaderboardStatus = document.getElementById("wordle-leaderboard-status");
+      var leaderboardList = document.getElementById("wordle-leaderboard-list");
 
-    if (!wordleGrid || !wordleMessage) return;
+      if (!wordleGrid || !wordleMessage) return;
 
-    // 5-letter presentation-related words (these appear in the game)
-    var WORDS = [
-    "VOICE",
-    "SLIDE",
-    "INTRO",
-    "TITLE",
-    "STORY",
-    "GRAPH",
-    "CLASS",
-    "QUOTE",
-    "CHART",
-    "THEME",
-    "WORDS",
-    "FIRST",
-    "BEGIN",
-    "TEACH",
-    "BOARD",
-    "START",
-    "DRAFT",
-    "POINT",
-    "TOPIC",
-    "POINT",
-    "STAGE",
-    "FOCUS",
-    "SPEAK",
-    "ORDER",
-    "TIMES",
-    "AUDIT",
-    "IDEAS",
-"NOTES",
-"GRADE",
-"SCORE",
-"CLEAR",
-"SMILE",
-"LOOKS",
-"FACES",
-"SCENE",
-"DRAMA",
-"QUIET",
-"NOISE",
-"GROUP",
-"SKILL",
-"LEARN",
-"SHEET",
-"PAPER",
-"PLANS",
-"BRAIN",
-"HEART",
-"TEAMS",
-"RULES",
-"TASKS",
-"CHAIR",
-"MEDIA",
-"VIDEO",
-"AUDIO",
-"IMAGE",
-"STAND",
-"AWARE",
-"BOOST",
-"LEVEL",
-"WRITE",
-"READS",
-"LINES"
-    ];
+      var SUPABASE_URL = "https://ifrfqwzhsgedsxqcnjqj.supabase.co";
+      var SUPABASE_ANON_KEY = "sb_publishable_qtHdGfV0k1DEFntuxIBCAA_kTmgZPGr";
+      var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Hidden codes that go to the Google Form (students never see these)
-    var CODES = {
-      "VOICE": "om10",
-      "SLIDE": "om11",
-      "INTRO": "om12",
-      "TITLE": "om13",
-      "STORY": "om15",
-      "GRAPH": "om16",
-      "CLASS": "om17",
-      "QUOTE": "om18",
-      "CHART": "om19",
-      "THEME": "om20",
-      "WORDS": "os10",
-      "FIRST": "os11",
-      "BEGIN": "os12",
-      "TEACH": "os13",
-      "BOARD": "os14",
-      "START": "os15",
-      "DRAFT": "os16",
-      "POINT": "os17",
-      "TOPIC": "os18",
-      "POINT": "os19",
-      "STAGE": "os20",
-      "FOCUS": "ms10",
-      "SPEAK": "ms11",
-      "ORDER": "ms12",
-      "TIMES": "ms13",
-      "AUDIT": "ms14",
-      "IDEAS": "ms15",
-      "NOTES": "ms16",
-      "GRADE": "ms17",
-      "SCORE": "ms18",
-      "CLEAR": "ms19",
-      "SMILE": "ms20",
-      "LOOKS": "ma10",
-      "FACES": "ma11",
-      "SCENE": "ma12",
-      "DRAMA": "ma13",
-      "QUIET": "ma14",
-      "NOISE": "ma15",
-      "GROUP": "ma16",
-      "SKILL": "ma17",
-      "LEARN": "ma18",
-      "SHEET": "ma19",
-      "PAPER": "ma20",
-      "PLANS": "sa10",
-      "BRAIN": "sa11",
-      "HEART": "sa12",
-      "TEAMS": "sa13",
-      "RULES": "sa14",
-      "TASKS": "sa15",
-      "CHAIR": "sa16",
-      "MEDIA": "sa17",
-      "VIDEO": "sa18",
-      "AUDIO": "sa19",
-      "IMAGE": "sa20",
-      "STAND": "sa21",
-      "AWARE": "sa22",
-      "BOOST": "sa23",
-      "LEVEL": "sa24",
-      "WRITE": "sa25",
-      "READS": "sa26",
-      "LINES": "sa27"
-    };
+      var WORDS = [
+        "VOICE","SLIDE","INTRO","TITLE","STORY","GRAPH","CLASS","QUOTE","CHART","THEME",
+        "WORDS","FIRST","BEGIN","TEACH","BOARD","START","DRAFT","POINT","TOPIC","STAGE",
+        "FOCUS","SPEAK","ORDER","TIMES","AUDIT","IDEAS","NOTES","GRADE","SCORE","CLEAR",
+        "SMILE","LOOKS","FACES","SCENE","DRAMA","QUIET","NOISE","GROUP","SKILL","LEARN",
+        "SHEET","PAPER","PLANS","BRAIN","HEART","TEAMS","RULES","TASKS","CHAIR","MEDIA",
+        "VIDEO","AUDIO","IMAGE","STAND","AWARE","BOOST","LEVEL","WRITE","READS","LINES"
+      ];
 
-    var STORAGE_KEY = "presentacy_wordle_daily";
+      var STORAGE_KEY = "presentacy_wordle_daily";
+      var secret = "";
+      var currentRow = 0;
+      var maxRows = 6;
+      var wordLength = 5;
+      var gameOver = false;
+      var currentGuess = "";
 
-    function getTodayDate() {
-      return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    }
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
 
-    var secret = "";
-    var currentRow = 0;
-    var maxRows = 6;
-    var wordLength = 5;
-    var gameOver = false;
-    var currentGuess = "";
+      function getTodayDate() {
+        return new Date().toISOString().slice(0, 10);
+      }
 
-    // === Create 6x5 grid ===
-    function createGrid() {
-      wordleGrid.innerHTML = "";
-      for (var r = 0; r < maxRows; r++) {
-        for (var c = 0; c < wordLength; c++) {
-          var cell = document.createElement("div");
-          cell.className = "wordle-cell";
-          cell.setAttribute("data-row", String(r));
-          cell.setAttribute("data-col", String(c));
-          wordleGrid.appendChild(cell);
+      function createGrid() {
+        wordleGrid.innerHTML = "";
+        for (var r = 0; r < maxRows; r++) {
+          for (var c = 0; c < wordLength; c++) {
+            var cell = document.createElement("div");
+            cell.className = "wordle-cell";
+            cell.setAttribute("data-row", String(r));
+            cell.setAttribute("data-col", String(c));
+            wordleGrid.appendChild(cell);
+          }
         }
       }
-    }
 
-    // Fill current row while typing
-    function renderCurrentGuess() {
-      for (var i = 0; i < wordLength; i++) {
-        var selector =
-          '.wordle-cell[data-row="' + currentRow + '"][data-col="' + i + '"]';
-        var cell = wordleGrid.querySelector(selector);
-        if (!cell) continue;
-        cell.textContent = currentGuess[i] || "";
-        cell.classList.remove(
-          "wordle-cell--correct",
-          "wordle-cell--present",
-          "wordle-cell--absent"
-        );
-      }
-    }
-
-    function resetGridState() {
-      currentRow = 0;
-      gameOver = false;
-      currentGuess = "";
-
-      var cells = wordleGrid.querySelectorAll(".wordle-cell");
-      for (var i = 0; i < cells.length; i++) {
-        var cell = cells[i];
-        cell.textContent = "";
-        cell.classList.remove(
-          "wordle-cell--correct",
-          "wordle-cell--present",
-          "wordle-cell--absent"
-        );
+      function renderCurrentGuess() {
+        for (var i = 0; i < wordLength; i++) {
+          var selector = '.wordle-cell[data-row="' + currentRow + '"][data-col="' + i + '"]';
+          var cell = wordleGrid.querySelector(selector);
+          if (!cell) continue;
+          cell.textContent = currentGuess[i] || "";
+          cell.classList.remove("wordle-cell--correct","wordle-cell--present","wordle-cell--absent");
+        }
       }
 
-      wordleMessage.textContent = "";
-      wordleMessage.className = "wordle-message";
-
-      if (wordleFormLink) {
-        wordleFormLink.style.display = "none";
-      }
-    }
-
-    function saveState(played, won) {
-      var today = getTodayDate();
-      var data = { date: today, secret: secret, played: played, won: won };
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      } catch (e) {
-        // ignore storage errors
-      }
-    }
-
-    // Build the Google Form link with the secret CODE (PZ38, etc.)
-    function updateFormHrefWithSecret() {
-      if (!wordleFormAnchor) return;
-
-      var baseHref = wordleFormAnchor.getAttribute("data-base-href");
-      if (!baseHref) return;
-
-      // Look up the hidden code for this secret word
-      var code = CODES[secret];
-
-      // If, for any reason, the word is not in CODES, fall back to the word itself
-      if (!code) {
-        code = secret;
+      function showWinBox(text) {
+        if (!wordleWinBox || !wordleWinText) return;
+        wordleWinText.textContent = text || "";
+        wordleWinBox.style.display = "block";
       }
 
-      // Replace the placeholder in the URL with the code
-      var newHref = baseHref.replace("SECRET_CODE_HERE", code);
-      wordleFormAnchor.setAttribute("href", newHref);
-    }
-
-    function loadOrPickDailyWord() {
-      var today = getTodayDate();
-      var saved = null;
-
-      try {
-        saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-      } catch (e) {
-        saved = null;
+      function hideWinBox() {
+        if (!wordleWinBox) return;
+        wordleWinBox.style.display = "none";
       }
 
-      if (
-        saved &&
-        saved.date === today &&
-        WORDS.indexOf(saved.secret) !== -1
-      ) {
-        secret = saved.secret;
+      function resetGridState() {
+        currentRow = 0;
+        gameOver = false;
+        currentGuess = "";
 
-        if (saved.played) {
-          gameOver = true;
-          if (saved.won) {
-            wordleMessage.textContent =
-              "You already solved today's word on this device. Come back tomorrow!";
-            wordleMessage.className =
-              "wordle-message wordle-message--success";
+        var cells = wordleGrid.querySelectorAll(".wordle-cell");
+        for (var i = 0; i < cells.length; i++) {
+          var cell = cells[i];
+          cell.textContent = "";
+          cell.classList.remove("wordle-cell--correct","wordle-cell--present","wordle-cell--absent");
+        }
 
-            updateFormHrefWithSecret();
+        wordleMessage.textContent = "";
+        wordleMessage.className = "wordle-message";
+        hideWinBox();
+      }
 
-            if (wordleFormLink) {
-              wordleFormLink.style.display = "block";
+      function saveState(played, won) {
+        var today = getTodayDate();
+        var data = { date: today, secret: secret, played: played, won: won };
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {}
+      }
+
+      function getCurrentUser() {
+        try {
+          return JSON.parse(localStorage.getItem("presentacy_current_user") || "null");
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function getCurrentUsername() {
+        var user = getCurrentUser();
+        if (!user) return "";
+        return String(
+          user.username ||
+          user.user_name ||
+          user.student_id ||
+          user.id ||
+          ""
+        ).trim();
+      }
+
+      function getCurrentDisplayName() {
+        var user = getCurrentUser();
+        if (!user) return "";
+        return String(
+          user.name ||
+          user.full_name ||
+          user.student_name ||
+          user.username ||
+          ""
+        ).trim();
+      }
+
+      async function saveWordlePointToSupabase() {
+        var username = getCurrentUsername();
+
+        if (!username) {
+          showWinBox("You won 🎉 but your login session was not found, so the Wordle point was not saved.");
+          return;
+        }
+
+        var result = await supabaseClient.rpc("award_wordle_point", {
+          p_username: username
+        });
+
+        if (result.error) {
+          console.error(result.error);
+          showWinBox("You won 🎉 but saving the Wordle point failed: " + result.error.message);
+          return;
+        }
+
+        showWinBox("You won 🎉 Your Wordle point has been saved for " + (getCurrentDisplayName() || username) + ".");
+        await loadWordleLeaderboard();
+      }
+
+      function renderWordleLeaderboard(rows) {
+        if (!leaderboardList) return;
+
+        if (!rows.length) {
+          leaderboardList.innerHTML = '<div class="wordle-empty-state">No Wordle points yet.</div>';
+          return;
+        }
+
+        var top3 = rows.slice(0, 3);
+        var rest = rows.slice(3);
+
+        var html = "";
+
+        if (top3.length) {
+          html += '<div class="wordle-top3">';
+          for (var i = 0; i < top3.length; i++) {
+            var topRow = top3[i] || {};
+            var topRank = i + 1;
+            var topName = escapeHtml(topRow.name || topRow.studentId || "Student");
+            var topGrade = escapeHtml(topRow.grade || "");
+            var topPoints = Number(topRow.points || 0);
+
+            html +=
+              '<div class="wordle-podium-card wordle-podium-card--' + topRank + '">' +
+                '<div class="wordle-podium-rank">#' + topRank + '</div>' +
+                '<div class="wordle-podium-name">' + topName + '</div>' +
+                (topGrade ? '<div class="wordle-podium-grade">' + topGrade + '</div>' : '<div class="wordle-podium-grade">—</div>') +
+                '<div class="wordle-podium-score">' + topPoints + ' pts</div>' +
+              '</div>';
+          }
+          html += '</div>';
+        }
+
+        html += '<div class="wordle-ranking-list">';
+        for (var j = 0; j < rows.length; j++) {
+          var row = rows[j] || {};
+          var rank = j + 1;
+          var name = escapeHtml(row.name || row.studentId || "Student");
+          var grade = escapeHtml(row.grade || "");
+          var points = Number(row.points || 0);
+
+          html +=
+            '<div class="wordle-ranking-row">' +
+              '<div class="wordle-ranking-rank">#' + rank + '</div>' +
+              '<div class="wordle-ranking-main">' +
+                '<div class="wordle-ranking-name">' + name + '</div>' +
+                '<div class="wordle-ranking-meta">' + (grade || "No class") + '</div>' +
+              '</div>' +
+              '<div class="wordle-ranking-points">' +
+                '<div class="wordle-ranking-points-value">' + points + '</div>' +
+                '<div class="wordle-ranking-points-label">Points</div>' +
+              '</div>' +
+            '</div>';
+        }
+        html += "</div>";
+
+        leaderboardList.innerHTML = html;
+      }
+
+      async function loadWordleLeaderboard() {
+        if (!leaderboardStatus || !leaderboardList) return;
+
+        leaderboardStatus.textContent = "Loading...";
+        leaderboardList.innerHTML = "";
+
+        try {
+          var TABLES = window.PRESENTACY_TABLES || {};
+          var WORDLE_WINS_TABLE = TABLES.WORDLE_WINS || "WordleWins";
+
+          var winsResponse = await supabaseClient
+            .from(WORDLE_WINS_TABLE)
+            .select("studentId, studentName, class, points, playedOn");
+
+          if (winsResponse.error) {
+            console.error(winsResponse.error);
+            leaderboardStatus.textContent =
+              winsResponse.error.message || "Could not load Wordle wins.";
+            return;
+          }
+
+          var wins = winsResponse.data || [];
+
+          if (!wins.length) {
+            leaderboardStatus.textContent = "";
+            leaderboardList.innerHTML = '<div class="wordle-empty-state">No Wordle points yet.</div>';
+            return;
+          }
+
+          var totalsByStudentId = {};
+
+          for (var i = 0; i < wins.length; i++) {
+            var row = wins[i] || {};
+            var studentId = String(row.studentId || "").trim();
+            if (!studentId) continue;
+
+            if (!totalsByStudentId[studentId]) {
+              totalsByStudentId[studentId] = {
+                studentId: studentId,
+                name: row.studentName || studentId,
+                grade: row.class || "",
+                points: 0
+              };
             }
+
+            totalsByStudentId[studentId].points += Number(row.points || 0);
+
+            if (!totalsByStudentId[studentId].name && row.studentName) {
+              totalsByStudentId[studentId].name = row.studentName;
+            }
+
+            if (!totalsByStudentId[studentId].grade && row.class) {
+              totalsByStudentId[studentId].grade = row.class;
+            }
+          }
+
+          var rows = Object.keys(totalsByStudentId).map(function (studentId) {
+            return totalsByStudentId[studentId];
+          });
+
+          rows.sort(function (a, b) {
+            if (b.points !== a.points) return b.points - a.points;
+            return String(a.name || "").localeCompare(String(b.name || ""));
+          });
+
+          rows = rows.slice(0, 20);
+
+          leaderboardStatus.textContent = "";
+          renderWordleLeaderboard(rows);
+        } catch (err) {
+          console.error(err);
+          leaderboardStatus.textContent =
+            err.message || "Unexpected error loading leaderboard.";
+        }
+      }
+
+      function loadOrPickDailyWord() {
+        var today = getTodayDate();
+        var saved = null;
+
+        try {
+          saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        } catch (e) {
+          saved = null;
+        }
+
+        if (saved && saved.date === today && WORDS.indexOf(saved.secret) !== -1) {
+          secret = saved.secret;
+
+          if (saved.played) {
+            gameOver = true;
+            if (saved.won) {
+              wordleMessage.textContent =
+                "You already solved today's word on this device. Come back tomorrow!";
+              wordleMessage.className =
+                "wordle-message wordle-message--success";
+
+              showWinBox("You already got today's Wordle point.");
+            } else {
+              wordleMessage.textContent =
+                "You already played today's word. The word was " +
+                secret +
+                ". Come back tomorrow!";
+              wordleMessage.className =
+                "wordle-message wordle-message--error";
+            }
+            return;
+          }
+        } else {
+          var index = Math.floor(Math.random() * WORDS.length);
+          secret = WORDS[index];
+          saveState(false, false);
+        }
+
+        resetGridState();
+      }
+
+      function showMessage(text, type) {
+        wordleMessage.textContent = text;
+        wordleMessage.className = "wordle-message";
+        if (type === "success") {
+          wordleMessage.classList.add("wordle-message--success");
+        } else if (type === "error") {
+          wordleMessage.classList.add("wordle-message--error");
+        }
+      }
+
+      function submitGuess() {
+        if (gameOver) return;
+
+        if (currentGuess.length !== wordLength) {
+          showMessage("The word must be 5 letters.", "error");
+          return;
+        }
+
+        var guess = currentGuess.toUpperCase();
+        var secretLetters = secret.split("");
+        var guessLetters = guess.split("");
+        var usedSecret = [];
+        for (var k = 0; k < wordLength; k++) usedSecret.push(false);
+
+        for (var i = 0; i < wordLength; i++) {
+          var selector1 = '.wordle-cell[data-row="' + currentRow + '"][data-col="' + i + '"]';
+          var cell1 = wordleGrid.querySelector(selector1);
+          if (!cell1) continue;
+
+          cell1.textContent = guessLetters[i];
+
+          if (guessLetters[i] === secretLetters[i]) {
+            cell1.classList.add("wordle-cell--correct");
+            usedSecret[i] = true;
+          }
+        }
+
+        for (var j = 0; j < wordLength; j++) {
+          var selector2 = '.wordle-cell[data-row="' + currentRow + '"][data-col="' + j + '"]';
+          var cell2 = wordleGrid.querySelector(selector2);
+          if (!cell2) continue;
+          if (cell2.classList.contains("wordle-cell--correct")) continue;
+
+          var letter = guessLetters[j];
+          var foundIndex = -1;
+
+          for (var h = 0; h < wordLength; h++) {
+            if (!usedSecret[h] && secretLetters[h] === letter) {
+              foundIndex = h;
+              break;
+            }
+          }
+
+          if (foundIndex !== -1) {
+            cell2.classList.add("wordle-cell--present");
+            usedSecret[foundIndex] = true;
           } else {
-            wordleMessage.textContent =
-              "You already played today's word. The word was " +
-              secret +
-              ". Come back tomorrow!";
-            wordleMessage.className =
-              "wordle-message wordle-message--error";
+            cell2.classList.add("wordle-cell--absent");
+          }
+        }
+
+        if (guess === secret) {
+          showMessage("You got it! 🎉", "success");
+          gameOver = true;
+          saveState(true, true);
+          saveWordlePointToSupabase();
+          return;
+        }
+
+        currentRow++;
+        currentGuess = "";
+
+        if (currentRow >= maxRows) {
+          showMessage("No more tries. The word was " + secret + ".", "error");
+          gameOver = true;
+          saveState(true, false);
+        } else {
+          showMessage("Try again. You have " + (maxRows - currentRow) + " tries left.", "");
+        }
+      }
+
+      function handleKeyInput(key) {
+        if (gameOver) return;
+
+        if (key === "Enter") {
+          submitGuess();
+          return;
+        }
+
+        if (key === "Backspace") {
+          if (currentGuess.length > 0) {
+            currentGuess = currentGuess.slice(0, -1);
+            renderCurrentGuess();
           }
           return;
         }
-      } else {
-        var index = Math.floor(Math.random() * WORDS.length);
-        secret = WORDS[index];
-        saveState(false, false);
-      }
 
-      resetGridState();
-    }
-
-    function showMessage(text, type) {
-      wordleMessage.textContent = text;
-      wordleMessage.className = "wordle-message";
-      if (type === "success") {
-        wordleMessage.classList.add("wordle-message--success");
-      } else if (type === "error") {
-        wordleMessage.classList.add("wordle-message--error");
-      }
-    }
-
-    function submitGuess() {
-      if (gameOver) return;
-      if (currentGuess.length !== wordLength) {
-        showMessage("The word must be 5 letters.", "error");
-        return;
-      }
-
-      var guess = currentGuess.toUpperCase();
-      var secretLetters = secret.split("");
-      var guessLetters = guess.split("");
-      var usedSecret = [];
-      for (var k = 0; k < wordLength; k++) {
-        usedSecret.push(false);
-      }
-
-      // First pass – correct letter, correct position
-      for (var i = 0; i < wordLength; i++) {
-        var selector1 =
-          '.wordle-cell[data-row="' + currentRow + '"][data-col="' + i + '"]';
-        var cell1 = wordleGrid.querySelector(selector1);
-        if (!cell1) continue;
-
-        cell1.textContent = guessLetters[i];
-
-        if (guessLetters[i] === secretLetters[i]) {
-          cell1.classList.add("wordle-cell--correct");
-          usedSecret[i] = true;
-        }
-      }
-
-      // Second pass – correct letter, wrong position
-      for (var j = 0; j < wordLength; j++) {
-        var selector2 =
-          '.wordle-cell[data-row="' + currentRow + '"][data-col="' + j + '"]';
-        var cell2 = wordleGrid.querySelector(selector2);
-        if (!cell2) continue;
-        if (cell2.classList.contains("wordle-cell--correct")) continue;
-
-        var letter = guessLetters[j];
-        var foundIndex = -1;
-
-        for (var h = 0; h < wordLength; h++) {
-          if (!usedSecret[h] && secretLetters[h] === letter) {
-            foundIndex = h;
-            break;
+        var letterPattern = /^[A-Z]$/;
+        if (letterPattern.test(key)) {
+          if (currentGuess.length < wordLength) {
+            currentGuess = currentGuess + key;
+            renderCurrentGuess();
           }
         }
-
-        if (foundIndex !== -1) {
-          cell2.classList.add("wordle-cell--present");
-          usedSecret[foundIndex] = true;
-        } else {
-          cell2.classList.add("wordle-cell--absent");
-        }
       }
 
-     if (guess === secret) {
-  showMessage("You got it! 🎉", "success");
-  gameOver = true;
-  saveState(true, true);
-
-  // ✅ show the google form link
-  updateFormHrefWithSecret();
-  if (wordleFormLink) {
-    wordleFormLink.style.display = "block";
-  }
-
-  return;
-}
-
-      currentRow++;
-      currentGuess = "";
-
-      if (currentRow >= maxRows) {
-        showMessage("No more tries. The word was " + secret + ".", "error");
-        gameOver = true;
-        saveState(true, false);
-      } else {
-        showMessage(
-          "Try again. You have " + (maxRows - currentRow) + " tries left.",
-          ""
-        );
-      }
-    }
-
-        // Handle a key (from real keyboard or on-screen keyboard)
-    function handleKeyInput(key) {
-      if (gameOver) return;
-
-      if (key === "Enter") {
-        submitGuess();
-        return;
-      }
-
-      if (key === "Backspace") {
-        if (currentGuess.length > 0) {
-          currentGuess = currentGuess.slice(0, -1);
-          renderCurrentGuess();
-        }
-        return;
-      }
-
-      var letterPattern = /^[A-Z]$/;
-      if (letterPattern.test(key)) {
-        if (currentGuess.length < wordLength) {
-          currentGuess = currentGuess + key;
-          renderCurrentGuess();
-        }
-      }
-    }
-
-    // Physical keyboard (desktop / laptop)
-    function handleKeyDown(e) {
-      var key = e.key;
-
-      // normal letters
-      if (key.length === 1) {
-        key = key.toUpperCase();
-      }
-
-      handleKeyInput(key);
-    }
-
-        window.addEventListener("keydown", handleKeyDown);
-
-    // On-screen keyboard clicks (phones / tablets)
-    if (wordleKeyboard) {
-      wordleKeyboard.addEventListener("click", function (e) {
-        var target = e.target;
-        if (!target.classList.contains("wordle-key")) return;
-
-        var key = target.getAttribute("data-key");
-        if (!key) return;
-
+      function handleKeyDown(e) {
+        var key = e.key;
+        if (key.length === 1) key = key.toUpperCase();
         handleKeyInput(key);
-      });
-    }
+      }
 
-    // Init
-    createGrid();
-    loadOrPickDailyWord();
-  })();
-</script>
+      window.addEventListener("keydown", handleKeyDown);
+
+      if (wordleKeyboard) {
+        wordleKeyboard.addEventListener("click", function (e) {
+          var target = e.target;
+          if (!target.classList.contains("wordle-key")) return;
+
+          var key = target.getAttribute("data-key");
+          if (!key) return;
+
+          handleKeyInput(key);
+        });
+      }
+
+      createGrid();
+      loadOrPickDailyWord();
+      loadWordleLeaderboard();
+    })();
+  </script>
 </body>
 </html>

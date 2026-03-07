@@ -1,46 +1,44 @@
-const API_URL =
-  "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec";
+const supabaseClient = getSupabaseClient();
 
-/**
- * Loads students into a <datalist id="studentsList"> for autocomplete input.
- * Expects backend: { ok:true, students:[{id,name,username,class}, ...] }
- */
+function extractStudentName(row) {
+  if (!row || typeof row !== "object") return "";
+  return String(
+    row.name ||
+    row.full_name ||
+    row.student_name ||
+    row.student ||
+    ""
+  ).trim();
+}
+
 async function loadStudentsList() {
   const dataList = document.getElementById("studentsList");
   if (!dataList) return;
 
   try {
-    const res = await fetch(`${API_URL}?action=students`, { cache: "no-store" });
-    const text = await res.text();
+    const { data, error } = await supabaseStudentsClient
+      .from("students")
+      .select("*")
+      .order("name", { ascending: true });
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      console.error("Could not parse JSON from students API:", text);
+    if (error) {
+      console.error("Failed to load students:", error);
       return;
     }
 
-    if (!data.ok || !Array.isArray(data.students)) {
-      console.error("Students API error:", data);
-      return;
-    }
-
-    // Clear old options
     dataList.innerHTML = "";
 
-    data.students.forEach((s) => {
-      // Backend uses: {id,name,...}
-      const name = String((s && (s.name || s.studentName)) || "").trim();
+    (data || []).forEach(function (row) {
+      const name = extractStudentName(row);
       if (!name) return;
 
-      const opt = document.createElement("option");
-      opt.value = name; // user types / sees full name
-      opt.textContent = name;
-      dataList.appendChild(opt);
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      dataList.appendChild(option);
     });
   } catch (err) {
-    console.error("Failed to load students", err);
+    console.error("Unexpected students load error:", err);
   }
 }
 

@@ -5,65 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Teacher Rubric – Presentacy</title>
 
-  <!-- Same main stylesheet as the rest of the site -->
   <link rel="stylesheet" href="styles.css" />
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="main.js" defer></script>
+  <script src="teacher-rubric.js" defer></script>
 </head>
 
 <body data-page="teacher-rubric">
   <div class="page">
+    <header class="page-header">
+      <nav class="navbar">
+        <div class="logo">
+          <div class="logo-mark">P</div>
+          <span>Presentacy</span>
+        </div>
 
-<header class="page-header">
-  <nav class="navbar">
-    <div class="logo">
-      <div class="logo-mark">P</div>
-      <span>Presentacy</span>
-    </div>
+        <div class="nav-user">
+          <span id="user-greeting"></span>
+        </div>
 
-    <div class="nav-user">
-      <span id="user-greeting"></span>
-    </div>
+        <button type="button" class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
 
-    <button type="button" class="nav-toggle" aria-label="Toggle navigation">
-      <span></span><span></span><span></span>
-    </button>
+        <div class="nav-links" id="navLinks">
+          <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+          <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+          <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
+          <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+          <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+          <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+          <a href="teacher-rubric.html" class="nav-link" data-nav="teacher-rubrics">Teacher Rubrics</a>
+          <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
+        </div>
+      </nav>
 
-    <div class="nav-links" id="navLinks">
-      <a href="index.html" class="nav-link" data-page-link="home">Home</a>
-      <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
-      <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
-      <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
-      <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
-      <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
-      <a href="teacher-rubric.html" class="nav-link" data-nav="teacher-rubrics">Teacher Rubrics</a>
-      <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
-    </div>
-  </nav>
+      <div id="greeting-banner" class="greeting-banner"></div>
+    </header>
 
-  <!-- ✅ Move banner here (outside nav) -->
-  <div id="greeting-banner" class="greeting-banner"></div>
-</header>
-
-    <!-- MAIN CONTENT -->
     <main class="teacher-rubric-page card">
       <h2>Teacher Rubric – Presentacy</h2>
 
       <p class="hint">
         For all criteria except listening:
-        <strong>1 = Needs improvement, 2 = Satisfactory, 3 = Good, 4 = Excellent</strong>.<br>
+        <strong>1 = Needs improvement, 2 = Satisfactory, 3 = Good, 4 = Excellent</strong><br>
         Listening: <strong>-2 to +2</strong> (negative = weak listener, positive = excellent listener).
       </p>
 
-      <!-- Sends data directly to your Apps Script -->
-     <form
-  id="rubrics-form"
-  class="teacher-rubric-form"
-  action="https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec"
-  method="POST"
-  target="rubrics-saver-frame"
->
-
-        <!-- Teacher + student -->
+      <form id="rubrics-form" class="teacher-rubric-form">
         <section class="teacher-info">
   <div>
     <label for="teacher">Teacher Name:</label>
@@ -71,7 +60,8 @@
       id="teacher"
       name="teacher"
       type="text"
-      placeholder="Ms/Mr ..."
+      value="Mr. Omar"
+      readonly
       required
     >
 
@@ -86,36 +76,35 @@
   </div>
 
   <div>
+    <label for="studentClass">Class:</label>
+    <select id="studentClass" name="studentClass" class="input" required>
+      <option value="">Choose class…</option>
+    </select>
+
     <label for="student">Student:</label>
-    <input
-      id="student"
-      name="student"
-      list="studentsList"
-      placeholder="Start typing a name..."
-      required
-    >
-    <datalist id="studentsList"></datalist>
+    <select id="student" name="student" class="input" required disabled>
+      <option value="">Choose student…</option>
+    </select>
   </div>
 </section>
 
-        <!-- Topic -->
-        <section class="student-section">
-          <div>
-            <label for="topic">Topic:</label>
-            <input
-              id="topic"
-              name="topic"
-              type="text"
-              placeholder="Presentation topic"
-              required
-            >
-          </div>
-        </section>
+<section class="student-section">
+  <div>
+    <label for="topic">Topic:</label>
+    <input
+      id="topic"
+      name="topic"
+      type="text"
+      placeholder="Presentation topic"
+      required
+    >
+  </div>
+</section>
 
-        <div class="form-row">
+<div class="form-row">
   <label class="form-field">
     <span class="form-label">Week</span>
-    <select name="week" id="rubric-week" class="input">
+    <select name="week" id="rubric-week" class="input" required>
       <option value="">Choose week…</option>
       <option value="1">Week 1</option>
       <option value="2">Week 2</option>
@@ -133,10 +122,10 @@
       <option value="14">Week 14</option>
       <option value="15">Week 15</option>
     </select>
+    <small id="weekHint" class="hint">Week will be chosen automatically after you choose the student.</small>
   </label>
 </div>
 
-        <!-- Rubric scores -->
         <section class="rubric-section">
           <h3>Rubric Scores</h3>
 
@@ -210,25 +199,25 @@
             </select>
           </div>
 
-               <div class="rubric-row">
-  <label>Language Accuracy:</label>
-  <select name="languageAccuracy" required>
-    <option value="1">1 – Needs improvement</option>
-    <option value="2">2 – Satisfactory</option>
-    <option value="3" selected>3 – Good</option>
-    <option value="4">4 – Excellent</option>
-  </select>
-</div>
+          <div class="rubric-row">
+            <label>Language Accuracy:</label>
+            <select name="languageAccuracy" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
 
-<div class="rubric-row">
-  <label>Pronunciation:</label>
-  <select name="pronunciation" required>
-    <option value="1">1 – Needs improvement</option>
-    <option value="2">2 – Satisfactory</option>
-    <option value="3" selected>3 – Good</option>
-    <option value="4">4 – Excellent</option>
-  </select>
-</div>
+          <div class="rubric-row">
+            <label>Pronunciation:</label>
+            <select name="pronunciation" required>
+              <option value="1">1 – Needs improvement</option>
+              <option value="2">2 – Satisfactory</option>
+              <option value="3" selected>3 – Good</option>
+              <option value="4">4 – Excellent</option>
+            </select>
+          </div>
 
           <div class="rubric-row">
             <label>Listening (audience behaviour) (-2 to +2):</label>
@@ -240,37 +229,24 @@
               <option value="2">2 – Excellent listener</option>
             </select>
           </div>
-</section>
-                </section>
+        </section>
 
-        <!-- HIDDEN iframe that will receive the Apps Script "Rubric saved" page -->
-        <iframe
-          name="rubrics-saver-frame"
-          id="rubrics-saver-frame"
-          style="display:none; visibility:hidden; width:0; height:0; border:0;"
-        ></iframe>
+        <div id="status" class="hint" style="margin-top: 10px;"></div>
 
         <div class="form-actions">
-          <button type="submit" class="primary-button">
-            Save rubrics
-          </button>
+          <button type="submit" class="primary-button">Save rubrics</button>
         </div>
       </form>
     </main>
 
     <footer class="site-footer">
-  <div class="footer-text">Presentacy: School Presentation Project – Made by Omar</div>
-
-  <img
-    class="footer-logo"
-    src="english-logo.png"
-    alt="English Department - Voice Builders - Al Omran College Semi-International School"
-  />
-</footer>
+      <div class="footer-text">Presentacy: School Presentation Project – Made by Omar</div>
+      <img
+        class="footer-logo"
+        src="english-logo.png"
+        alt="English Department - Voice Builders - Al Omran College Semi-International School"
+      />
+    </footer>
   </div>
-
-  <!-- Populates the students list + talks to backend -->
-  <script src="teacher-students.js"></script>
-
 </body>
 </html>

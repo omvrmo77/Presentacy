@@ -16,7 +16,6 @@ const STUDENTS = [
 { username: "yaah934", password: "20489", name: "Yahia Ahmed ", class: "1A", role: "student", scores: { week1: 19 } },
 { username: "limo666", password: "74114", name: "Lilyan Mohamed ", class: "1A", role: "student", scores: { week1: 0 } },
 
-
 { username: "gaah897", password: "11835", name: "Gamila Ahmed", class: "1B", role: "student", scores: { week1: 0 } },
 { username: "gamo591", password: "22764", name: "Ganna Mohamed", class: "1B", role: "student", scores: { week1: 0 } },
 { username: "daah155", password: "33271", name: "Dana Ahmed ", class: "1B", role: "student", scores: { week1: 0 } },
@@ -99,7 +98,7 @@ const STUDENTS = [
 { username: "mare951", password: "87790", name: "Malka Reda", class: "4", role: "student", scores: { week1: 0 } },
 { username: "ahma010", password: "51994", name: "Ahmed Mahmoud ", class: "4", role: "student", scores: { week1: 0 } },
 { username: "admo788", password: "77509", name: "Adam Mostafa", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "haah720", password: "65276", name: "Hamza Ahmed Rabee", class: "4", role: "student", scores: { week1: 0 } },
+{ username: "haah720", password: "65276", name: "Hamza Ahmed ", class: "4", role: "student", scores: { week1: 0 } },
 { username: "abmo519", password: "92483", name: "Abdallah Mohsen", class: "4", role: "student", scores: { week1: 0 } },
 { username: "omho833", password: "22486", name: "Omar hossain", class: "4", role: "student", scores: { week1: 0 } },
 { username: "slmo354", password: "19424", name: "Slim Mostafa", class: "4", role: "student", scores: { week1: 0 } },
@@ -271,6 +270,52 @@ const STUDENTS = [
 
 const PRESENTACY_USER_KEY = "presentacy_current_user";
 
+const MAINTENANCE_MODE = true;
+const MAINTENANCE_ACCESS_KEY = "presentacy_maintenance_access";
+
+function hasMaintenanceAccess() {
+  try {
+    return localStorage.getItem(MAINTENANCE_ACCESS_KEY) === "granted";
+  } catch (e) {
+    return false;
+  }
+}
+
+function grantMaintenanceAccess() {
+  try {
+    localStorage.setItem(MAINTENANCE_ACCESS_KEY, "granted");
+  } catch (e) {
+    console.error("Could not save maintenance access", e);
+  }
+}
+
+function clearMaintenanceAccess() {
+  try {
+    localStorage.removeItem(MAINTENANCE_ACCESS_KEY);
+  } catch (e) {
+    console.error("Could not clear maintenance access", e);
+  }
+}
+
+function enforceMaintenanceMode() {
+  const path = (window.location.pathname.split("/").pop() || "").toLowerCase();
+  const isMaintenancePage = path === "maintenance.html";
+
+  if (MAINTENANCE_MODE) {
+    if (!isMaintenancePage && !hasMaintenanceAccess()) {
+      window.location.href = "maintenance.html";
+      return true;
+    }
+  } else {
+    if (isMaintenancePage) {
+      window.location.href = "login.html";
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function presentacySetCurrentUser(account) {
   if (!account) return;
   const data = {
@@ -323,6 +368,7 @@ function applyRoleBasedNav() {
 function presentacyLogout() {
   try {
     localStorage.removeItem(PRESENTACY_USER_KEY);
+    localStorage.removeItem(MAINTENANCE_ACCESS_KEY);
   } catch (e) {
     // ignore
   }
@@ -342,7 +388,7 @@ function setupLogoutButton() {
 // 3. LOGIN PAGE LOGIC
 // ============================
 
-function initPresentacyLoginPage() {
+async function initPresentacyLoginPage() {
   const form = document.getElementById("login-form");
   if (!form) return;
 
@@ -350,61 +396,95 @@ function initPresentacyLoginPage() {
   const passwordInput = document.getElementById("login-password");
   const errorEl = document.getElementById("login-error");
 
-  // Already logged in? Go to leaderboard
   const existing = presentacyGetCurrentUser();
   if (existing) {
     window.location.href = "index.html";
     return;
   }
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const username = (usernameInput.value || "").trim().toLowerCase();
     const password = (passwordInput.value || "").trim();
 
     if (!username || !password) {
-      if (errorEl) {
-        errorEl.textContent = "Please fill both username and password.";
-      }
+      if (errorEl) errorEl.textContent = "Please fill both username and password.";
       return;
     }
 
-    if (!Array.isArray(STUDENTS)) {
-      console.error("STUDENTS array is missing!");
-      if (errorEl) {
-        errorEl.textContent = "Internal error – tell your teacher.";
+    if (errorEl) errorEl.textContent = "Logging in...";
+
+    try {
+      const supabase = getSupabaseClient();
+      let account = null;
+
+      // STUDENTS TABLE
+      {
+        const { data, error } = await supabase
+          .from("Students")
+          .select("*")
+          .eq("username", username)
+          .limit(1);
+
+        if (error) {
+          console.error("Students login error:", error);
+        } else if (Array.isArray(data) && data.length > 0) {
+          const row = data[0];
+          const dbPassword = String(row.studentId ?? "").trim();
+
+          if (dbPassword === password) {
+            account = {
+  username: String(row.username || "").trim().toLowerCase(),
+  name: String(row.studentName || row["Student Name"] || row.username || "").trim(),
+  class: String(row.Class || row.class || row.grade || row.class_name || "").trim(),
+  role: "student"
+};
+          }
+        }
       }
-      return;
-    }
 
-    // Match ignoring extra spaces in stored usernames
-    const account = STUDENTS.find((s) => {
-      const storedUser = (s.username || "").trim().toLowerCase();
-      return storedUser === username && String(s.password) === password;
-    });
+      // TEACHERS TABLE
+      if (!account) {
+        const { data, error } = await supabase
+          .from("Teachers")
+          .select("*")
+          .eq("username", username)
+          .limit(1);
 
-    if (!account) {
-      if (errorEl) {
-        errorEl.textContent = "Username or password is wrong. Try again.";
+        if (error) {
+          console.error("Teachers login error:", error);
+        } else if (Array.isArray(data) && data.length > 0) {
+          const row = data[0];
+          const dbPassword = String(row.password ?? "").trim();
+
+          if (dbPassword === password) {
+            account = {
+              username: String(row.username || "").trim().toLowerCase(),
+              name: String(row.name || row.teacherName || row.username || "").trim(),
+              class: "",
+              role: "teacher"
+            };
+          }
+        }
       }
-      return;
+
+      if (!account) {
+        if (errorEl) errorEl.textContent = "Username or password is wrong. Try again.";
+        return;
+      }
+
+      if (errorEl) errorEl.textContent = "";
+      presentacySetCurrentUser(account);
+      window.location.href = "index.html";
+    } catch (err) {
+      console.error(err);
+      if (errorEl) {
+        errorEl.textContent = err.message || "Login failed.";
+      }
     }
-
-    if (errorEl) errorEl.textContent = "";
-
-    presentacySetCurrentUser(account);
-    window.location.href = "index.html";
   });
 }
-
-
-// ============================
-// 3.5 LOAD SCORES FROM SPREADSHEET
-// ============================
-
-// TODO: paste your real API / web-app URL here
-const SCORES_API_URL = "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec";
 
 /**
  * Fetch scores from the spreadsheet backend and merge into STUDENTS.
@@ -416,54 +496,223 @@ const SCORES_API_URL = "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF
  * ]
  */
 async function loadScoresFromAPI() {
-  if (!SCORES_API_URL) {
-    console.warn("SCORES_API_URL is missing.");
-    return;
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("Rubrics")
+    .select("*");
+
+  if (error) {
+    console.error("Supabase rubrics load failed:", error);
+    return [];
   }
 
-  const url = `${SCORES_API_URL}?action=allscores`;
+  return Array.isArray(data) ? data : [];
+}
 
-  let payload;
-  try {
-    const res = await fetch(url, {
-      method: "GET",
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-    });
-    const text = await res.text();
-    payload = JSON.parse(text);
-  } catch (e) {
-    console.warn("Failed to load allscores from backend.", e);
-    return;
+async function loadStudentsFromSupabase() {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("Students")
+    .select("username, studentId, studentName, Class");
+
+  if (error) {
+    console.error("Supabase students load failed:", error);
+    return [];
   }
 
-  if (!payload || !payload.ok || !Array.isArray(payload.scores)) {
-    console.warn("Backend allscores returned unexpected data:", payload);
-    return;
-  }
+  return (Array.isArray(data) ? data : []).map((row) => ({
+    username: String(row.username || "").trim().toLowerCase(),
+    studentId: String(row.studentId || "").trim(),
+    password: String(row.studentId || "").trim(),
+    name: String(row.studentName || row.username || "").trim(),
+    class: String(row.Class || "").trim(),
+    role: "student",
+    scores: {}
+  }));
+}
 
-  // Map local students by username
+function normalizeStudentUsername(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function normalizeStudentName(value) {
+  return String(value || "").trim();
+}
+
+function getStudentUsername(student) {
+  return normalizeStudentUsername(
+    student.username ||
+    student.user_name ||
+    student.student_id ||
+    student.id
+  );
+}
+
+function getRubricUsername(row) {
+  return normalizeStudentUsername(
+    row["Student ID"] ||
+    row.studentId ||
+    row.student_id ||
+    row.student_username ||
+    row.username ||
+    row.user_name
+  );
+}
+
+function getStudentClassName(student) {
+  return String(
+    student.Class ||
+    student.class ||
+    student.grade ||
+    student.class_name ||
+    ""
+  ).trim();
+}
+
+function getRubricWeek(row) {
+  return Number(
+    row.week ||
+    row.week_no ||
+    row.week_number ||
+    0
+  ) || 0;
+}
+
+function getRubricTotal(row) {
+  return Number(
+    row.total ||
+    row.total_points ||
+    row.score ||
+    row.points ||
+    0
+  ) || 0;
+}
+
+function getRubricUsername(row) {
+  return normalizeStudentUsername(
+    row["Student ID"] ||
+    row.studentId ||
+    row.student_id ||
+    row.student_username ||
+    row.username ||
+    row.user_name
+  );
+}
+
+function getRubricStudentName(row) {
+  return normalizeStudentName(
+    row["Student Name"] ||
+    row.studentName ||
+    row.student_name ||
+    row.name ||
+    row.full_name
+  );
+}
+
+function cloneStudentRecord(student) {
+  const cloned = JSON.parse(JSON.stringify(student));
+  cloned.scores = {};
+  return cloned;
+}
+
+function mergeFrontendStudentsWithRubrics(frontendStudents, rubricRows) {
+  const merged = (frontendStudents || []).map(cloneStudentRecord);
+
   const byUsername = new Map();
-  STUDENTS.forEach((s) => {
-    const key = (s.username || "").trim().toLowerCase();
-    if (!key) return;
-    byUsername.set(key, s);
-    if (!s.scores) s.scores = {};
+  const byStudentId = new Map();
+
+  merged.forEach((student) => {
+    const username = normalizeStudentUsername(student.username);
+    const studentId = String(student.studentId || student.password || "").trim();
+
+    if (username) {
+      byUsername.set(username, student);
+    }
+
+    if (studentId) {
+      byStudentId.set(studentId, student);
+    }
   });
 
-  // Merge backend totals into local STUDENTS
-  payload.scores.forEach((row) => {
-    const u = String(row.username || "").trim().toLowerCase();
-    if (!u) return;
+  (rubricRows || []).forEach((row) => {
+    const rubricStudentId = String(
+      row["Student ID"] ||
+      row.studentId ||
+      row.student_id ||
+      ""
+    ).trim();
 
-    const student = byUsername.get(u);
-    if (!student) return;
+    const week = getRubricWeek(row);
+    const total = getRubricTotal(row);
 
-    // Store spreadsheet totalPoints (latest or summed depending on backend)
-    student.scores.totalPoints = Number(row.totalPoints || 0);
+    if (!rubricStudentId || !week) return;
+
+    let student = byStudentId.get(rubricStudentId);
+
+    if (!student) {
+      student = {
+        name: getRubricStudentName(row) || rubricStudentId,
+        username: "",
+        studentId: rubricStudentId,
+        password: "",
+        class: "",
+        role: "student",
+        scores: {}
+      };
+
+      merged.push(student);
+      byStudentId.set(rubricStudentId, student);
+    }
+
+    if (!student.scores || typeof student.scores !== "object") {
+      student.scores = {};
+    }
+
+    student.scores["week" + week] = total;
+
+    if (!student.name) {
+      student.name = getRubricStudentName(row) || student.username || rubricStudentId;
+    }
   });
 
-  console.log("Merged backend allscores into STUDENTS.");
+  return merged;
+}
+
+async function getMergedStudentsData() {
+  const [studentsFromSupabase, rubricRows] = await Promise.all([
+    loadStudentsFromSupabase(),
+    loadScoresFromAPI()
+  ]);
+
+  const baseStudents =
+    Array.isArray(studentsFromSupabase) && studentsFromSupabase.length
+      ? studentsFromSupabase
+      : STUDENTS;
+
+  return mergeFrontendStudentsWithRubrics(baseStudents, rubricRows);
+}
+
+function getTotalPoints(student) {
+  if (!student || !student.scores) return 0;
+
+  // ✅ If spreadsheet provided a total, use it
+  const apiTotal = Number(student.scores.totalPoints);
+  if (Number.isFinite(apiTotal) && apiTotal > 0) return apiTotal;
+
+  // Otherwise fall back to summing week1/week2/... in local JS
+  let total = 0;
+  for (const [k, v] of Object.entries(student.scores)) {
+    if (/^week\d+$/i.test(k)) {
+      const n = Number(v);
+      if (Number.isFinite(n)) total += n;
+    }
+  }
+  return total;
+}
+function getTotalPoints(student) {
+  return getTotalScoreFromStudent(student);
 }
 
 
@@ -520,16 +769,17 @@ function calculateBadge(points) {
 }
 
 // Build the leaderboard table (top 5) for whole school or for a class
-function renderLeaderboardTable(classFilter) {
+async function renderLeaderboardTable(classFilter) {
   const tbody = document.getElementById("leaderboard-table-body");
-  if (!tbody || !Array.isArray(STUDENTS)) return;
+  if (!tbody) return;
+
+  const allStudents = await getMergedStudentsData();
 
   let pool =
     classFilter && classFilter !== ""
-      ? STUDENTS.filter((s) => s.class === classFilter)
-      : STUDENTS.slice();
+      ? allStudents.filter((s) => s.class === classFilter)
+      : allStudents.slice();
 
-  // Remove non-students (teachers)
   pool = pool.filter((s) => s.role !== "teacher");
 
   const withTotals = pool.map((s) => ({
@@ -538,7 +788,6 @@ function renderLeaderboardTable(classFilter) {
   }));
 
   const nonZero = withTotals.filter((s) => s.totalPoints > 0);
-
   nonZero.sort((a, b) => b.totalPoints - a.totalPoints);
 
   const top = nonZero.slice(0, 5);
@@ -702,13 +951,15 @@ function renderNotFound(term, selectedClassLabel, targetEl) {
 // 5. LEADERBOARD SEARCH MODES
 // ============================
 
-function setupTeacherSearchOnLeaderboard() {
+async function setupTeacherSearchOnLeaderboard() {
   const classFilter = document.getElementById("class-filter");
   const nameInput = document.getElementById("student-search-input");
   const searchBtn = document.getElementById("student-search-button");
   const resultEl = document.getElementById("student-result");
 
   if (!classFilter || !nameInput || !searchBtn || !resultEl) return;
+
+  const allStudents = await getMergedStudentsData();
 
   classFilter.disabled = false;
   nameInput.disabled = false;
@@ -726,7 +977,7 @@ function setupTeacherSearchOnLeaderboard() {
 
     const lowerTerm = term.toLowerCase();
 
-    let pool = STUDENTS.filter((s) => s.role === "student");
+    let pool = allStudents.filter((s) => s.role === "student");
     if (selectedClass) {
       pool = pool.filter((s) => s.class === selectedClass);
     }
@@ -737,7 +988,7 @@ function setupTeacherSearchOnLeaderboard() {
     }
 
     const exact = pool.find(
-      (s) => s.name.toLowerCase() === lowerTerm
+      (s) => String(s.name || "").toLowerCase() === lowerTerm
     );
     if (exact) {
       renderStudentResultCard(exact, resultEl);
@@ -745,7 +996,7 @@ function setupTeacherSearchOnLeaderboard() {
     }
 
     const startsWith = pool.filter((s) => {
-      const n = s.name.toLowerCase();
+      const n = String(s.name || "").toLowerCase();
       return n === lowerTerm || n.startsWith(lowerTerm + " ");
     });
 
@@ -758,7 +1009,7 @@ function setupTeacherSearchOnLeaderboard() {
     }
 
     const broad = pool.filter((s) =>
-      s.name.toLowerCase().includes(lowerTerm)
+      String(s.name || "").toLowerCase().includes(lowerTerm)
     );
 
     if (broad.length === 1) {
@@ -771,7 +1022,7 @@ function setupTeacherSearchOnLeaderboard() {
   });
 }
 
-function setupStudentViewOnLeaderboard(currentUser) {
+async function setupStudentViewOnLeaderboard(currentUser) {
   const searchSection = document.getElementById("student-search");
   const resultEl = document.getElementById("student-result");
 
@@ -781,12 +1032,10 @@ function setupStudentViewOnLeaderboard(currentUser) {
   const infoPara = searchSection.querySelector("p");
   const searchRow = searchSection.querySelector(".search-row");
 
-  // 1) Hide the whole search row (class, name, button)
   if (searchRow) {
     searchRow.style.display = "none";
   }
 
-  // 2) Change the title & text to talk to this student
   if (titleEl) {
     titleEl.textContent = "Your Presentacy Score";
   }
@@ -795,8 +1044,9 @@ function setupStudentViewOnLeaderboard(currentUser) {
     infoPara.textContent = `This card shows your score for each week, ${currentUser.name}.`;
   }
 
-  // 3) Find this student in the data
-  const me = STUDENTS.find(
+  const allStudents = await getMergedStudentsData();
+
+  const me = allStudents.find(
     (s) =>
       (s.username || "").trim().toLowerCase() ===
       (currentUser.username || "").trim().toLowerCase()
@@ -812,13 +1062,13 @@ function setupStudentViewOnLeaderboard(currentUser) {
     return;
   }
 
-  // 4) Show a small friendly line + their score card
   resultEl.innerHTML = `
     <p class="student-message">
       Hi <strong>${me.name}</strong> (${me.class}) 👋  
       Here is your Presentacy score for each week:
     </p>
   `;
+
   renderStudentResultCard(me, resultEl);
 }
 
@@ -852,31 +1102,62 @@ async function initLeaderboardPage() {
   const leaderboardClassFilter = document.getElementById("leaderboard-class-filter");
   if (!leaderboardBody) return;
 
-  // Show something immediately (local STUDENTS)
-  renderLeaderboardTable("");
+  await renderLeaderboardTable("");
 
-  // Merge spreadsheet scores on top
-  if (typeof loadScoresFromAPI === "function") {
-    await loadScoresFromAPI();
+  if (leaderboardClassFilter) {
+    leaderboardClassFilter.addEventListener("change", async () => {
+      const cls = leaderboardClassFilter.value || "";
+      await renderLeaderboardTable(cls);
+    });
   }
 
-  // Re-render with merged scores (this is the real leaderboard)
-  const selectedClass = (leaderboardClassFilter && leaderboardClassFilter.value) || "";
-  renderLeaderboardTable(selectedClass);
+  const currentUser = presentacyGetCurrentUser();
 
-  // Keep filter working
-  if (leaderboardClassFilter) {
-    leaderboardClassFilter.addEventListener("change", () => {
-      const cls = leaderboardClassFilter.value || "";
-      renderLeaderboardTable(cls);
-    });
+  if (!currentUser) {
+    setupAnonymousViewOnLeaderboard();
+    return;
+  }
+
+  if (currentUser.role === "teacher") {
+    await setupTeacherSearchOnLeaderboard();
+  } else {
+    await setupStudentViewOnLeaderboard(currentUser);
   }
 }
 
 // ============================
 // 5.5 MY SCORES PAGE (student view with rubrics)
 // ============================
-const RUBRICS_API_URL = "https://script.google.com/macros/s/AKfycbxI1jxJqH44LkFiF6LESE3TUSTJei8JYyPPZYvBZfJgnv5dYW-aco0UZR-_uXr1cTk-/exec";
+const SUPABASE_URL = "https://ifrfqwzhsgedsxqcnjqj.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_qtHdGfV0k1DEFntuxIBCAA_kTmgZPGr";
+
+const PRESENTACY_TABLES = Object.freeze({
+  RUBRICS: "Rubrics",
+  STUDENTS: "Students",
+  TEACHERS: "Teachers",
+  WORDLE_WINS: "WordleWins"
+});
+
+if (typeof window !== "undefined") {
+  window.PRESENTACY_TABLES = PRESENTACY_TABLES;
+}
+
+let presentacySupabaseClient = null;
+
+function getSupabaseClient() {
+  if (presentacySupabaseClient) return presentacySupabaseClient;
+
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    throw new Error("Supabase library is not loaded.");
+  }
+
+  presentacySupabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+  return presentacySupabaseClient;
+}
 
 // ============================
 // 6. NAVBAR + HOME + GENERATOR + WALL
@@ -2868,15 +3149,81 @@ function buildWeeksTable(student) {
 }
 
 // Get unique class list for the teacher dropdown
-function getAllClasses() {
+async function getAllClasses() {
+  const allStudents = await getMergedStudentsData();
   const set = new Set();
-  STUDENTS.forEach((s) => {
-    if (s.class) set.add(s.class);
+
+  (allStudents || []).forEach((s) => {
+    const cls = String(s.class || "").trim();
+    if (cls && s.role !== "teacher") {
+      set.add(cls);
+    }
   });
-  return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+  return Array.from(set).sort((a, b) =>
+    a.localeCompare(b, undefined, { numeric: true })
+  );
 }
 
-function setupStudentMyScoresView(currentUser) {
+function convertSupabaseRubricRow(row) {
+  const safeNumber = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const rubricsNumbers = {
+    "Body Language": safeNumber(row.bodyLanguageFacial),
+    "Eye Contact": safeNumber(row.eyeContact),
+    "Intonation": safeNumber(row.intonation),
+    "Preparation": safeNumber(row.preparation),
+    "Visual Aids": safeNumber(row.visualAids),
+    "Time Management": safeNumber(row.timeManagement),
+    "Fluency": safeNumber(row.fluency),
+    "Language Accuracy": safeNumber(row.languageAccuracy),
+    "Pronunciation": safeNumber(row.pronunciation),
+    "Listening": safeNumber(row.listening)
+  };
+
+  function toLetterForRegularSkill(num) {
+    if (num >= 4) return "A";
+    if (num >= 3) return "B";
+    if (num >= 2) return "C";
+    if (num >= 1) return "D";
+    return "E";
+  }
+
+  function toLetterForListening(num) {
+    if (num >= 2) return "A";
+    if (num === 1) return "B";
+    if (num === 0) return "";
+    if (num === -1) return "D";
+    return "f";
+  }
+
+  const rubricsLetters = {
+    "Body Language": toLetterForRegularSkill(rubricsNumbers["Body Language"]),
+    "Eye Contact": toLetterForRegularSkill(rubricsNumbers["Eye Contact"]),
+    "Intonation": toLetterForRegularSkill(rubricsNumbers["Intonation"]),
+    "Preparation": toLetterForRegularSkill(rubricsNumbers["Preparation"]),
+    "Visual Aids": toLetterForRegularSkill(rubricsNumbers["Visual Aids"]),
+    "Time Management": toLetterForRegularSkill(rubricsNumbers["Time Management"]),
+    "Fluency": toLetterForRegularSkill(rubricsNumbers["Fluency"]),
+    "Language Accuracy": toLetterForRegularSkill(rubricsNumbers["Language Accuracy"]),
+    "Pronunciation": toLetterForRegularSkill(rubricsNumbers["Pronunciation"]),
+    "Listening": toLetterForListening(rubricsNumbers["Listening"])
+  };
+
+  return {
+    week: row.week || "",
+    topic: row.topic || "",
+    teacher: row.teacher || "",
+    totalPoints: safeNumber(row.total),
+    rubricsNumbers,
+    rubricsLetters
+  };
+}
+
+async function setupStudentMyScoresView(currentUser) {
   const statusEl = document.getElementById("myscores-status");
   const totalEl = document.getElementById("myscores-total");
   const badgeEl = document.getElementById("myscores-badge");
@@ -2894,181 +3241,251 @@ function setupStudentMyScoresView(currentUser) {
     return;
   }
 
-  // Reset UI
   statusEl.textContent = "Loading your scores…";
   totalEl.textContent = "–";
   badgeEl.textContent = "–";
   weeksContainer.innerHTML = "";
   rubricsEl.innerHTML = "";
 
-  // If the backend URL is not configured yet
-  if (!RUBRICS_API_URL) {
-    statusEl.textContent =
-      "Scores are not connected yet. Please tell your teacher so they can link the spreadsheet.";
-    return;
+  try {
+    const supabase = getSupabaseClient();
+    const studentId = String(currentUser.password || currentUser.studentId || "").trim();
+
+    if (!studentId) {
+      statusEl.textContent = "We could not read your student ID. Please log in again.";
+      return;
+    }
+
+    function renderWeek(selectedValue) {
+  let row;
+
+  if (selectedValue === "latest" || !selectedValue) {
+    row = latestRow;
+  } else {
+    const sameWeekRows = rubricRows.filter(
+      (r) => String(r.week || "").trim() === String(selectedValue).trim()
+    );
+
+    row = sameWeekRows.length
+      ? sameWeekRows[sameWeekRows.length - 1]
+      : latestRow;
   }
 
-  const username = (currentUser.username || "").trim().toLowerCase();
-  if (!username) {
-    statusEl.textContent = "We could not read your username. Please log in again or tell your teacher.";
-    return;
-  }
+  const total = typeof row.totalPoints === "number" ? row.totalPoints : 0;
+  const badge = getBadgeForPoints(total);
+  const weekLabel = row.week ? `Week ${row.week}` : "Latest";
+  const topic = row.topic || "";
+  const teacherName = row.teacher || "";
 
-  const params = new URLSearchParams({
-    action: "studentrubrics",
-    username: username
-  });
+  summaryEl.innerHTML = `
+    <p><strong>Selected:</strong> ${weekLabel}</p>
+    <p><strong>Topic:</strong> ${topic || "–"}</p>
+    <p><strong>Total points:</strong> ${total}</p>
+    <p><strong>Badge:</strong> ${badge}</p>
+    <p><strong>Teacher:</strong> ${teacherName || "–"}</p>
+  `;
 
-  // Small helper to render one selected week row
-  function renderRubricRow(row) {
-    const total = typeof row.totalPoints === "number" ? row.totalPoints : Number(row.totalPoints || 0);
-    totalEl.textContent = total > 0 ? total : "–";
+  const nums = row.rubricsNumbers || {};
+  const letters = row.rubricsLetters || {};
+  const keys = Object.keys(nums);
 
-    const badgeInfo = calculateBadge(total);
-    badgeEl.textContent = badgeInfo.label || badgeInfo.text || "Presentacy Speaker";
-
-    // Show selected week/topic/total table
-    weeksContainer.querySelector("#myscores-selected-table").innerHTML = `
-      <table class="myscores-table">
-        <thead>
-          <tr>
-            <th>Week</th>
-            <th>Topic</th>
-            <th>Total points</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>${row.week || "–"}</td>
-            <td>${row.topic || "–"}</td>
-            <td>${Number.isFinite(total) ? total : 0}</td>
-          </tr>
-        </tbody>
-      </table>
+  if (!keys.length) {
+    rubricsEl.innerHTML = `
+      <p class="myscores-muted">
+        No detailed rubric scores were found for this week.
+      </p>
     `;
+    return;
+  }
 
-    // Rubric breakdown – LETTERS ONLY for students
-    const rubricLetters = row.rubricsLetters || {};
-    const rubricKeys = Object.keys(rubricLetters);
+  const rowsHtml = keys
+    .map((key) => {
+      const safeLabel = String(key)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      const num = nums[key];
+      const letter = letters[key] || "";
+      const safeNum =
+        typeof num === "number"
+          ? num
+          : num !== undefined && num !== null
+          ? num
+          : "–";
 
-    if (!rubricKeys.length) {
+      return `
+        <tr>
+          <td>${safeLabel}</td>
+          <td>${safeNum}</td>
+          <td>${letter}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  rubricsEl.innerHTML = `
+    <table class="myscores-table rubrics-table">
+      <thead>
+        <tr>
+          <th>Skill</th>
+          <th>Score</th>
+          <th>Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+  `;
+}
+
+    if (error) {
+      console.error(error);
+      statusEl.textContent = error.message || "Could not load your scores.";
+      return;
+    }
+
+    const rubricRows = (data || []).map(convertSupabaseRubricRow);
+
+    if (!rubricRows.length) {
+      statusEl.textContent = "No presentation scores yet.";
+      totalEl.textContent = "–";
+      badgeEl.textContent = "–";
+      weeksContainer.innerHTML = `
+        <div id="myscores-selected-table">
+          <p class="myscores-muted">
+            No presentation scores yet. Once you start presenting, your points will appear here.
+          </p>
+        </div>
+      `;
       rubricsEl.innerHTML = `
         <p class="myscores-muted">
-          Your teacher has not added detailed rubric scores yet. Once they are added, they will appear here.
+          Your teacher has not added detailed rubric scores yet.
         </p>
       `;
       return;
     }
 
-    const rowsHtml = rubricKeys
-      .map((key) => {
-        const letter = rubricLetters[key] || "";
-        const safeLabel = String(key)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
+    const latestRow = rubricRows[rubricRows.length - 1];
+    const total =
+      typeof latestRow.totalPoints === "number"
+        ? latestRow.totalPoints
+        : Number(latestRow.totalPoints || 0);
 
-        return `
-          <tr>
-            <td>${safeLabel}</td>
-            <td>${letter}</td>
-          </tr>
-        `;
+    totalEl.textContent = total > 0 ? total : "–";
+    const badgeInfo = calculateBadge(total);
+    badgeEl.textContent = badgeInfo.label || badgeInfo.text || "Presentacy Speaker";
+
+    const weekOptions = rubricRows
+      .map((row, index) => {
+        const selected = index === rubricRows.length - 1 ? "selected" : "";
+        return `<option value="${index}" ${selected}>Week ${row.week || index + 1}</option>`;
       })
       .join("");
 
-    rubricsEl.innerHTML = `
-      <table class="myscores-table rubrics-table">
-        <thead>
-          <tr>
-            <th>Skill</th>
-            <th>Grade</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsHtml}
-        </tbody>
-      </table>
+    weeksContainer.innerHTML = `
+      <label class="form-field">
+        <span class="form-label">Choose week</span>
+        <select id="myscores-week-select" class="input">
+          ${weekOptions}
+        </select>
+      </label>
+      <div id="myscores-selected-table" style="margin-top: 1rem;"></div>
     `;
-  }
 
-  fetch(`${RUBRICS_API_URL}?${params.toString()}`)
-    .then((response) => {
-      if (!response.ok) throw new Error("Network error");
-      return response.json();
-    })
-    .then((data) => {
-      if (!data || !data.ok) {
-        statusEl.textContent =
-          (data && data.error) ||
-          "We couldn’t load your scores yet. Please ask your teacher to check the spreadsheet.";
+    function renderRubricRow(row) {
+      const total =
+        typeof row.totalPoints === "number"
+          ? row.totalPoints
+          : Number(row.totalPoints || 0);
+
+      totalEl.textContent = total > 0 ? total : "–";
+      const badgeInfo = calculateBadge(total);
+      badgeEl.textContent = badgeInfo.label || badgeInfo.text || "Presentacy Speaker";
+
+      const selectedTable = document.getElementById("myscores-selected-table");
+      if (selectedTable) {
+        selectedTable.innerHTML = `
+          <table class="myscores-table">
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Topic</th>
+                <th>Total points</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${row.week || "–"}</td>
+                <td>${row.topic || "–"}</td>
+                <td>${Number.isFinite(total) ? total : 0}</td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+      }
+
+      const rubricLetters = row.rubricsLetters || {};
+      const rubricKeys = Object.keys(rubricLetters);
+
+      if (!rubricKeys.length) {
+        rubricsEl.innerHTML = `
+          <p class="myscores-muted">
+            Your teacher has not added detailed rubric scores yet. Once they are added, they will appear here.
+          </p>
+        `;
         return;
       }
 
-      const rows = (data.rubricRows || []).slice();
-
-      if (!rows.length) {
-        statusEl.textContent =
-          "No scores yet. After your first presentation, your score will appear here.";
-        return;
-      }
-
-      // Make sure newest is last (sort by timestamp if available)
-      rows.sort((a, b) => {
-        const ta = Date.parse(a.timestamp || "") || 0;
-        const tb = Date.parse(b.timestamp || "") || 0;
-        return ta - tb;
-      });
-
-      const latest = rows[rows.length - 1];
-
-      // Build Week buttons
-      const buttonsHtml = rows
-        .map((r, idx) => {
-          const label = r.week ? String(r.week) : `Week ${idx + 1}`;
-          return `<button class="primary-button secondary-button" data-idx="${idx}" style="padding:0.35rem 0.9rem; font-size:0.85rem; margin:0.25rem;">
-                    ${label}
-                  </button>`;
+      const rowsHtml = rubricKeys
+        .map((key) => {
+          const letter = rubricLetters[key] || "";
+          const safeLabel = String(key)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+          return `
+            <tr>
+              <td>${safeLabel}</td>
+              <td>${letter}</td>
+            </tr>
+          `;
         })
         .join("");
 
-      weeksContainer.innerHTML = `
-        <div style="display:flex; flex-wrap:wrap; gap:0.35rem; align-items:center; margin-bottom:0.6rem;">
-          <span class="myscores-muted" style="margin-right:0.25rem;">Choose week:</span>
-          ${buttonsHtml}
-          <button class="primary-button" data-latest="1" style="padding:0.35rem 0.9rem; font-size:0.85rem; margin:0.25rem;">
-            Latest
-          </button>
-        </div>
-        <div id="myscores-selected-table"></div>
+      rubricsEl.innerHTML = `
+        <table class="myscores-table rubrics-table">
+          <thead>
+            <tr>
+              <th>Skill</th>
+              <th>Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
       `;
+    }
 
-      // Click handling
-      weeksContainer.addEventListener("click", (ev) => {
-        const btn = ev.target.closest("button");
-        if (!btn) return;
+    renderRubricRow(latestRow);
 
-        if (btn.dataset.latest === "1") {
-          renderRubricRow(latest);
-          return;
-        }
-
-        const idx = Number(btn.dataset.idx);
-        if (!Number.isFinite(idx) || !rows[idx]) return;
-        renderRubricRow(rows[idx]);
+    const weekSelect = document.getElementById("myscores-week-select");
+    if (weekSelect) {
+      weekSelect.addEventListener("change", () => {
+        const idx = Number(weekSelect.value);
+        const row = rubricRows[idx] || latestRow;
+        renderRubricRow(row);
       });
+    }
 
-      // Default: show latest
-      renderRubricRow(latest);
-      statusEl.textContent = "";
-    })
-    .catch((err) => {
-      console.error("Error loading studentrubrics", err);
-      statusEl.textContent =
-        "We had a problem loading your score history. Please try again later or tell your teacher.";
-    });
+    statusEl.textContent = "Your scores are ready.";
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = err.message || "Could not load your scores.";
+  }
 }
-function setupTeacherMyScoresView() {
+async function setupTeacherMyScoresView() {
   const classSelect = document.getElementById("teacher-myscores-class");
   const nameInput = document.getElementById("teacher-myscores-name");
   const searchBtn = document.getElementById("teacher-myscores-search");
@@ -3077,14 +3494,196 @@ function setupTeacherMyScoresView() {
 
   if (!classSelect || !nameInput || !searchBtn || !statusEl || !resultEl) return;
 
-  // Fill classes dropdown from static STUDENTS list
-  const classes = getAllClasses();
+  const allStudents = await getMergedStudentsData();
+  const classes = await getAllClasses();
+
   classSelect.innerHTML =
     `<option value="">All classes</option>` +
     classes.map((c) => `<option value="${c}">${c}</option>`).join("");
 
+  async function loadTeacherStudentRubrics(student) {
+    const studentId = String(student.studentId || student.password || "").trim();
+
+    if (!studentId) {
+      statusEl.textContent = "This student does not have a student ID set.";
+      resultEl.innerHTML = "";
+      return;
+    }
+
+    statusEl.textContent = `Loading detailed scores for ${student.name}…`;
+    resultEl.innerHTML = "";
+
+    try {
+      const supabase = getSupabaseClient();
+      const { data, error } = await supabase
+        .from("Rubrics")
+        .select("*")
+        .eq("Student ID", studentId)
+        .order("week", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        statusEl.textContent = error.message || "Could not load this student’s scores.";
+        resultEl.innerHTML = "";
+        return;
+      }
+
+      const rubricRows = (data || []).map(convertSupabaseRubricRow);
+
+      if (!rubricRows.length) {
+        statusEl.textContent = "No rubric rows found yet for this student.";
+        resultEl.innerHTML = `
+          <article class="student-card">
+            <h3>${student.name}</h3>
+            <p class="myscores-muted">Class: ${student.class || "-"}</p>
+            <p><strong>Total points:</strong> 0</p>
+            <p><strong>Badge:</strong> Rising Star</p>
+          </article>
+        `;
+        return;
+      }
+
+      statusEl.textContent = "";
+
+      const weekSet = new Set();
+      rubricRows.forEach((row) => {
+        if (row.week && String(row.week).trim() !== "") {
+          weekSet.add(String(row.week).trim());
+        }
+      });
+
+      const weekList = Array.from(weekSet).sort((a, b) => Number(a) - Number(b));
+      const latestRow = rubricRows[rubricRows.length - 1];
+      const latestTotal =
+        typeof latestRow.totalPoints === "number" ? latestRow.totalPoints : 0;
+      const badgeLabel = getBadgeForPoints(latestTotal);
+
+      resultEl.innerHTML = `
+        <article class="student-card">
+          <h3>${student.name}</h3>
+          <p class="myscores-muted">Class: ${student.class || "-"}</p>
+          <p><strong>Total points (latest):</strong> ${latestTotal}</p>
+          <p><strong>Badge:</strong> ${badgeLabel}</p>
+
+          <div class="teacher-week-filter" style="margin-top: 1rem;">
+            <label class="form-field">
+              <span class="form-label">Week</span>
+              <select id="teacher-week-select" class="input">
+                <option value="latest">Latest</option>
+                ${weekList.map((w) => `<option value="${w}">Week ${w}</option>`).join("")}
+              </select>
+            </label>
+          </div>
+
+          <div id="teacher-week-summary" style="margin-top: 1rem;"></div>
+          <div id="teacher-week-rubrics" class="teacher-week-rubrics" style="margin-top: 1rem;"></div>
+        </article>
+      `;
+
+      const weekSelect = document.getElementById("teacher-week-select");
+      const summaryEl = document.getElementById("teacher-week-summary");
+      const rubricsEl = document.getElementById("teacher-week-rubrics");
+
+      function renderWeek(selectedValue) {
+  let row;
+
+  if (selectedValue === "latest" || !selectedValue) {
+    row = latestRow;
+  } else {
+    const sameWeekRows = rubricRows.filter(
+      (r) => String(r.week || "").trim() === String(selectedValue).trim()
+    );
+
+    row = sameWeekRows.length
+      ? sameWeekRows[sameWeekRows.length - 1]
+      : latestRow;
+  }
+
+  const total = typeof row.totalPoints === "number" ? row.totalPoints : 0;
+  const badge = getBadgeForPoints(total);
+  const weekLabel = row.week ? `Week ${row.week}` : "Latest";
+  const topic = row.topic || "";
+  const teacherName = row.teacher || "";
+
+  summaryEl.innerHTML = `
+    <p><strong>Selected:</strong> ${weekLabel}</p>
+    <p><strong>Topic:</strong> ${topic || "–"}</p>
+    <p><strong>Total points:</strong> ${total}</p>
+    <p><strong>Badge:</strong> ${badge}</p>
+    <p><strong>Teacher:</strong> ${teacherName || "–"}</p>
+  `;
+
+  const nums = row.rubricsNumbers || {};
+  const letters = row.rubricsLetters || {};
+  const keys = Object.keys(nums);
+
+  if (!keys.length) {
+    rubricsEl.innerHTML = `
+      <p class="myscores-muted">
+        No detailed rubric scores were found for this week.
+      </p>
+    `;
+    return;
+  }
+
+  const rowsHtml = keys
+    .map((key) => {
+      const safeLabel = String(key)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      const num = nums[key];
+      const letter = letters[key] || "";
+      const safeNum =
+        typeof num === "number"
+          ? num
+          : num !== undefined && num !== null
+          ? num
+          : "–";
+
+      return `
+        <tr>
+          <td>${safeLabel}</td>
+          <td>${safeNum}</td>
+          <td>${letter}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  rubricsEl.innerHTML = `
+    <table class="myscores-table rubrics-table">
+      <thead>
+        <tr>
+          <th>Skill</th>
+          <th>Score</th>
+          <th>Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+  `;
+}
+
+      renderWeek("latest");
+
+      if (weekSelect) {
+        weekSelect.addEventListener("change", () => {
+          renderWeek(weekSelect.value);
+        });
+      }
+    } catch (err) {
+      console.error("Error loading student rubrics", err);
+      statusEl.textContent =
+        err.message || "We had a problem loading this student’s scores.";
+      resultEl.innerHTML = "";
+    }
+  }
+
   function performSearch() {
-    const classFilter = classSelect.value;
+    const classFilter = classSelect.value.trim().toLowerCase();
     const nameQuery = nameInput.value.trim().toLowerCase();
 
     resultEl.innerHTML = "";
@@ -3094,12 +3693,16 @@ function setupTeacherMyScoresView() {
       return;
     }
 
-    const matches = STUDENTS.filter((s) => {
+    const matches = (allStudents || []).filter((s) => {
+      if (!s || s.role === "teacher") return false;
+
       const matchClass =
-  !classFilter || (s.class || "").toLowerCase() === classFilter.toLowerCase();
+        !classFilter || String(s.class || "").trim().toLowerCase() === classFilter;
+
       const matchName =
-        (s.name || "").toLowerCase().includes(nameQuery) ||
-        (s.username || "").toLowerCase().includes(nameQuery);
+        String(s.name || "").trim().toLowerCase().includes(nameQuery) ||
+        String(s.username || "").trim().toLowerCase().includes(nameQuery);
+
       return matchClass && matchName;
     });
 
@@ -3114,201 +3717,7 @@ function setupTeacherMyScoresView() {
       return;
     }
 
-    const student = matches[0];
-    loadTeacherStudentRubrics(student);
-  }
-
-  function loadTeacherStudentRubrics(student) {
-    const username = (student.username || "").trim().toLowerCase();
-    if (!username) {
-      statusEl.textContent = "This student does not have a username set.";
-      resultEl.innerHTML = "";
-      return;
-    }
-
-    // ❗ No more "Scores are not connected yet" check here.
-    // We always try to call the backend URL you set.
-    statusEl.textContent = `Loading detailed scores for ${student.name}…`;
-    resultEl.innerHTML = "";
-
-    const params = new URLSearchParams({
-      action: "studentrubrics",
-      username: username
-    });
-
-    const url = `${RUBRICS_API_URL}?${params.toString()}`;
-    console.log("Teacher fetching:", url);
-
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) throw new Error("Network error");
-        return response.json();
-      })
-      .then((data) => {
-        if (!data || !data.ok) {
-          statusEl.textContent =
-            (data && data.error) ||
-            "We couldn’t load this student’s scores from the spreadsheet.";
-          resultEl.innerHTML = "";
-          return;
-        }
-
-        const rubricRows = data.rubricRows || [];
-        const info = data.student || {};
-
-        if (!rubricRows.length) {
-          statusEl.textContent =
-            "No rubric rows found yet for this student in the spreadsheet.";
-          resultEl.innerHTML = `
-            <article class="student-card">
-              <h3>${student.name}</h3>
-              <p class="myscores-muted">Class: ${student.class || info.class || "-"}</p>
-              <p><strong>Total points:</strong> 0</p>
-              <p><strong>Badge:</strong> Rising Star</p>
-            </article>
-          `;
-          return;
-        }
-
-        statusEl.textContent = "";
-
-        // Unique list of weeks
-        const weekSet = new Set();
-        rubricRows.forEach((row) => {
-          if (row.week && String(row.week).trim() !== "") {
-            weekSet.add(String(row.week).trim());
-          }
-        });
-        const weekList = Array.from(weekSet).sort((a, b) => Number(a) - Number(b));
-
-        const latestRow = rubricRows[rubricRows.length - 1];
-        const latestTotal =
-          typeof latestRow.totalPoints === "number" ? latestRow.totalPoints : 0;
-        const badgeLabel = getBadgeForPoints(latestTotal);
-
-        resultEl.innerHTML = `
-          <article class="student-card">
-            <h3>${student.name}</h3>
-            <p class="myscores-muted">Class: ${student.class || info.class || "-"}</p>
-            <p><strong>Total points (latest):</strong> ${latestTotal}</p>
-            <p><strong>Badge:</strong> ${badgeLabel}</p>
-
-            <div class="teacher-week-filter" style="margin-top: 1rem;">
-              <label class="form-field">
-                <span class="form-label">Week</span>
-                <select id="teacher-week-select" class="input">
-                  <option value="latest">Latest</option>
-                  ${weekList
-                    .map((w) => `<option value="${w}">Week ${w}</option>`)
-                    .join("")}
-                </select>
-              </label>
-            </div>
-
-            <div id="teacher-week-summary" class="teacher-week-summary" style="margin-top: 1rem;"></div>
-            <div id="teacher-week-rubrics" class="teacher-week-rubrics" style="margin-top: 1rem;"></div>
-          </article>
-        `;
-
-        const weekSelect = document.getElementById("teacher-week-select");
-        const summaryEl = document.getElementById("teacher-week-summary");
-        const rubricsEl = document.getElementById("teacher-week-rubrics");
-
-        function renderWeek(selectedValue) {
-          let row;
-
-          if (selectedValue === "latest" || !selectedValue) {
-            row = latestRow;
-          } else {
-            row =
-              rubricRows.find(
-                (r) => String(r.week || "").trim() === String(selectedValue).trim()
-              ) || latestRow;
-          }
-
-          const total =
-            typeof row.totalPoints === "number" ? row.totalPoints : 0;
-          const badge = getBadgeForPoints(total);
-          const weekLabel = row.week ? `Week ${row.week}` : "Latest";
-          const topic = row.topic || "";
-          const teacherName = row.teacher || "";
-
-          summaryEl.innerHTML = `
-            <p><strong>Selected:</strong> ${weekLabel}</p>
-            <p><strong>Topic:</strong> ${topic || "–"}</p>
-            <p><strong>Total points:</strong> ${total}</p>
-            <p><strong>Badge:</strong> ${badge}</p>
-            <p><strong>Teacher:</strong> ${teacherName || "–"}</p>
-          `;
-
-          const nums = row.rubricsNumbers || {};
-          const letters = row.rubricsLetters || {};
-          const keys = Object.keys(nums);
-
-          if (!keys.length) {
-            rubricsEl.innerHTML = `
-              <p class="myscores-muted">
-                No detailed rubric scores were found for this week.
-              </p>
-            `;
-            return;
-          }
-
-          const rowsHtml = keys
-            .map((key) => {
-              const safeLabel = String(key)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
-              const num = nums[key];
-              const letter = letters[key] || "";
-              const safeNum =
-                typeof num === "number"
-                  ? num
-                  : num !== undefined && num !== null
-                  ? num
-                  : "–";
-
-              return `
-                <tr>
-                  <td>${safeLabel}</td>
-                  <td>${safeNum}</td>
-                  <td>${letter}</td>
-                </tr>
-              `;
-            })
-            .join("");
-
-          rubricsEl.innerHTML = `
-            <table class="myscores-table rubrics-table">
-              <thead>
-                <tr>
-                  <th>Skill</th>
-                  <th>Score</th>
-                  <th>Grade</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-              </tbody>
-            </table>
-          `;
-        }
-
-        renderWeek("latest");
-
-        if (weekSelect) {
-          weekSelect.addEventListener("change", () => {
-            renderWeek(weekSelect.value);
-          });
-        }
-      })
-      .catch((err) => {
-        console.error("Error loading studentrubrics", err);
-        statusEl.textContent =
-          "We had a problem loading this student’s scores. Please try again later.";
-        resultEl.innerHTML = "";
-      });
+    loadTeacherStudentRubrics(matches[0]);
   }
 
   searchBtn.addEventListener("click", (e) => {
@@ -3324,7 +3733,7 @@ function setupTeacherMyScoresView() {
   });
 }
 
-function initMyScoresPage() {
+async function initMyScoresPage() {
   const raw = localStorage.getItem("presentacy_current_user");
   let currentUser = null;
 
@@ -3353,19 +3762,23 @@ function initMyScoresPage() {
   if (currentUser.role === "teacher") {
     if (studentSection) studentSection.style.display = "none";
     if (teacherSection) teacherSection.style.display = "block";
-    setupTeacherMyScoresView();
+    await setupTeacherMyScoresView();
   } else {
     if (teacherSection) teacherSection.style.display = "none";
     if (studentSection) studentSection.style.display = "block";
-    setupStudentMyScoresView(currentUser);
+    await setupStudentMyScoresView(currentUser);
   }
 }
 
 // ========================
 // DOMContentLoaded – FINAL
 // ========================
-document.addEventListener("DOMContentLoaded", () => {
+addEventListener("DOMContentLoaded", () => {
+  if (enforceMaintenanceMode()) return;
+
   const page = document.body.getAttribute("data-page") || "";
+
+  // Common for all pages
 
   // Common for all pages
   if (typeof setupNavHighlight === "function") setupNavHighlight();
@@ -3390,6 +3803,10 @@ document.addEventListener("DOMContentLoaded", () => {
     initPresentacyLoginPage();
     return;
   }
+
+  if (page === "wordle" && typeof initWordlePage === "function") {
+  initWordlePage();
+}
 
   if (page === "leaderboard" && typeof initLeaderboardPage === "function") {
     initLeaderboardPage();
@@ -3470,7 +3887,6 @@ function trackVisitAuto() {
 
 // Run ONCE per page load
 document.addEventListener("DOMContentLoaded", trackVisitAuto);
-
 
 
 

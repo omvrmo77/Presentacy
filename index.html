@@ -9,16 +9,20 @@
   <script>
   (function () {
     try {
-      // Check if someone is already logged in
-      var raw = localStorage.getItem("presentacy_current_user");
+      var maintenanceMode = true;
+      var maintenanceAccess =
+        localStorage.getItem("presentacy_maintenance_access") === "granted";
 
-      // If there is NO saved user → send to login
+      if (maintenanceMode && !maintenanceAccess) {
+        window.location.href = "maintenance.html";
+        return;
+      }
+
+      var raw = localStorage.getItem("presentacy_current_user");
       if (!raw) {
         window.location.href = "login.html";
       }
-      // If there *is* a user, do nothing: stay on Home
     } catch (e) {
-      // If anything goes wrong reading storage, be safe and go to login
       window.location.href = "login.html";
     }
   })();

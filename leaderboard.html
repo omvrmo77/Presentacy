@@ -5,106 +5,90 @@
   <title>Presentacy – Leaderboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Supabase library is required before main.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="main.js" defer></script>
 </head>
 <body data-page="leaderboard">
 
-<header class="page-header">
-  <nav class="navbar">
-  <div class="logo">
-    <div class="logo-mark">P</div>
-    <span>Presentacy</span>
-  </div>
+  <header class="page-header">
+    <nav class="navbar">
+      <div class="logo">
+        <div class="logo-mark">P</div>
+        <span>Presentacy</span>
+      </div>
 
-  <div class="nav-user">
-    <span id="user-greeting"></span>
-  </div>
-  <div id="greeting-banner" class="greeting-banner"></div>
+      <div class="nav-user">
+        <span id="user-greeting"></span>
+      </div>
+      <div id="greeting-banner" class="greeting-banner"></div>
 
-  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-    <span></span><span></span><span></span>
-  </button>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
 
-  <div class="nav-links" id="navLinks">
-    <a href="index.html" class="nav-link" data-page-link="home">Home</a>
-    <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
-    <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
-    <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
-    <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
-    <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
-    <!-- teacher-only nav link -->
-    <a href="teacher-rubric.html"
-       class="nav-link"
-       data-nav="teacher-rubrics">Teacher Rubrics</a>
-    <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
-  </div>
-</nav>
-</header>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html" class="nav-link" data-page-link="home">Home</a>
+        <a href="leaderboard.html" class="nav-link" data-page-link="leaderboard">Leaderboard</a>
+        <a href="myscore.html" class="nav-link" data-page-link="myscores">My Scores</a>
+        <a href="videos.html" class="nav-link" data-page-link="videos">Videos</a>
+        <a href="generator.html" class="nav-link" data-page-link="generator">Topic Generator</a>
+        <a href="wordle.html" class="nav-link" data-page-link="wordle">Wordle</a>
+        <a href="teacher-rubric.html" class="nav-link" data-nav="teacher-rubrics">Teacher Rubrics</a>
+        <a href="#" id="logout-link" class="nav-link nav-logout">Logout</a>
+      </div>
+    </nav>
+  </header>
 
+  <main class="page">
+    <section class="card leaderboard-card">
+      <h2>Leaderboard</h2>
 
-        <!-- Top 5 leaderboard card (coming soon) -->
-<section class="card leaderboard-card leaderboard-card--coming-soon">
-  <h2>Leaderboard</h2>
+      <div class="search-row" style="margin-top: 0.5rem;">
+        <label for="leaderboard-class-filter" style="font-size: 0.85rem; color: var(--text-muted);">
+          View leaderboard for:
+        </label>
+        <select id="leaderboard-class-filter" class="class-select">
+          <option value="">Whole school</option>
+          <option value="1A">Grade 1A</option>
+          <option value="1B">Grade 1B</option>
+          <option value="2A">Grade 2A</option>
+          <option value="2B">Grade 2B</option>
+          <option value="3">Grade 3</option>
+          <option value="4">Grade 4</option>
+          <option value="5A">Grade 5A</option>
+          <option value="5B">Grade 5B</option>
+          <option value="6">Grade 6</option>
+          <option value="7">Grade 7</option>
+          <option value="8">Grade 8</option>
+          <option value="9">Grade 9</option>
+        </select>
+      </div>
 
-  <div class="search-row" style="margin-top: 0.5rem;">
-    <label for="leaderboard-class-filter" style="font-size: 0.85rem; color: var(--text-muted);">
-      View leaderboard for:
-    </label>
-    <select id="leaderboard-class-filter" class="class-select" enabled>
-      <option value="">Whole school</option>
-      <option value="1A">Grade 1A</option>
-      <option value="1B">Grade 1B</option>
-      <option value="2A">Grade 2A</option>
-      <option value="2B">Grade 2B</option>
-      <option value="3">Grade 3</option>
-      <option value="4">Grade 4</option>
-      <option value="5A">Grade 5A</option>
-      <option value="5B">Grade 5B</option>
-      <option value="6">Grade 6</option>
-      <option value="7">Grade 7</option>
-      <option value="8">Grade 8</option>
-      <option value="9">Grade 9</option>
-    </select>
-  </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student</th>
+            <th>Class</th>
+            <th>Points</th>
+            <th>Badge</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-table-body"></tbody>
+      </table>
+    </section>
+  </main>
 
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Student</th>
-        <th>Class</th>
-        <th>Points</th>
-        <th>Badge</th>
-      </tr>
-    </thead>
-    <tbody id="leaderboard-table-body">
-      <!-- JS can still fill this later, it will stay blurred -->
-    </tbody>
-  </table>
+  <footer class="site-footer">
+    <div class="footer-text">Presentacy: School Presentation Project – Made by Omar</div>
+    <img
+      class="footer-logo"
+      src="english-logo.png"
+      alt="English Department - Voice Builders - Al Omran College Semi-International School"
+    />
+  </footer>
 
-  <div class="leaderboard-blur-overlay">
-  <div class="leaderboard-blur-message">
-    <div class="leaderboard-blur-title">Leaderboard coming soon</div>
-    <div class="leaderboard-blur-subtitle">
-      Starts after Week 3, once the third round of presentations is completed.
-    </div>
-  </div>
-</div>
-
-</section>
-
-
-
-    <footer class="site-footer">
-  <div class="footer-text">Presentacy: School Presentation Project – Made by Omar</div>
-
-  <img
-    class="footer-logo"
-    src="english-logo.png"
-    alt="English Department - Voice Builders - Al Omran College Semi-International School"
-  />
-</footer>
-  </div>
 </body>
-
 </html>
