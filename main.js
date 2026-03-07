@@ -3564,7 +3564,3 @@ function convertSupabaseRubricRow(row) {
 
   // Run ONCE per page load
   document.addEventListener("DOMContentLoaded", trackVisitAuto);
-
-
-
-
