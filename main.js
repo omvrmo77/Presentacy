@@ -1,268 +1,3 @@
-// ============================
-const STUDENTS = [
-{ username: "asha624", password: "58241", name: "Asya Hassan ", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "asis050", password: "93706", name: "Asel Ismail", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "ayta955", password: "41058", name: "Aylan Talal", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "tamo085", password: "26937", name: "Tala Mohamed", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "zesa178", password: "84513", name: "Zeina Samer ", class: "1A", role: "student", scores: { week1: 25 } },
-{ username: "famo794", password: "70329", name: "Fatma Mohamed", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "lakh445", password: "19684", name: "Layan Khaled", class: "1A", role: "student", scores: { week1: 10 } },
-{ username: "yaeh795", password: "52897", name: "Yasmin Ehab ", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "ahta415", password: "64072", name: "Ahmed Talal", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "khwa816", password: "64038", name: "Khaled Waleed", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "fara469", password: "87402", name: "Fayad Raed", class: "1A", role: "student", scores: { week1: 0 } },
-{ username: "mamo681", password: "95268", name: "Malek Mohamed", class: "1A", role: "student", scores: { week1: 10 } },
-{ username: "mome226", password: "73145", name: "Mobasher Megahed", class: "1A", role: "student", scores: { week1: 9 } },
-{ username: "yaah934", password: "20489", name: "Yahia Ahmed ", class: "1A", role: "student", scores: { week1: 19 } },
-{ username: "limo666", password: "74114", name: "Lilyan Mohamed ", class: "1A", role: "student", scores: { week1: 0 } },
-
-{ username: "gaah897", password: "11835", name: "Gamila Ahmed", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "gamo591", password: "22764", name: "Ganna Mohamed", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "daah155", password: "33271", name: "Dana Ahmed ", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "dimo343", password: "44986", name: "Dima Mohamed", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "zael552", password: "55310", name: "Zat Elmuiz", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "rayo173", password: "66742", name: "Rana Youssef", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "famo537", password: "77193", name: "Fayrouz Mohamed", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "caho930", password: "88924", name: "Carla Hossam", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "adah501", password: "91537", name: "Adam ahmed", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "adam757", password: "24619", name: "Adam Amr", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "adna243", password: "38420", name: "Adham Nasr", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "raam530", password: "59276", name: "Rahim Amr", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "absh218", password: "61853", name: "Abdelrahman Sherif", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "moha101", password: "76401", name: "Mohamed Hasanien", class: "1B", role: "student", scores: { week1: 0 } },
-{ username: "yoya069", password: "89652", name: "Younis Yasser", class: "1B", role: "student", scores: { week1: 0 } },
-
-{ username: "famo766", password: "15853", name: "Farida mohamed ", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "haab458", password: "26616", name: "Hala Abdelmoiem", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "kamo901", password: "40650", name: "Karma Mohamed", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "kamo299", password: "29143", name: "Karma Mohamed Mostafa", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "kamo314", password: "28176", name: "Karma Mostafa", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "mama458", password: "58545", name: "Maria Mahmoud", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "rahu275", password: "59912", name: "Rawnag Hussien", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "syma940", password: "93241", name: "Syan Marwan ", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "mama395", password: "58580", name: "Malika Mahmoud", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "abse907", password: "95826", name: "Abdelrahman Seif", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "ahhu965", password: "21717", name: "Ahmed Hussien ", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "ahsh640", password: "88537", name: "Ahmed Shehab", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "maal820", password: "72722", name: "Malek Alaa", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "naad568", password: "25451", name: "Nael Adam", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "ommo139", password: "53703", name: "Omar Mohamed", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "zaal888", password: "55568", name: "Zain Aldin", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "soel983", password: "71004", name: "Sobhy elmoataz", class: "2A", role: "student", scores: { week1: 0 } },
-{ username: "yowa309", password: "35598", name: "Youssef Waleed", class: "2A", role: "student", scores: { week1: 0 } },
-
-{ username: "ammo868", password: "95264", name: "Amira Montser", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "hawa219", password: "16655", name: "Hayat Walid ", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "mamo821", password: "68940", name: "Makka Mostafa", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "tayo423", password: "99058", name: "Tala Yousry", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "reas526", password: "16234", name: "Reman Ashraf", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "faab161", password: "50794", name: "Fahd Abdelrahman", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "hase307", password: "88575", name: "Hamza Seody", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "maam233", password: "43859", name: "Malek Amr", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "moah777", password: "14189", name: "Mohamed Ahmed ", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "moal327", password: "14599", name: "Mohamed Ali ", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "moka179", password: "95801", name: "Mohamed Karim ", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "momo741", password: "49447", name: "Mohamed Mostafa", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "momo140", password: "31236", name: "Mohamed  Moataz", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "rais904", password: "71377", name: "Rayan Islam", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "saho643", password: "28880", name: "Sajed Hossain", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "sega162", password: "64323", name: "Selim Gamal", class: "2B", role: "student", scores: { week1: 0 } },
-{ username: "gaah467", password: "82995", name: "Gamila Ahmed", class: "2B", role: "student", scores: { week1: 0 } },
-
-{ username: "asta019", password: "42580", name: "Aseel Tamer ", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "ayah007", password: "76790", name: "Ayla Ahmed ", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "bemo004", password: "64003", name: "Berla Mohamed Ahmed ", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "bemo754", password: "40017", name: "Berla Mohamed Adel", class: "3", role: "student", scores: { week1: 14 } },
-{ username: "goal890", password: "42841", name: "Gowan Ali ", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "hoot554", password: "58144", name: "Hoor Othman ", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "roah405", password: "29734", name: "Rovan Ahmed ", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "kara875", password: "78436", name: "Karma Ramy ", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "asmo317", password: "60778", name: "Asser Mostafa", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "ibab645", password: "30208", name: "Ibrahim Abdelmaboud", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "eyis797", password: "53872", name: "Eyad Islam", class: "3", role: "student", scores: { week1: 20 } },
-{ username: "taal544", password: "25687", name: "Taim Allah", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "tash551", password: "62701", name: "Tamim Sherif", class: "3", role: "student", scores: { week1: 20 } },
-{ username: "hamo220", password: "76116", name: "Hamza Mohamed", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "abmi106", password: "69796", name: "Abdallah Mina ", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "amah089", password: "33293", name: "Amr Ahmed", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "more287", password: "19211", name: "Mohamed Reda", class: "3", role: "student", scores: { week1: 0 } },
-{ username: "joel892", password: "86306", name: "Joury elmoataz", class: "3", role: "student", scores: { week1: 0 } },
-
-{ username: "asah790", password: "44605", name: "Asia Ahmed ", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "alam941", password: "27237", name: "Alma Amer", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "hamo217", password: "79926", name: "Hanin Montser", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "jaha573", password: "39992", name: "Jana Hassan", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "hamo230", password: "90812", name: "Hayat Mohamed", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "faab008", password: "13062", name: "Farah Abdelrahman", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "kash398", password: "41207", name: "Karma Shehab", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "mare951", password: "87790", name: "Malka Reda", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "ahma010", password: "51994", name: "Ahmed Mahmoud ", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "admo788", password: "77509", name: "Adam Mostafa", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "haah720", password: "65276", name: "Hamza Ahmed ", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "abmo519", password: "92483", name: "Abdallah Mohsen", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "omho833", password: "22486", name: "Omar hossain", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "slmo354", password: "19424", name: "Slim Mostafa", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "moah758", password: "58771", name: "Mohamed Ahmed ", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "moah118", password: "89107", name: "Mohamed Ahmed Ali", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "meos991", password: "31415", name: "Megdam Osama ", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "yamo666", password: "34516", name: "Yassin Mohamed", class: "4", role: "student", scores: { week1: 0 } },
-{ username: "juha053", password: "63881", name: "Judy Hassan", class: "4", role: "student", scores: { week1: 0 } },
-
-{ username: "juab889", password: "52912", name: "Judy Abdelraziq ", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "dama434", password: "70556", name: "Dan Marwan", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "raab494", password: "86718", name: "Rahma Abdelrahman", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "resh657", password: "72156", name: "Retag Sherif ", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "ceha558", password: "65582", name: "Celia Hamdy", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "faya076", password: "15431", name: "Farha Yasser", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "faah427", password: "94394", name: "Farida Ahmed ", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "kiah173", password: "74072", name: "Kinda Ahmed", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "yama079", password: "20841", name: "Yasmin Maher", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "khay498", password: "39989", name: "Khaled Ayman", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "shis237", password: "57405", name: "Shehab Islam", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "mamo913", password: "22065", name: "Malek Mohamed", class: "5A", role: "student", scores: { week1: 0 } },
-{ username: "moha176", password: "54608", name: "Mohamed Hany ", class: "5A", role: "student", scores: { week1: 0 } },
-
-{ username: "ayho984", password: "68673", name: "Ayten Hossain ", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "brmo833", password: "43981", name: "Brihan Moaaz", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "tamo932", password: "27746", name: "Talia Mohamed", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "maah832", password: "76716", name: "Mariam Ahmed ", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "ahha851", password: "61664", name: "Ahmed Hany", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "ahyo405", password: "33785", name: "Ahmed Yousry ", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "abba495", password: "64268", name: "Abdallah Barakat", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "omah659", password: "54234", name: "Omar Ahmed ", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "omma696", password: "64540", name: "Omar Mahmoud", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "samo186", password: "19580", name: "Saif Mohamed ", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "moos876", password: "23162", name: "Moaaz Osama ", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "yomo619", password: "47781", name: "Youssef Mosaab", class: "5B", role: "student", scores: { week1: 0 } },
-{ username: "miel293", password: "54795", name: "Miral elmoataz", class: "5B", role: "student", scores: { week1: 0 } },
-
-{ username: "alah746", password: "92810", name: "Alma Ahmed ", class: "6", role: "student", scores: { week1: 16 } },
-{ username: "jamo590", password: "89471", name: "Jana Mostafa", class: "6", role: "student", scores: { week1: 0 } },
-{ username: "raah509", password: "52364", name: "Rafeef Ahmed ", class: "6", role: "student", scores: { week1: 19 } },
-{ username: "zemo309", password: "92867", name: "Zeina Mohamed", class: "6", role: "student", scores: { week1: 19 } },
-{ username: "maha740", password: "77410", name: "Malak Hassan ", class: "6", role: "student", scores: { week1: 0 } },
-{ username: "meal470", password: "19955", name: "Mennat Allah", class: "6", role: "student", scores: { week1: 0 } },
-{ username: "ibma754", password: "74741", name: "Ibrahim mahmoud", class: "6", role: "student", scores: { week1: 0 } },
-{ username: "abam534", password: "78781", name: "Abdallah Amin ", class: "6", role: "student", scores: { week1: 0 } },
-{ username: "moab409", password: "26555", name: "Mohamed Abelrahman", class: "6", role: "student", scores: { week1: 22 } },
-{ username: "moab453", password: "36460", name: "Mostafa Abdelrahman", class: "6", role: "student", scores: { week1: 16 } },
-{ username: "moos270", password: "10124", name: "Moyasser Osman", class: "6", role: "student", scores: { week1: 0 } },
-{ username: "yaah791", password: "79771", name: "Yassin Ahmed ", class: "6", role: "student", scores: { week1: 25 } },
-{ username: "yomo941", password: "72249", name: "Youssef Mohamed", class: "6", role: "student", scores: { week1: 17 } },
-{ username: "ayab751", password: "55814", name: "Aya Abdallah", class: "6", role: "student", scores: { week1: 0 } },
-
-{ username: "ayha058", password: "96794", name: "Aysel Hatem ", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "jaah219", password: "55377", name: "Jana Ahmed ", class: "7", role: "student", scores: { week1: 20 } },
-{ username: "raah033", password: "91195", name: "Rawan Ahmed ", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "sita164", password: "24465", name: "Sila Tamer ", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "maah123", password: "26308", name: "Mariam Ahmed ", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "maha522", password: "46714", name: "Mariam Hassan ", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "naab113", password: "74840", name: "Nada Abdelfatah", class: "7", role: "student", scores: { week1: 21 } },
-{ username: "wama209", password: "24766", name: "Wajen mahmoud", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "aham406", password: "40059", name: "ahmed Amin ", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "asah426", password: "48477", name: "Asser Ahmed", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "amhi155", password: "14314", name: "Amir Hisham", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "bamo871", password: "62586", name: "Badr Mohamed ", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "brmo769", password: "50507", name: "Braa Moaaz", class: "7", role: "student", scores: { week1: 18 } },
-{ username: "hata851", password: "69543", name: "Hamza Tarek", class: "7", role: "student", scores: { week1: 25 } },
-{ username: "mayo353", password: "57823", name: "Mazen Yousry", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "moma861", password: "23510", name: "Mostafa Maher", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "amya055", password: "10083", name: "Ammar Yasser", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "omlo576", password: "61814", name: "Omar Lotfy", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "yaos973", password: "94389", name: "Yassien Osama", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "yomo901", password: "56349", name: "Youssef Mohamed", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "yomo742", password: "33167", name: "Youssef Mostafa", class: "7", role: "student", scores: { week1: 0 } },
-{ username: "meel734", password: "92175", name: "Menna elmoataz", class: "7", role: "student", scores: { week1: 0 } },
-
-{ username: "arah495", password: "37869", name: "Arwa Ahmed ", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "aseh225", password: "48328", name: "Aseel Ehab", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "esho278", password: "85491", name: "Esraa Hossain", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "roal451", password: "86181", name: "Roaa Alaa", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "roah875", password: "59879", name: "Roqaia Ahmed", class: "8", role: "student", scores: { week1: 20 } },
-{ username: "saha469", password: "93369", name: "Salma Hany ", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "saab650", password: "10384", name: "Safia Abdallah", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "lamo925", password: "42204", name: "Lamar Mohamed ", class: "8", role: "student", scores: { week1: 20 } },
-{ username: "loos167", password: "39737", name: "Logeen Osama ", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "maza362", password: "73325", name: "Maya Zaher", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "naah507", password: "15186", name: "Nadeen Ahmed ", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "adah518", password: "50389", name: "Adam Ahmed ", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "anmo798", password: "42080", name: "Anas Mohamed", class: "8", role: "student", scores: { week1: 23 } },
-{ username: "haah282", password: "10906", name: "Hamza Ahmed ", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "haos243", password: "29966", name: "Hamza Osama ", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "abba682", password: "33090", name: "Abdelrahman Barakat", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "ommo764", password: "73562", name: "Omar Montaser", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "maab032", password: "12306", name: "Mahmoud Abdelmaboud", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "moah392", password: "95140", name: "Mohsen Ahmed", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "naab530", password: "12687", name: "Nabil Abdelrahman", class: "8", role: "student", scores: { week1: 0 } },
-{ username: "yohi782", password: "77616", name: "Youssef Hisham", class: "8", role: "student", scores: { week1: 0 } },
-
-{ username: "haam491", password: "74475", name: "Hala Amin", class: "9", role: "student", scores: { week1: 0 } },
-{ username: "royo539", password: "96026", name: "Rodaina Youssef ", class: "9", role: "student", scores: { week1: 20 } },
-{ username: "rayo272", password: "48384", name: "Raghad Youssef ", class: "9", role: "student", scores: { week1: 26 } },
-{ username: "riah994", password: "58489", name: "Rital Ahmed ", class: "9", role: "student", scores: { week1: 24 } },
-{ username: "faot254", password: "52142", name: "Farah Othman ", class: "9", role: "student", scores: { week1: 25 } },
-{ username: "memo408", password: "80521", name: "Menna Mohamed", class: "9", role: "student", scores: { week1: 0 } },
-{ username: "asha088", password: "73484", name: "Asser Hatem", class: "9", role: "student", scores: { week1: 0 } },
-
-
-      {
-        name: "Omar Mohamed",
-        class: "STAFF",
-        username: "omohamed",
-        password: "2",
-        role: "teacher",
-        scores: {
-          week1: 0,
-        }
-      },
-      {
-        name: "Marwa Samy",
-        class: "SUPERVISOR",
-        username: "msamy",
-        password: "1",
-        role: "teacher",
-        scores: {
-          week1: 0,
-        }
-      },
-        // TODO: add all your other students here in the same format
-      // {
-      //   name: "Khaled Walid",
-      //   class: "7",
-      //   scores: { week1: 20 }
-      // },
-      // {
-      //   name: "Layan Khaled",
-      //   class: "4",
-      //   scores: { week1: 25 }
-      // }
-    ];
-// ============================
-//
-// TODO: paste your big students array here from your old main.js.
-// Change the first line from:
-//   const students = [
-//
-// to:
-//   const STUDENTS = [
-//
-// Make sure the array ends with ];
-//
-// Example shape of ONE student (your real data is longer):
-//
-// const STUDENTS = [
-//   {
-//     name: "Asya Hassan",
-//     class: "1A",
-//     username: "ahassan",
-//     password: "58241",
-//     role: "student",
-//     scores: { week1: 0 }
-//   },
-//   ...
-// ];
-// ============================
-
 
 // ============================
 // 2. AUTH HELPERS (LOGIN DATA)
@@ -318,12 +53,16 @@ function enforceMaintenanceMode() {
 
 function presentacySetCurrentUser(account) {
   if (!account) return;
+
   const data = {
     username: (account.username || "").trim().toLowerCase(),
     name: account.name || "",
     class: account.class || "",
+    studentId: account.studentId || "",
+    password: account.password || "",
     role: account.role || "student"
   };
+
   try {
     localStorage.setItem(PRESENTACY_USER_KEY, JSON.stringify(data));
   } catch (e) {
@@ -438,6 +177,8 @@ async function initPresentacyLoginPage() {
   username: String(row.username || "").trim().toLowerCase(),
   name: String(row.studentName || row["Student Name"] || row.username || "").trim(),
   class: String(row.Class || row.class || row.grade || row.class_name || "").trim(),
+  studentId: String(row.studentId || "").trim(),
+  password: String(row.studentId || "").trim(),
   role: "student"
 };
           }
@@ -686,12 +427,11 @@ async function getMergedStudentsData() {
     loadScoresFromAPI()
   ]);
 
-  const baseStudents =
-    Array.isArray(studentsFromSupabase) && studentsFromSupabase.length
-      ? studentsFromSupabase
-      : STUDENTS;
+  const baseStudents = Array.isArray(studentsFromSupabase)
+  ? studentsFromSupabase
+  : [];
 
-  return mergeFrontendStudentsWithRubrics(baseStudents, rubricRows);
+return mergeFrontendStudentsWithRubrics(baseStudents, rubricRows);
 }
 
 function getTotalPoints(student) {
@@ -3178,719 +2918,652 @@ function convertSupabaseRubricRow(row) {
     "Preparation": safeNumber(row.preparation),
     "Visual Aids": safeNumber(row.visualAids),
     "Time Management": safeNumber(row.timeManagement),
-    "Fluency": safeNumber(row.fluency),
-    "Language Accuracy": safeNumber(row.languageAccuracy),
-    "Pronunciation": safeNumber(row.pronunciation),
-    "Listening": safeNumber(row.listening)
-  };
+      "Fluency": safeNumber(row.fluency),
+      "Language Accuracy": safeNumber(row.languageAccuracy),
+      "Pronunciation": safeNumber(row.pronunciation),
+      "Listening": safeNumber(row.listening)
+    };
 
-  function toLetterForRegularSkill(num) {
-    if (num >= 4) return "A";
-    if (num >= 3) return "B";
-    if (num >= 2) return "C";
-    if (num >= 1) return "D";
-    return "E";
+    function toLetterForRegularSkill(num) {
+      if (num >= 4) return "A";
+      if (num >= 3) return "B";
+      if (num >= 2) return "C";
+      if (num >= 1) return "D";
+      return "E";
+    }
+
+    function toLetterForListening(num) {
+      if (num >= 2) return "A";
+      if (num === 1) return "B";
+      if (num === 0) return "";
+      if (num === -1) return "D";
+      return "f";
+    }
+
+    const rubricsLetters = {
+      "Body Language": toLetterForRegularSkill(rubricsNumbers["Body Language"]),
+      "Eye Contact": toLetterForRegularSkill(rubricsNumbers["Eye Contact"]),
+      "Intonation": toLetterForRegularSkill(rubricsNumbers["Intonation"]),
+      "Preparation": toLetterForRegularSkill(rubricsNumbers["Preparation"]),
+      "Visual Aids": toLetterForRegularSkill(rubricsNumbers["Visual Aids"]),
+      "Time Management": toLetterForRegularSkill(rubricsNumbers["Time Management"]),
+      "Fluency": toLetterForRegularSkill(rubricsNumbers["Fluency"]),
+      "Language Accuracy": toLetterForRegularSkill(rubricsNumbers["Language Accuracy"]),
+      "Pronunciation": toLetterForRegularSkill(rubricsNumbers["Pronunciation"]),
+      "Listening": toLetterForListening(rubricsNumbers["Listening"])
+    };
+
+    return {
+      week: row.week || "",
+      topic: row.topic || "",
+      teacher: row.teacher || "",
+      totalPoints: safeNumber(row.total),
+      rubricsNumbers,
+      rubricsLetters
+    };
   }
 
-  function toLetterForListening(num) {
-    if (num >= 2) return "A";
-    if (num === 1) return "B";
-    if (num === 0) return "";
-    if (num === -1) return "D";
-    return "f";
-  }
+  async function setupStudentMyScoresView(currentUser) {
+    const statusEl = document.getElementById("myscores-status");
+    const totalEl = document.getElementById("myscores-total");
+    const badgeEl = document.getElementById("myscores-badge");
+    const weeksContainer = document.getElementById("myscores-weeks");
+    const rubricsEl = document.getElementById("myscores-rubrics");
 
-  const rubricsLetters = {
-    "Body Language": toLetterForRegularSkill(rubricsNumbers["Body Language"]),
-    "Eye Contact": toLetterForRegularSkill(rubricsNumbers["Eye Contact"]),
-    "Intonation": toLetterForRegularSkill(rubricsNumbers["Intonation"]),
-    "Preparation": toLetterForRegularSkill(rubricsNumbers["Preparation"]),
-    "Visual Aids": toLetterForRegularSkill(rubricsNumbers["Visual Aids"]),
-    "Time Management": toLetterForRegularSkill(rubricsNumbers["Time Management"]),
-    "Fluency": toLetterForRegularSkill(rubricsNumbers["Fluency"]),
-    "Language Accuracy": toLetterForRegularSkill(rubricsNumbers["Language Accuracy"]),
-    "Pronunciation": toLetterForRegularSkill(rubricsNumbers["Pronunciation"]),
-    "Listening": toLetterForListening(rubricsNumbers["Listening"])
-  };
+    if (!statusEl || !totalEl || !badgeEl || !weeksContainer || !rubricsEl) return;
 
-  return {
-    week: row.week || "",
-    topic: row.topic || "",
-    teacher: row.teacher || "",
-    totalPoints: safeNumber(row.total),
-    rubricsNumbers,
-    rubricsLetters
-  };
-}
+    if (!currentUser || !currentUser.username) {
+      statusEl.textContent = "Please log in first to see your Presentacy score.";
+      totalEl.textContent = "–";
+      badgeEl.textContent = "–";
+      weeksContainer.innerHTML = "";
+      rubricsEl.innerHTML = "";
+      return;
+    }
 
-async function setupStudentMyScoresView(currentUser) {
-  const statusEl = document.getElementById("myscores-status");
-  const totalEl = document.getElementById("myscores-total");
-  const badgeEl = document.getElementById("myscores-badge");
-  const weeksContainer = document.getElementById("myscores-weeks");
-  const rubricsEl = document.getElementById("myscores-rubrics");
-
-  if (!statusEl || !totalEl || !badgeEl || !weeksContainer || !rubricsEl) return;
-
-  if (!currentUser || !currentUser.username) {
-    statusEl.textContent = "Please log in first to see your Presentacy score.";
+    statusEl.textContent = "Loading your scores...";
     totalEl.textContent = "–";
     badgeEl.textContent = "–";
     weeksContainer.innerHTML = "";
     rubricsEl.innerHTML = "";
-    return;
-  }
-
-  statusEl.textContent = "Loading your scores…";
-  totalEl.textContent = "–";
-  badgeEl.textContent = "–";
-  weeksContainer.innerHTML = "";
-  rubricsEl.innerHTML = "";
-
-  try {
-    const supabase = getSupabaseClient();
-    const studentId = String(currentUser.password || currentUser.studentId || "").trim();
-
-    if (!studentId) {
-      statusEl.textContent = "We could not read your student ID. Please log in again.";
-      return;
-    }
-
-    function renderWeek(selectedValue) {
-  let row;
-
-  if (selectedValue === "latest" || !selectedValue) {
-    row = latestRow;
-  } else {
-    const sameWeekRows = rubricRows.filter(
-      (r) => String(r.week || "").trim() === String(selectedValue).trim()
-    );
-
-    row = sameWeekRows.length
-      ? sameWeekRows[sameWeekRows.length - 1]
-      : latestRow;
-  }
-
-  const total = typeof row.totalPoints === "number" ? row.totalPoints : 0;
-  const badge = getBadgeForPoints(total);
-  const weekLabel = row.week ? `Week ${row.week}` : "Latest";
-  const topic = row.topic || "";
-  const teacherName = row.teacher || "";
-
-  summaryEl.innerHTML = `
-    <p><strong>Selected:</strong> ${weekLabel}</p>
-    <p><strong>Topic:</strong> ${topic || "–"}</p>
-    <p><strong>Total points:</strong> ${total}</p>
-    <p><strong>Badge:</strong> ${badge}</p>
-    <p><strong>Teacher:</strong> ${teacherName || "–"}</p>
-  `;
-
-  const nums = row.rubricsNumbers || {};
-  const letters = row.rubricsLetters || {};
-  const keys = Object.keys(nums);
-
-  if (!keys.length) {
-    rubricsEl.innerHTML = `
-      <p class="myscores-muted">
-        No detailed rubric scores were found for this week.
-      </p>
-    `;
-    return;
-  }
-
-  const rowsHtml = keys
-    .map((key) => {
-      const safeLabel = String(key)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-      const num = nums[key];
-      const letter = letters[key] || "";
-      const safeNum =
-        typeof num === "number"
-          ? num
-          : num !== undefined && num !== null
-          ? num
-          : "–";
-
-      return `
-        <tr>
-          <td>${safeLabel}</td>
-          <td>${safeNum}</td>
-          <td>${letter}</td>
-        </tr>
-      `;
-    })
-    .join("");
-
-  rubricsEl.innerHTML = `
-    <table class="myscores-table rubrics-table">
-      <thead>
-        <tr>
-          <th>Skill</th>
-          <th>Score</th>
-          <th>Grade</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rowsHtml}
-      </tbody>
-    </table>
-  `;
-}
-
-    if (error) {
-      console.error(error);
-      statusEl.textContent = error.message || "Could not load your scores.";
-      return;
-    }
-
-    const rubricRows = (data || []).map(convertSupabaseRubricRow);
-
-    if (!rubricRows.length) {
-      statusEl.textContent = "No presentation scores yet.";
-      totalEl.textContent = "–";
-      badgeEl.textContent = "–";
-      weeksContainer.innerHTML = `
-        <div id="myscores-selected-table">
-          <p class="myscores-muted">
-            No presentation scores yet. Once you start presenting, your points will appear here.
-          </p>
-        </div>
-      `;
-      rubricsEl.innerHTML = `
-        <p class="myscores-muted">
-          Your teacher has not added detailed rubric scores yet.
-        </p>
-      `;
-      return;
-    }
-
-    const latestRow = rubricRows[rubricRows.length - 1];
-    const total =
-      typeof latestRow.totalPoints === "number"
-        ? latestRow.totalPoints
-        : Number(latestRow.totalPoints || 0);
-
-    totalEl.textContent = total > 0 ? total : "–";
-    const badgeInfo = calculateBadge(total);
-    badgeEl.textContent = badgeInfo.label || badgeInfo.text || "Presentacy Speaker";
-
-    const weekOptions = rubricRows
-      .map((row, index) => {
-        const selected = index === rubricRows.length - 1 ? "selected" : "";
-        return `<option value="${index}" ${selected}>Week ${row.week || index + 1}</option>`;
-      })
-      .join("");
-
-    weeksContainer.innerHTML = `
-      <label class="form-field">
-        <span class="form-label">Choose week</span>
-        <select id="myscores-week-select" class="input">
-          ${weekOptions}
-        </select>
-      </label>
-      <div id="myscores-selected-table" style="margin-top: 1rem;"></div>
-    `;
-
-    function renderRubricRow(row) {
-      const total =
-        typeof row.totalPoints === "number"
-          ? row.totalPoints
-          : Number(row.totalPoints || 0);
-
-      totalEl.textContent = total > 0 ? total : "–";
-      const badgeInfo = calculateBadge(total);
-      badgeEl.textContent = badgeInfo.label || badgeInfo.text || "Presentacy Speaker";
-
-      const selectedTable = document.getElementById("myscores-selected-table");
-      if (selectedTable) {
-        selectedTable.innerHTML = `
-          <table class="myscores-table">
-            <thead>
-              <tr>
-                <th>Week</th>
-                <th>Topic</th>
-                <th>Total points</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>${row.week || "–"}</td>
-                <td>${row.topic || "–"}</td>
-                <td>${Number.isFinite(total) ? total : 0}</td>
-              </tr>
-            </tbody>
-          </table>
-        `;
-      }
-
-      const rubricLetters = row.rubricsLetters || {};
-      const rubricKeys = Object.keys(rubricLetters);
-
-      if (!rubricKeys.length) {
-        rubricsEl.innerHTML = `
-          <p class="myscores-muted">
-            Your teacher has not added detailed rubric scores yet. Once they are added, they will appear here.
-          </p>
-        `;
-        return;
-      }
-
-      const rowsHtml = rubricKeys
-        .map((key) => {
-          const letter = rubricLetters[key] || "";
-          const safeLabel = String(key)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-          return `
-            <tr>
-              <td>${safeLabel}</td>
-              <td>${letter}</td>
-            </tr>
-          `;
-        })
-        .join("");
-
-      rubricsEl.innerHTML = `
-        <table class="myscores-table rubrics-table">
-          <thead>
-            <tr>
-              <th>Skill</th>
-              <th>Grade</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml}
-          </tbody>
-        </table>
-      `;
-    }
-
-    renderRubricRow(latestRow);
-
-    const weekSelect = document.getElementById("myscores-week-select");
-    if (weekSelect) {
-      weekSelect.addEventListener("change", () => {
-        const idx = Number(weekSelect.value);
-        const row = rubricRows[idx] || latestRow;
-        renderRubricRow(row);
-      });
-    }
-
-    statusEl.textContent = "Your scores are ready.";
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = err.message || "Could not load your scores.";
-  }
-}
-async function setupTeacherMyScoresView() {
-  const classSelect = document.getElementById("teacher-myscores-class");
-  const nameInput = document.getElementById("teacher-myscores-name");
-  const searchBtn = document.getElementById("teacher-myscores-search");
-  const statusEl = document.getElementById("teacher-myscores-status");
-  const resultEl = document.getElementById("teacher-myscores-result");
-
-  if (!classSelect || !nameInput || !searchBtn || !statusEl || !resultEl) return;
-
-  const allStudents = await getMergedStudentsData();
-  const classes = await getAllClasses();
-
-  classSelect.innerHTML =
-    `<option value="">All classes</option>` +
-    classes.map((c) => `<option value="${c}">${c}</option>`).join("");
-
-  async function loadTeacherStudentRubrics(student) {
-    const studentId = String(student.studentId || student.password || "").trim();
-
-    if (!studentId) {
-      statusEl.textContent = "This student does not have a student ID set.";
-      resultEl.innerHTML = "";
-      return;
-    }
-
-    statusEl.textContent = `Loading detailed scores for ${student.name}…`;
-    resultEl.innerHTML = "";
 
     try {
       const supabase = getSupabaseClient();
+      const studentId = String(currentUser.password || currentUser.studentId || "").trim();
+
+      if (!studentId) {
+        statusEl.textContent = "We could not read your student ID. Please log in again.";
+        return;
+      }
+
       const { data, error } = await supabase
-        .from("Rubrics")
-        .select("*")
-        .eq("Student ID", studentId)
-        .order("week", { ascending: true });
+    .from("Rubrics")
+    .select("*")
+    .eq("Student ID", studentId)
+    .order("week", { ascending: true });
 
       if (error) {
         console.error(error);
-        statusEl.textContent = error.message || "Could not load this student’s scores.";
-        resultEl.innerHTML = "";
+        statusEl.textContent = error.message || "Could not load your scores.";
         return;
       }
 
       const rubricRows = (data || []).map(convertSupabaseRubricRow);
 
       if (!rubricRows.length) {
-        statusEl.textContent = "No rubric rows found yet for this student.";
-        resultEl.innerHTML = `
-          <article class="student-card">
-            <h3>${student.name}</h3>
-            <p class="myscores-muted">Class: ${student.class || "-"}</p>
-            <p><strong>Total points:</strong> 0</p>
-            <p><strong>Badge:</strong> Rising Star</p>
-          </article>
+        statusEl.textContent = "No presentation scores yet.";
+        totalEl.textContent = "–";
+        badgeEl.textContent = "–";
+        weeksContainer.innerHTML = `
+          <div id="myscores-selected-table">
+            <p class="myscores-muted">
+              No presentation scores yet. Once you start presenting, your points will appear here.
+            </p>
+          </div>
+        `;
+        rubricsEl.innerHTML = `
+          <p class="myscores-muted">
+            Your teacher has not added detailed rubric scores yet.
+          </p>
         `;
         return;
       }
 
-      statusEl.textContent = "";
-
-      const weekSet = new Set();
-      rubricRows.forEach((row) => {
-        if (row.week && String(row.week).trim() !== "") {
-          weekSet.add(String(row.week).trim());
-        }
-      });
-
-      const weekList = Array.from(weekSet).sort((a, b) => Number(a) - Number(b));
       const latestRow = rubricRows[rubricRows.length - 1];
       const latestTotal =
-        typeof latestRow.totalPoints === "number" ? latestRow.totalPoints : 0;
-      const badgeLabel = getBadgeForPoints(latestTotal);
+        typeof latestRow.totalPoints === "number"
+          ? latestRow.totalPoints
+          : Number(latestRow.totalPoints || 0);
 
-      resultEl.innerHTML = `
-        <article class="student-card">
-          <h3>${student.name}</h3>
-          <p class="myscores-muted">Class: ${student.class || "-"}</p>
-          <p><strong>Total points (latest):</strong> ${latestTotal}</p>
-          <p><strong>Badge:</strong> ${badgeLabel}</p>
+      totalEl.textContent = latestTotal > 0 ? latestTotal : "–";
+      const latestBadge = calculateBadge(latestTotal);
+      badgeEl.textContent = latestBadge.label || latestBadge.text || "Presentacy Speaker";
 
-          <div class="teacher-week-filter" style="margin-top: 1rem;">
-            <label class="form-field">
-              <span class="form-label">Week</span>
-              <select id="teacher-week-select" class="input">
-                <option value="latest">Latest</option>
-                ${weekList.map((w) => `<option value="${w}">Week ${w}</option>`).join("")}
-              </select>
-            </label>
-          </div>
+      const weekOptions = rubricRows
+        .map((row, index) => {
+          const selected = index === rubricRows.length - 1 ? "selected" : "";
+          return `<option value="${index}" ${selected}>Week ${row.week || index + 1}</option>`;
+        })
+        .join("");
 
-          <div id="teacher-week-summary" style="margin-top: 1rem;"></div>
-          <div id="teacher-week-rubrics" class="teacher-week-rubrics" style="margin-top: 1rem;"></div>
-        </article>
+      weeksContainer.innerHTML = `
+        <label class="form-field">
+          <span class="form-label">Choose week</span>
+          <select id="myscores-week-select" class="input">
+            ${weekOptions}
+          </select>
+        </label>
+        <div id="myscores-selected-table" style="margin-top: 1rem;"></div>
       `;
 
-      const weekSelect = document.getElementById("teacher-week-select");
-      const summaryEl = document.getElementById("teacher-week-summary");
-      const rubricsEl = document.getElementById("teacher-week-rubrics");
+      function renderRubricRow(row) {
+        const total =
+          typeof row.totalPoints === "number"
+            ? row.totalPoints
+            : Number(row.totalPoints || 0);
 
-      function renderWeek(selectedValue) {
-  let row;
+        totalEl.textContent = total > 0 ? total : "–";
+        const badgeInfo = calculateBadge(total);
+        badgeEl.textContent = badgeInfo.label || badgeInfo.text || "Presentacy Speaker";
 
-  if (selectedValue === "latest" || !selectedValue) {
-    row = latestRow;
-  } else {
-    const sameWeekRows = rubricRows.filter(
-      (r) => String(r.week || "").trim() === String(selectedValue).trim()
-    );
+        const selectedTable = document.getElementById("myscores-selected-table");
+        if (selectedTable) {
+          selectedTable.innerHTML = `
+            <table class="myscores-table">
+              <thead>
+                <tr>
+                  <th>Week</th>
+                  <th>Topic</th>
+                  <th>Total points</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>${row.week || "–"}</td>
+                  <td>${row.topic || "–"}</td>
+                  <td>${Number.isFinite(total) ? total : 0}</td>
+                </tr>
+              </tbody>
+            </table>
+          `;
+        }
 
-    row = sameWeekRows.length
-      ? sameWeekRows[sameWeekRows.length - 1]
-      : latestRow;
-  }
+        const rubricNumbers = row.rubricsNumbers || {};
+        const rubricLetters = row.rubricsLetters || {};
+        const rubricKeys = Object.keys(rubricNumbers).length
+          ? Object.keys(rubricNumbers)
+          : Object.keys(rubricLetters);
 
-  const total = typeof row.totalPoints === "number" ? row.totalPoints : 0;
-  const badge = getBadgeForPoints(total);
-  const weekLabel = row.week ? `Week ${row.week}` : "Latest";
-  const topic = row.topic || "";
-  const teacherName = row.teacher || "";
+        if (!rubricKeys.length) {
+          rubricsEl.innerHTML = `
+            <p class="myscores-muted">
+              Your teacher has not added detailed rubric scores yet. Once they are added, they will appear here.
+            </p>
+          `;
+          return;
+        }
 
-  summaryEl.innerHTML = `
-    <p><strong>Selected:</strong> ${weekLabel}</p>
-    <p><strong>Topic:</strong> ${topic || "–"}</p>
-    <p><strong>Total points:</strong> ${total}</p>
-    <p><strong>Badge:</strong> ${badge}</p>
-    <p><strong>Teacher:</strong> ${teacherName || "–"}</p>
-  `;
+        const rowsHtml = rubricKeys
+          .map((key) => {
+            const safeLabel = String(key)
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
 
-  const nums = row.rubricsNumbers || {};
-  const letters = row.rubricsLetters || {};
-  const keys = Object.keys(nums);
+            const numericValue = rubricNumbers[key];
+            const letterValue = rubricLetters[key] || "";
+            const safeNumeric =
+              typeof numericValue === "number"
+                ? numericValue
+                : numericValue !== undefined && numericValue !== null && numericValue !== ""
+                ? numericValue
+                : "–";
 
-  if (!keys.length) {
-    rubricsEl.innerHTML = `
-      <p class="myscores-muted">
-        No detailed rubric scores were found for this week.
-      </p>
-    `;
-    return;
-  }
+            return `
+              <tr>
+                <td>${safeLabel}</td>
+                <td>${safeNumeric}</td>
+                <td>${letterValue}</td>
+              </tr>
+            `;
+          })
+          .join("");
 
-  const rowsHtml = keys
-    .map((key) => {
-      const safeLabel = String(key)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-      const num = nums[key];
-      const letter = letters[key] || "";
-      const safeNum =
-        typeof num === "number"
-          ? num
-          : num !== undefined && num !== null
-          ? num
-          : "–";
+        rubricsEl.innerHTML = `
+          <table class="myscores-table rubrics-table">
+            <thead>
+              <tr>
+                <th>Skill</th>
+                <th>Score</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        `;
+      }
 
-      return `
-        <tr>
-          <td>${safeLabel}</td>
-          <td>${safeNum}</td>
-          <td>${letter}</td>
-        </tr>
-      `;
-    })
-    .join("");
+      renderRubricRow(latestRow);
 
-  rubricsEl.innerHTML = `
-    <table class="myscores-table rubrics-table">
-      <thead>
-        <tr>
-          <th>Skill</th>
-          <th>Score</th>
-          <th>Grade</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rowsHtml}
-      </tbody>
-    </table>
-  `;
-}
-
-      renderWeek("latest");
-
+      const weekSelect = document.getElementById("myscores-week-select");
       if (weekSelect) {
         weekSelect.addEventListener("change", () => {
-          renderWeek(weekSelect.value);
+          const idx = Number(weekSelect.value);
+          const row = rubricRows[idx] || latestRow;
+          renderRubricRow(row);
         });
       }
+
+      statusEl.textContent = "Your scores are ready.";
     } catch (err) {
-      console.error("Error loading student rubrics", err);
-      statusEl.textContent =
-        err.message || "We had a problem loading this student’s scores.";
-      resultEl.innerHTML = "";
+      console.error(err);
+      statusEl.textContent = err.message || "Could not load your scores.";
     }
   }
+  async function setupTeacherMyScoresView() {
+    const classSelect = document.getElementById("teacher-myscores-class");
+    const nameInput = document.getElementById("teacher-myscores-name");
+    const searchBtn = document.getElementById("teacher-myscores-search");
+    const statusEl = document.getElementById("teacher-myscores-status");
+    const resultEl = document.getElementById("teacher-myscores-result");
 
-  function performSearch() {
-    const classFilter = classSelect.value.trim().toLowerCase();
-    const nameQuery = nameInput.value.trim().toLowerCase();
+    if (!classSelect || !nameInput || !searchBtn || !statusEl || !resultEl) return;
 
-    resultEl.innerHTML = "";
+    const allStudents = await getMergedStudentsData();
+    const classes = await getAllClasses();
 
-    if (!nameQuery) {
-      statusEl.textContent = "Type at least part of the student’s name.";
-      return;
-    }
+    classSelect.innerHTML =
+      `<option value="">All classes</option>` +
+      classes.map((c) => `<option value="${c}">${c}</option>`).join("");
 
-    const matches = (allStudents || []).filter((s) => {
-      if (!s || s.role === "teacher") return false;
+    async function loadTeacherStudentRubrics(student) {
+      const studentId = String(student.studentId || student.password || "").trim();
 
-      const matchClass =
-        !classFilter || String(s.class || "").trim().toLowerCase() === classFilter;
-
-      const matchName =
-        String(s.name || "").trim().toLowerCase().includes(nameQuery) ||
-        String(s.username || "").trim().toLowerCase().includes(nameQuery);
-
-      return matchClass && matchName;
-    });
-
-    if (!matches.length) {
-      statusEl.textContent = "No students found with that name in this class.";
-      return;
-    }
-
-    if (matches.length > 1) {
-      statusEl.textContent =
-        "More than one student matched. Please type the full name or username.";
-      return;
-    }
-
-    loadTeacherStudentRubrics(matches[0]);
-  }
-
-  searchBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    performSearch();
-  });
-
-  nameInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      performSearch();
-    }
-  });
-}
-
-async function initMyScoresPage() {
-  const raw = localStorage.getItem("presentacy_current_user");
-  let currentUser = null;
-
-  try {
-    currentUser = raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    currentUser = null;
-  }
-
-  const studentSection = document.getElementById("myscores-student-section");
-  const teacherSection = document.getElementById("myscores-teacher-section");
-
-  if (!currentUser) {
-    // Not logged in – hide both sections
-    if (studentSection) studentSection.style.display = "none";
-    if (teacherSection) teacherSection.style.display = "none";
-
-    const statusEl = document.getElementById("myscores-status");
-    if (statusEl) {
-      statusEl.textContent = "Please log in first to see scores.";
-    }
-    return;
-  }
-
-  // Teacher vs student
-  if (currentUser.role === "teacher") {
-    if (studentSection) studentSection.style.display = "none";
-    if (teacherSection) teacherSection.style.display = "block";
-    await setupTeacherMyScoresView();
-  } else {
-    if (teacherSection) teacherSection.style.display = "none";
-    if (studentSection) studentSection.style.display = "block";
-    await setupStudentMyScoresView(currentUser);
-  }
-}
-
-// ========================
-// DOMContentLoaded – FINAL
-// ========================
-addEventListener("DOMContentLoaded", () => {
-  if (enforceMaintenanceMode()) return;
-
-  const page = document.body.getAttribute("data-page") || "";
-
-  // Common for all pages
-
-  // Common for all pages
-  if (typeof setupNavHighlight === "function") setupNavHighlight();
-  if (typeof setupMobileNav === "function") setupMobileNav();
-  if (typeof setupLogoutButton === "function") setupLogoutButton();
-  if (typeof applyRoleBasedNav === "function") applyRoleBasedNav();
-
-  // Home hero (greeting + badge)
-  if (typeof updateHomeHeroCard === "function") updateHomeHeroCard();
-  if (typeof updateHomeHeroUserBadge === "function") updateHomeHeroUserBadge();
-
-  // If you still want the old navbar greeting, keep this line.
-  // If you DON'T want it, just delete this next line:
-  // if (typeof renderUserGreeting === "function") renderUserGreeting();
-
-  // Page-specific inits
-  if (typeof initHomePage === "function") initHomePage();
-  if (typeof initGeneratorPage === "function") initGeneratorPage();
-  if (typeof initPresentacyWallPage === "function") initPresentacyWallPage();
-
-  if (page === "login" && typeof initPresentacyLoginPage === "function") {
-    initPresentacyLoginPage();
-    return;
-  }
-
-  if (page === "wordle" && typeof initWordlePage === "function") {
-  initWordlePage();
-}
-
-  if (page === "leaderboard" && typeof initLeaderboardPage === "function") {
-    initLeaderboardPage();
-  }
-
-  if (page === "videos" && typeof initVideoReactions === "function") {
-    initVideoReactions();
-  }
-
-    if (page === "myscores" && typeof initMyScoresPage === "function") {
-    initMyScoresPage();
-  }
-
-    // ============================
-  // TEACHER RUBRICS: stay on page + popup on save
-  // ============================
-  const rubricsForm = document.getElementById("rubrics-form");
-  const rubricsFrame = document.getElementById("rubrics-saver-frame");
-
-  if (rubricsForm && rubricsFrame) {
-    let firstLoad = true; // ignore the first empty load of the iframe
-
-    rubricsFrame.addEventListener("load", () => {
-      if (firstLoad) {
-        firstLoad = false;
+      if (!studentId) {
+        statusEl.textContent = "This student does not have a student ID set.";
+        resultEl.innerHTML = "";
         return;
       }
 
-      // At this point Apps Script has replied → the row should be saved
-      alert("Rubrics saved! You can enter the next student.");
+      statusEl.textContent = `Loading detailed scores for ${student.name}…`;
+      resultEl.innerHTML = "";
 
-      // Clear the form for the next student
-      rubricsForm.reset();
+      try {
+        const supabase = getSupabaseClient();
+        const { data, error } = await supabase
+          .from("Rubrics")
+          .select("*")
+          .eq("Student ID", studentId)
+          .order("week", { ascending: true });
 
-      // Optional: put the cursor back on the student select / input
-      const studentField =
-        rubricsForm.querySelector('[name="student"]') ||
-        rubricsForm.querySelector('[name="studentId"]');
-      if (studentField) {
-        studentField.focus();
+        if (error) {
+          console.error(error);
+          statusEl.textContent = error.message || "Could not load this student’s scores.";
+          resultEl.innerHTML = "";
+          return;
+        }
+
+        const rubricRows = (data || []).map(convertSupabaseRubricRow);
+
+        if (!rubricRows.length) {
+          statusEl.textContent = "No rubric rows found yet for this student.";
+          resultEl.innerHTML = `
+            <article class="student-card">
+              <h3>${student.name}</h3>
+              <p class="myscores-muted">Class: ${student.class || "-"}</p>
+              <p><strong>Total points:</strong> 0</p>
+              <p><strong>Badge:</strong> Rising Star</p>
+            </article>
+          `;
+          return;
+        }
+
+        statusEl.textContent = "";
+
+        const weekSet = new Set();
+        rubricRows.forEach((row) => {
+          if (row.week && String(row.week).trim() !== "") {
+            weekSet.add(String(row.week).trim());
+          }
+        });
+
+        const weekList = Array.from(weekSet).sort((a, b) => Number(a) - Number(b));
+        const latestRow = rubricRows[rubricRows.length - 1];
+        const latestTotal =
+          typeof latestRow.totalPoints === "number" ? latestRow.totalPoints : 0;
+        const badgeLabel = getBadgeForPoints(latestTotal);
+
+        resultEl.innerHTML = `
+          <article class="student-card">
+            <h3>${student.name}</h3>
+            <p class="myscores-muted">Class: ${student.class || "-"}</p>
+            <p><strong>Total points (latest):</strong> ${latestTotal}</p>
+            <p><strong>Badge:</strong> ${badgeLabel}</p>
+
+            <div class="teacher-week-filter" style="margin-top: 1rem;">
+              <label class="form-field">
+                <span class="form-label">Week</span>
+                <select id="teacher-week-select" class="input">
+                  <option value="latest">Latest</option>
+                  ${weekList.map((w) => `<option value="${w}">Week ${w}</option>`).join("")}
+                </select>
+              </label>
+            </div>
+
+            <div id="teacher-week-summary" style="margin-top: 1rem;"></div>
+            <div id="teacher-week-rubrics" class="teacher-week-rubrics" style="margin-top: 1rem;"></div>
+          </article>
+        `;
+
+        const weekSelect = document.getElementById("teacher-week-select");
+        const summaryEl = document.getElementById("teacher-week-summary");
+        const rubricsEl = document.getElementById("teacher-week-rubrics");
+
+        function renderWeek(selectedValue) {
+    let row;
+
+    if (selectedValue === "latest" || !selectedValue) {
+      row = latestRow;
+    } else {
+      const sameWeekRows = rubricRows.filter(
+        (r) => String(r.week || "").trim() === String(selectedValue).trim()
+      );
+
+      row = sameWeekRows.length
+        ? sameWeekRows[sameWeekRows.length - 1]
+        : latestRow;
+    }
+
+    const total = typeof row.totalPoints === "number" ? row.totalPoints : 0;
+    const badge = getBadgeForPoints(total);
+    const weekLabel = row.week ? `Week ${row.week}` : "Latest";
+    const topic = row.topic || "";
+    const teacherName = row.teacher || "";
+
+    summaryEl.innerHTML = `
+      <p><strong>Selected:</strong> ${weekLabel}</p>
+      <p><strong>Topic:</strong> ${topic || "–"}</p>
+      <p><strong>Total points:</strong> ${total}</p>
+      <p><strong>Badge:</strong> ${badge}</p>
+      <p><strong>Teacher:</strong> ${teacherName || "–"}</p>
+    `;
+
+    const nums = row.rubricsNumbers || {};
+    const letters = row.rubricsLetters || {};
+    const keys = Object.keys(nums);
+
+    if (!keys.length) {
+      rubricsEl.innerHTML = `
+        <p class="myscores-muted">
+          No detailed rubric scores were found for this week.
+        </p>
+      `;
+      return;
+    }
+
+    const rowsHtml = keys
+      .map((key) => {
+        const safeLabel = String(key)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        const num = nums[key];
+        const letter = letters[key] || "";
+        const safeNum =
+          typeof num === "number"
+            ? num
+            : num !== undefined && num !== null
+            ? num
+            : "–";
+
+        return `
+          <tr>
+            <td>${safeLabel}</td>
+            <td>${safeNum}</td>
+            <td>${letter}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    rubricsEl.innerHTML = `
+      <table class="myscores-table rubrics-table">
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Score</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    `;
+  }
+
+        renderWeek("latest");
+
+        if (weekSelect) {
+          weekSelect.addEventListener("change", () => {
+            renderWeek(weekSelect.value);
+          });
+        }
+      } catch (err) {
+        console.error("Error loading student rubrics", err);
+        statusEl.textContent =
+          err.message || "We had a problem loading this student’s scores.";
+        resultEl.innerHTML = "";
+      }
+    }
+
+    function performSearch() {
+      const classFilter = classSelect.value.trim().toLowerCase();
+      const nameQuery = nameInput.value.trim().toLowerCase();
+
+      resultEl.innerHTML = "";
+
+      if (!nameQuery) {
+        statusEl.textContent = "Type at least part of the student’s name.";
+        return;
+      }
+
+      const matches = (allStudents || []).filter((s) => {
+        if (!s || s.role === "teacher") return false;
+
+        const matchClass =
+          !classFilter || String(s.class || "").trim().toLowerCase() === classFilter;
+
+        const matchName =
+          String(s.name || "").trim().toLowerCase().includes(nameQuery) ||
+          String(s.username || "").trim().toLowerCase().includes(nameQuery);
+
+        return matchClass && matchName;
+      });
+
+      if (!matches.length) {
+        statusEl.textContent = "No students found with that name in this class.";
+        return;
+      }
+
+      if (matches.length > 1) {
+        statusEl.textContent =
+          "More than one student matched. Please type the full name or username.";
+        return;
+      }
+
+      loadTeacherStudentRubrics(matches[0]);
+    }
+
+    searchBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      performSearch();
+    });
+
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        performSearch();
       }
     });
   }
-});
 
+  async function initMyScoresPage() {
+    const raw = localStorage.getItem("presentacy_current_user");
+    let currentUser = null;
 
-function trackVisitAuto() {
-  try {
-    // Page name (uses <body data-page="..."> if you have it)
-    const page =
-      document.body?.dataset?.page ||
-      document.body?.getAttribute("data-page") ||
-      location.pathname.split("/").pop() ||
-      "unknown";
+    try {
+      currentUser = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      currentUser = null;
+    }
 
-    // Who is visiting (adjust keys if yours are different)
-    const userId =
-      localStorage.getItem("studentId") ||
-      localStorage.getItem("teacherId") ||
-      localStorage.getItem("userId") ||
-      "guest";
+    const studentSection = document.getElementById("myscores-student-section");
+    const teacherSection = document.getElementById("myscores-teacher-section");
 
-    const role = localStorage.getItem("role") || "unknown";
+    if (!currentUser) {
+      // Not logged in – hide both sections
+      if (studentSection) studentSection.style.display = "none";
+      if (teacherSection) teacherSection.style.display = "none";
 
-    // Send 1 tracking request (fire-and-forget)
-    fetch(
-      `${API_URL}?action=track` +
-        `&userId=${encodeURIComponent(userId)}` +
-        `&role=${encodeURIComponent(role)}` +
-        `&page=${encodeURIComponent(page)}` +
-        `&event=page_view` +
-        `&ua=${encodeURIComponent(navigator.userAgent)}`
-    ).catch(() => {});
-  } catch (e) {
-    // ignore
+      const statusEl = document.getElementById("myscores-status");
+      if (statusEl) {
+        statusEl.textContent = "Please log in first to see scores.";
+      }
+      return;
+    }
+
+    // Teacher vs student
+    if (currentUser.role === "teacher") {
+      if (studentSection) studentSection.style.display = "none";
+      if (teacherSection) teacherSection.style.display = "block";
+      await setupTeacherMyScoresView();
+    } else {
+      if (teacherSection) teacherSection.style.display = "none";
+      if (studentSection) studentSection.style.display = "block";
+      await setupStudentMyScoresView(currentUser);
+    }
   }
-}
 
-// Run ONCE per page load
-document.addEventListener("DOMContentLoaded", trackVisitAuto);
+  // ========================
+  // DOMContentLoaded – FINAL
+  // ========================
+  addEventListener("DOMContentLoaded", () => {
+    if (enforceMaintenanceMode()) return;
+
+    const page = document.body.getAttribute("data-page") || "";
+
+    // Common for all pages
+
+    // Common for all pages
+    if (typeof setupNavHighlight === "function") setupNavHighlight();
+    if (typeof setupMobileNav === "function") setupMobileNav();
+    if (typeof setupLogoutButton === "function") setupLogoutButton();
+    if (typeof applyRoleBasedNav === "function") applyRoleBasedNav();
+
+    // Home hero (greeting + badge)
+    if (typeof updateHomeHeroCard === "function") updateHomeHeroCard();
+    if (typeof updateHomeHeroUserBadge === "function") updateHomeHeroUserBadge();
+
+    // If you still want the old navbar greeting, keep this line.
+    // If you DON'T want it, just delete this next line:
+    // if (typeof renderUserGreeting === "function") renderUserGreeting();
+
+    // Page-specific inits
+    if (typeof initHomePage === "function") initHomePage();
+    if (typeof initGeneratorPage === "function") initGeneratorPage();
+    if (typeof initPresentacyWallPage === "function") initPresentacyWallPage();
+
+    if (page === "login" && typeof initPresentacyLoginPage === "function") {
+      initPresentacyLoginPage();
+      return;
+    }
+
+    if (page === "wordle" && typeof initWordlePage === "function") {
+    initWordlePage();
+  }
+
+    if (page === "leaderboard" && typeof initLeaderboardPage === "function") {
+      initLeaderboardPage();
+    }
+
+    if (page === "videos" && typeof initVideoReactions === "function") {
+      initVideoReactions();
+    }
+
+      if (page === "myscores" && typeof initMyScoresPage === "function") {
+      initMyScoresPage();
+    }
+
+      // ============================
+    // TEACHER RUBRICS: stay on page + popup on save
+    // ============================
+    const rubricsForm = document.getElementById("rubrics-form");
+    const rubricsFrame = document.getElementById("rubrics-saver-frame");
+
+    if (rubricsForm && rubricsFrame) {
+      let firstLoad = true; // ignore the first empty load of the iframe
+
+      rubricsFrame.addEventListener("load", () => {
+        if (firstLoad) {
+          firstLoad = false;
+          return;
+        }
+
+        // At this point Apps Script has replied → the row should be saved
+        alert("Rubrics saved! You can enter the next student.");
+
+        // Clear the form for the next student
+        rubricsForm.reset();
+
+        // Optional: put the cursor back on the student select / input
+        const studentField =
+          rubricsForm.querySelector('[name="student"]') ||
+          rubricsForm.querySelector('[name="studentId"]');
+        if (studentField) {
+          studentField.focus();
+        }
+      });
+    }
+  });
 
 
+  function trackVisitAuto() {
+    try {
+      // Page name (uses <body data-page="..."> if you have it)
+      const page =
+        document.body?.dataset?.page ||
+        document.body?.getAttribute("data-page") ||
+        location.pathname.split("/").pop() ||
+        "unknown";
 
+      // Who is visiting (adjust keys if yours are different)
+      const userId =
+        localStorage.getItem("studentId") ||
+        localStorage.getItem("teacherId") ||
+        localStorage.getItem("userId") ||
+        "guest";
 
+      const role = localStorage.getItem("role") || "unknown";
+
+      // Send 1 tracking request (fire-and-forget)
+      fetch(
+        `${API_URL}?action=track` +
+          `&userId=${encodeURIComponent(userId)}` +
+          `&role=${encodeURIComponent(role)}` +
+          `&page=${encodeURIComponent(page)}` +
+          `&event=page_view` +
+          `&ua=${encodeURIComponent(navigator.userAgent)}`
+      ).catch(() => {});
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Run ONCE per page load
+  document.addEventListener("DOMContentLoaded", trackVisitAuto);
 
 
 
