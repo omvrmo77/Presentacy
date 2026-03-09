@@ -101,7 +101,7 @@
         <section class="card" id="myscores-teacher-section">
           <h2 class="card-title">Students’ Scores</h2>
           <p class="card-subtitle">
-            Choose a class and student to see their total Presentacy score.
+            Choose a class to see all students sorted from the lowest number of presentations to the highest. You can still search for a specific student when needed.
           </p>
 
           <div class="myscores-teacher-filters">
@@ -129,6 +129,10 @@
             </button>
           </div>
 
+          <p class="myscores-muted">
+            Students with zero presentations will appear first and will be marked as <strong>Not Presented Yet</strong>.
+          </p>
+
           <div id="teacher-myscores-status" class="status-message"></div>
           <div id="teacher-myscores-result"></div>
         </section>
@@ -136,6 +140,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="main.js"></script>>
+<script src="main.js"></script>
   </body>
 </html>

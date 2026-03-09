@@ -3171,243 +3171,147 @@ function convertSupabaseRubricRow(row) {
 
     if (!classSelect || !nameInput || !searchBtn || !statusEl || !resultEl) return;
 
-    const allStudents = await getMergedStudentsData();
+    const allStudents = (await getMergedStudentsData()).filter(
+      (student) => student && student.role !== "teacher"
+    );
     const classes = await getAllClasses();
 
     classSelect.innerHTML =
       `<option value="">All classes</option>` +
       classes.map((c) => `<option value="${c}">${c}</option>`).join("");
 
-    async function loadTeacherStudentRubrics(student) {
-      const studentId = String(student.studentId || student.password || "").trim();
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
 
-      if (!studentId) {
-        statusEl.textContent = "This student does not have a student ID set.";
-        resultEl.innerHTML = "";
-        return;
-      }
+    function getPresentationCount(student) {
+      if (!student || !student.scores || typeof student.scores !== "object") return 0;
 
-      statusEl.textContent = `Loading detailed scores for ${student.name}…`;
-      resultEl.innerHTML = "";
+      return Object.keys(student.scores).filter((key) => /^week\d+$/i.test(key)).length;
+    }
 
-      try {
-        const supabase = getSupabaseClient();
-        const { data, error } = await supabase
-          .from("Rubrics")
-          .select("*")
-          .eq("Student ID", studentId)
-          .order("week", { ascending: true });
+    function sortStudentsByPresentationCount(list) {
+      return [...list].sort((a, b) => {
+        const countDiff = getPresentationCount(a) - getPresentationCount(b);
+        if (countDiff !== 0) return countDiff;
 
-        if (error) {
-          console.error(error);
-          statusEl.textContent = error.message || "Could not load this student’s scores.";
-          resultEl.innerHTML = "";
-          return;
-        }
-
-        const rubricRows = (data || []).map(convertSupabaseRubricRow);
-
-        if (!rubricRows.length) {
-          statusEl.textContent = "No rubric rows found yet for this student.";
-          resultEl.innerHTML = `
-            <article class="student-card">
-              <h3>${student.name}</h3>
-              <p class="myscores-muted">Class: ${student.class || "-"}</p>
-              <p><strong>Total points:</strong> 0</p>
-              <p><strong>Badge:</strong> Rising Star</p>
-            </article>
-          `;
-          return;
-        }
-
-        statusEl.textContent = "";
-
-        const weekSet = new Set();
-        rubricRows.forEach((row) => {
-          if (row.week && String(row.week).trim() !== "") {
-            weekSet.add(String(row.week).trim());
-          }
+        const classDiff = String(a.class || "").localeCompare(String(b.class || ""), undefined, {
+          sensitivity: "base",
+          numeric: true
         });
+        if (classDiff !== 0) return classDiff;
 
-        const weekList = Array.from(weekSet).sort((a, b) => Number(a) - Number(b));
-        const latestRow = rubricRows[rubricRows.length - 1];
-        const latestTotal =
-          typeof latestRow.totalPoints === "number" ? latestRow.totalPoints : 0;
-        const badgeLabel = getBadgeForPoints(latestTotal);
+        return String(a.name || "").localeCompare(String(b.name || ""), undefined, {
+          sensitivity: "base",
+          numeric: true
+        });
+      });
+    }
 
-        resultEl.innerHTML = `
-          <article class="student-card">
-            <h3>${student.name}</h3>
-            <p class="myscores-muted">Class: ${student.class || "-"}</p>
-            <p><strong>Total points (latest):</strong> ${latestTotal}</p>
-            <p><strong>Badge:</strong> ${badgeLabel}</p>
+    function buildStudentListCard(student) {
+      const presentationCount = getPresentationCount(student);
+      const totalPoints = getTotalPoints(student);
+      const notPresented = presentationCount === 0;
+      const badgeLabel = notPresented ? "Not Presented Yet" : getBadgeForPoints(totalPoints);
+      const statusMarkup = notPresented
+        ? `<span style="display:inline-block; margin-top:0.45rem; padding:0.3rem 0.7rem; border-radius:999px; background:rgba(255,255,255,0.08); font-size:0.82rem; font-weight:700;">Not Presented Yet</span>`
+        : `<span style="display:inline-block; margin-top:0.45rem; padding:0.3rem 0.7rem; border-radius:999px; background:rgba(255,255,255,0.08); font-size:0.82rem; font-weight:700;">${escapeHtml(badgeLabel)}</span>`;
 
-            <div class="teacher-week-filter" style="margin-top: 1rem;">
-              <label class="form-field">
-                <span class="form-label">Week</span>
-                <select id="teacher-week-select" class="input">
-                  <option value="latest">Latest</option>
-                  ${weekList.map((w) => `<option value="${w}">Week ${w}</option>`).join("")}
-                </select>
-              </label>
+      return `
+        <article class="student-card" style="padding:1rem; margin-bottom:0.9rem; border:1px solid rgba(255,255,255,0.08); border-radius:16px;">
+          <div style="display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
+            <div>
+              <h3 style="margin:0 0 0.35rem 0;">${escapeHtml(student.name || "Unnamed Student")}</h3>
+              <p class="myscores-muted" style="margin:0;">Class: ${escapeHtml(student.class || "-")}</p>
+              ${statusMarkup}
             </div>
-
-            <div id="teacher-week-summary" style="margin-top: 1rem;"></div>
-            <div id="teacher-week-rubrics" class="teacher-week-rubrics" style="margin-top: 1rem;"></div>
-          </article>
-        `;
-
-        const weekSelect = document.getElementById("teacher-week-select");
-        const summaryEl = document.getElementById("teacher-week-summary");
-        const rubricsEl = document.getElementById("teacher-week-rubrics");
-
-        function renderWeek(selectedValue) {
-    let row;
-
-    if (selectedValue === "latest" || !selectedValue) {
-      row = latestRow;
-    } else {
-      const sameWeekRows = rubricRows.filter(
-        (r) => String(r.week || "").trim() === String(selectedValue).trim()
-      );
-
-      row = sameWeekRows.length
-        ? sameWeekRows[sameWeekRows.length - 1]
-        : latestRow;
-    }
-
-    const total = typeof row.totalPoints === "number" ? row.totalPoints : 0;
-    const badge = getBadgeForPoints(total);
-    const weekLabel = row.week ? `Week ${row.week}` : "Latest";
-    const topic = row.topic || "";
-    const teacherName = row.teacher || "";
-
-    summaryEl.innerHTML = `
-      <p><strong>Selected:</strong> ${weekLabel}</p>
-      <p><strong>Topic:</strong> ${topic || "–"}</p>
-      <p><strong>Total points:</strong> ${total}</p>
-      <p><strong>Badge:</strong> ${badge}</p>
-      <p><strong>Teacher:</strong> ${teacherName || "–"}</p>
-    `;
-
-    const nums = row.rubricsNumbers || {};
-    const letters = row.rubricsLetters || {};
-    const keys = Object.keys(nums);
-
-    if (!keys.length) {
-      rubricsEl.innerHTML = `
-        <p class="myscores-muted">
-          No detailed rubric scores were found for this week.
-        </p>
+            <div style="min-width:190px;">
+              <p style="margin:0 0 0.35rem 0;"><strong>Presentations:</strong> ${presentationCount}</p>
+              <p style="margin:0;"><strong>Total points:</strong> ${totalPoints}</p>
+            </div>
+          </div>
+        </article>
       `;
-      return;
     }
 
-    const rowsHtml = keys
-      .map((key) => {
-        const safeLabel = String(key)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
-        const num = nums[key];
-        const letter = letters[key] || "";
-        const safeNum =
-          typeof num === "number"
-            ? num
-            : num !== undefined && num !== null
-            ? num
-            : "–";
-
-        return `
-          <tr>
-            <td>${safeLabel}</td>
-            <td>${safeNum}</td>
-            <td>${letter}</td>
-          </tr>
-        `;
-      })
-      .join("");
-
-    rubricsEl.innerHTML = `
-      <table class="myscores-table rubrics-table">
-        <thead>
-          <tr>
-            <th>Skill</th>
-            <th>Score</th>
-            <th>Grade</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsHtml}
-        </tbody>
-      </table>
-    `;
-  }
-
-        renderWeek("latest");
-
-        if (weekSelect) {
-          weekSelect.addEventListener("change", () => {
-            renderWeek(weekSelect.value);
-          });
-        }
-      } catch (err) {
-        console.error("Error loading student rubrics", err);
-        statusEl.textContent =
-          err.message || "We had a problem loading this student’s scores.";
-        resultEl.innerHTML = "";
-      }
-    }
-
-    function performSearch() {
-      const classFilter = classSelect.value.trim().toLowerCase();
-      const nameQuery = nameInput.value.trim().toLowerCase();
-
+    function renderStudents(list, selectedClassLabel, searchTerm) {
       resultEl.innerHTML = "";
 
-      if (!nameQuery) {
-        statusEl.textContent = "Type at least part of the student’s name.";
+      if (!list.length) {
+        if (searchTerm) {
+          statusEl.textContent = `No students matched "${searchTerm}"${selectedClassLabel ? ` in ${selectedClassLabel}` : ""}.`;
+        } else if (selectedClassLabel) {
+          statusEl.textContent = `No students found in ${selectedClassLabel}.`;
+        } else {
+          statusEl.textContent = "No students found.";
+        }
         return;
       }
 
-      const matches = (allStudents || []).filter((s) => {
-        if (!s || s.role === "teacher") return false;
+      const sorted = sortStudentsByPresentationCount(list);
+      const zeroCount = sorted.filter((student) => getPresentationCount(student) === 0).length;
+      const classText = selectedClassLabel ? ` for ${selectedClassLabel}` : "";
+      const searchText = searchTerm ? ` matching "${searchTerm}"` : "";
 
-        const matchClass =
-          !classFilter || String(s.class || "").trim().toLowerCase() === classFilter;
+      statusEl.textContent = `${sorted.length} student${sorted.length === 1 ? "" : "s"} shown${classText}${searchText}. ${zeroCount} not presented yet.`;
+      resultEl.innerHTML = sorted.map(buildStudentListCard).join("");
+    }
 
-        const matchName =
-          String(s.name || "").trim().toLowerCase().includes(nameQuery) ||
-          String(s.username || "").trim().toLowerCase().includes(nameQuery);
+    function getFilteredStudents() {
+      const selectedClass = classSelect.value.trim().toLowerCase();
+      const searchTerm = nameInput.value.trim().toLowerCase();
 
-        return matchClass && matchName;
+      const filtered = allStudents.filter((student) => {
+        const matchesClass =
+          !selectedClass ||
+          String(student.class || "").trim().toLowerCase() === selectedClass;
+
+        const matchesSearch =
+          !searchTerm ||
+          String(student.name || "").trim().toLowerCase().includes(searchTerm) ||
+          String(student.username || "").trim().toLowerCase().includes(searchTerm);
+
+        return matchesClass && matchesSearch;
       });
 
-      if (!matches.length) {
-        statusEl.textContent = "No students found with that name in this class.";
-        return;
-      }
-
-      if (matches.length > 1) {
-        statusEl.textContent =
-          "More than one student matched. Please type the full name or username.";
-        return;
-      }
-
-      loadTeacherStudentRubrics(matches[0]);
+      return {
+        filtered,
+        selectedClassLabel: classSelect.value.trim(),
+        searchTerm: nameInput.value.trim()
+      };
     }
+
+    function refreshTeacherResults() {
+      const { filtered, selectedClassLabel, searchTerm } = getFilteredStudents();
+      renderStudents(filtered, selectedClassLabel, searchTerm);
+    }
+
+    classSelect.addEventListener("change", refreshTeacherResults);
 
     searchBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      performSearch();
+      refreshTeacherResults();
     });
 
     nameInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        performSearch();
+        refreshTeacherResults();
       }
     });
+
+    nameInput.addEventListener("input", () => {
+      if (!nameInput.value.trim()) {
+        refreshTeacherResults();
+      }
+    });
+
+    refreshTeacherResults();
   }
 
   async function initMyScoresPage() {
