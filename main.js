@@ -5,52 +5,6 @@
 
 const PRESENTACY_USER_KEY = "presentacy_current_user";
 
-const MAINTENANCE_MODE = true;
-const MAINTENANCE_ACCESS_KEY = "presentacy_maintenance_access";
-
-function hasMaintenanceAccess() {
-  try {
-    return localStorage.getItem(MAINTENANCE_ACCESS_KEY) === "granted";
-  } catch (e) {
-    return false;
-  }
-}
-
-function grantMaintenanceAccess() {
-  try {
-    localStorage.setItem(MAINTENANCE_ACCESS_KEY, "granted");
-  } catch (e) {
-    console.error("Could not save maintenance access", e);
-  }
-}
-
-function clearMaintenanceAccess() {
-  try {
-    localStorage.removeItem(MAINTENANCE_ACCESS_KEY);
-  } catch (e) {
-    console.error("Could not clear maintenance access", e);
-  }
-}
-
-function enforceMaintenanceMode() {
-  const path = (window.location.pathname.split("/").pop() || "").toLowerCase();
-  const isMaintenancePage = path === "maintenance.html";
-
-  if (MAINTENANCE_MODE) {
-    if (!isMaintenancePage && !hasMaintenanceAccess()) {
-      window.location.href = "maintenance.html";
-      return true;
-    }
-  } else {
-    if (isMaintenancePage) {
-      window.location.href = "login.html";
-      return true;
-    }
-  }
-
-  return false;
-}
-
 function presentacySetCurrentUser(account) {
   if (!account) return;
 
@@ -107,7 +61,6 @@ function applyRoleBasedNav() {
 function presentacyLogout() {
   try {
     localStorage.removeItem(PRESENTACY_USER_KEY);
-    localStorage.removeItem(MAINTENANCE_ACCESS_KEY);
   } catch (e) {
     // ignore
   }
@@ -434,26 +387,6 @@ async function getMergedStudentsData() {
 return mergeFrontendStudentsWithRubrics(baseStudents, rubricRows);
 }
 
-function getTotalPoints(student) {
-  if (!student || !student.scores) return 0;
-
-  // ✅ If spreadsheet provided a total, use it
-  const apiTotal = Number(student.scores.totalPoints);
-  if (Number.isFinite(apiTotal) && apiTotal > 0) return apiTotal;
-
-  // Otherwise fall back to summing week1/week2/... in local JS
-  let total = 0;
-  for (const [k, v] of Object.entries(student.scores)) {
-    if (/^week\d+$/i.test(k)) {
-      const n = Number(v);
-      if (Number.isFinite(n)) total += n;
-    }
-  }
-  return total;
-}
-function getTotalPoints(student) {
-  return getTotalScoreFromStudent(student);
-}
 
 
 // ============================
@@ -464,11 +397,9 @@ function getTotalPoints(student) {
 function getTotalPoints(student) {
   if (!student || !student.scores) return 0;
 
-  // ✅ If spreadsheet provided a total, use it
   const apiTotal = Number(student.scores.totalPoints);
   if (Number.isFinite(apiTotal) && apiTotal > 0) return apiTotal;
 
-  // Otherwise fall back to summing week1/week2/... in local JS
   let total = 0;
   for (const [k, v] of Object.entries(student.scores)) {
     if (/^week\d+$/i.test(k)) {
@@ -582,6 +513,23 @@ function getMotivationText(scoreWeek1) {
   }
 }
 
+function getSortedWeekEntries(student) {
+  const scores = student?.scores || {};
+
+  return Object.entries(scores)
+    .filter(([key]) => /^week\d+$/i.test(key))
+    .sort((a, b) => {
+      const numA = parseInt(String(a[0]).replace("week", ""), 10) || 0;
+      const numB = parseInt(String(b[0]).replace("week", ""), 10) || 0;
+      return numA - numB;
+    });
+}
+
+function getLatestWeekEntry(student) {
+  const entries = getSortedWeekEntries(student);
+  return entries.length ? entries[entries.length - 1] : null;
+}
+
 function renderStudentResultCard(student, targetEl) {
   if (!targetEl) return;
 
@@ -594,82 +542,179 @@ function renderStudentResultCard(student, targetEl) {
     return;
   }
 
-  const scores = student.scores || {};
-  const weekEntries = Object.entries(scores);
+  const weekEntries = getSortedWeekEntries(student);
+  const latestEntry = getLatestWeekEntry(student);
+  const totalPoints = getTotalPoints(student);
 
-  weekEntries.sort((a, b) => {
-    const numA = parseInt(a[0].replace("week", ""), 10) || 0;
-    const numB = parseInt(b[0].replace("week", ""), 10) || 0;
-    return numA - numB;
-  });
+  let presentationsHtml = "";
 
-  let weeksHtml = "";
-
-  if (weekEntries.length === 0) {
-    weeksHtml = "<p>No scores recorded yet.</p>";
+  if (!weekEntries.length) {
+    presentationsHtml = `
+      <div class="student-presentations-empty">
+        <strong>Not Presented Yet</strong>
+      </div>
+    `;
   } else {
-    weeksHtml = weekEntries
-      .map(([weekKey, score]) => {
+    presentationsHtml = weekEntries
+      .map(([weekKey, score], index) => {
         const weekNumber = weekKey.replace("week", "");
-        return `<p>Week ${weekNumber}: <strong>${score}</strong> points</p>`;
+        const label =
+          index === 0
+            ? "First presentation"
+            : index === 1
+            ? "Second presentation"
+            : index === 2
+            ? "Third presentation"
+            : `Presentation ${index + 1}`;
+
+        return `
+          <div class="student-presentation-item">
+            <div><strong>${label}</strong></div>
+            <div>Week ${weekNumber}: <strong>${score}</strong> points</div>
+          </div>
+        `;
       })
       .join("");
   }
 
-  const week1Score = scores.week1 || 0;
-  const motivation = getMotivationText(week1Score);
-
   targetEl.innerHTML = `
-    <div class="student-result-card">
-      <h3>${student.name}</h3>
-      <div class="student-meta">
-        Class: ${student.class}
+    <div class="student-result-card student-result-card--expanded">
+      <button type="button" class="student-card-toggle" aria-expanded="true">
+        <div class="student-card-toggle-head">
+          <h3>${student.name}</h3>
+          <span class="student-card-toggle-icon">▲</span>
+        </div>
+
+        <div class="student-meta">
+          Class: ${student.class || "—"}
+        </div>
+
+        <div class="student-latest-score">
+          ${
+            latestEntry
+              ? `Latest presentation: <strong>Week ${String(latestEntry[0]).replace("week", "")}</strong> — <strong>${latestEntry[1]}</strong> points`
+              : `<strong>Not Presented Yet</strong>`
+          }
+        </div>
+
+        <div class="student-total-score">
+          Total points: <strong>${totalPoints}</strong>
+        </div>
+      </button>
+
+      <div class="student-card-details is-open">
+        ${presentationsHtml}
       </div>
-      <div class="student-weeks">
-        ${weeksHtml}
-      </div>
-      <p class="motivation">${motivation}</p>
     </div>
   `;
+
+  const toggleBtn = targetEl.querySelector(".student-card-toggle");
+  const detailsEl = targetEl.querySelector(".student-card-details");
+  const iconEl = targetEl.querySelector(".student-card-toggle-icon");
+
+  if (toggleBtn && detailsEl && iconEl) {
+    toggleBtn.addEventListener("click", () => {
+      const isOpen = detailsEl.classList.toggle("is-open");
+      toggleBtn.setAttribute("aria-expanded", String(isOpen));
+      iconEl.textContent = isOpen ? "▲" : "▼";
+    });
+  }
 }
 
 function renderMultipleResults(list, term, selectedClassLabel, targetEl) {
   if (!targetEl) return;
-
-  const cards = list
-    .map(
-      (student) => `
-      <div class="student-result-card">
-        <h3>${student.name}</h3>
-        <div class="student-meta">
-          Class: ${student.class}
-        </div>
-        <div class="student-weeks">
-          ${
-            student.scores && typeof student.scores.week1 === "number"
-              ? `<p>Week 1: <strong>${student.scores.week1}</strong> points</p>`
-              : "<p>No scores recorded yet.</p>"
-          }
-        </div>
-      </div>
-    `
-    )
-    .join("");
 
   const classInfo =
     selectedClassLabel && selectedClassLabel !== ""
       ? ` in class <strong>${selectedClassLabel}</strong>`
       : "";
 
+  const cards = list
+    .map((student, index) => {
+      const weekEntries = getSortedWeekEntries(student);
+      const latestEntry = getLatestWeekEntry(student);
+      const totalPoints = getTotalPoints(student);
+      const detailsId = `student-details-${index}`;
+
+      const presentationsHtml = weekEntries.length
+        ? weekEntries
+            .map(([weekKey, score], presentationIndex) => {
+              const weekNumber = weekKey.replace("week", "");
+              const label =
+                presentationIndex === 0
+                  ? "First presentation"
+                  : presentationIndex === 1
+                  ? "Second presentation"
+                  : presentationIndex === 2
+                  ? "Third presentation"
+                  : `Presentation ${presentationIndex + 1}`;
+
+              return `
+                <div class="student-presentation-item">
+                  <div><strong>${label}</strong></div>
+                  <div>Week ${weekNumber}: <strong>${score}</strong> points</div>
+                </div>
+              `;
+            })
+            .join("")
+        : `<div class="student-presentations-empty"><strong>Not Presented Yet</strong></div>`;
+
+      return `
+        <div class="student-result-card student-result-card--collapsible">
+          <button type="button" class="student-card-toggle" data-details-id="${detailsId}" aria-expanded="false">
+            <div class="student-card-toggle-head">
+              <h3>${student.name}</h3>
+              <span class="student-card-toggle-icon">▼</span>
+            </div>
+
+            <div class="student-meta">
+              Class: ${student.class || "—"}
+            </div>
+
+            <div class="student-latest-score">
+              ${
+                latestEntry
+                  ? `Latest presentation: <strong>Week ${String(latestEntry[0]).replace("week", "")}</strong> — <strong>${latestEntry[1]}</strong> points`
+                  : `<strong>Not Presented Yet</strong>`
+              }
+            </div>
+
+            <div class="student-total-score">
+              Total points: <strong>${totalPoints}</strong>
+            </div>
+          </button>
+
+          <div class="student-card-details" id="${detailsId}">
+            ${presentationsHtml}
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
   targetEl.innerHTML = `
     <div style="margin-bottom:0.4rem; font-size:0.85rem; color:var(--text-muted);">
-      We found ${list.length} students matching "<strong>${term}</strong>"${classInfo}. 
-      Add more letters (for example last name) if this is not you.
+      We found ${list.length} students matching "<strong>${term}</strong>"${classInfo}.
+      Click any card to see all presentations.
     </div>
     <div class="student-multi-results">
       ${cards}
     </div>
   `;
+
+  const toggleButtons = targetEl.querySelectorAll(".student-card-toggle");
+  toggleButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const detailsId = btn.getAttribute("data-details-id");
+      const detailsEl = detailsId ? targetEl.querySelector(`#${detailsId}`) : null;
+      const iconEl = btn.querySelector(".student-card-toggle-icon");
+      if (!detailsEl || !iconEl) return;
+
+      const isOpen = detailsEl.classList.toggle("is-open");
+      btn.setAttribute("aria-expanded", String(isOpen));
+      iconEl.textContent = isOpen ? "▲" : "▼";
+    });
+  });
 }
 
 function renderNotFound(term, selectedClassLabel, targetEl) {
@@ -1031,52 +1076,98 @@ function initGeneratorPage() {
   }
 
   // ========= 2. TOPICS LIST (more interesting ones) =========
-  const topics = [
-    // Cars & tech
-    "My dream car",
+  const topicGenresUpper = {
+  history: [
+    "The first iPhone and how it changed phones",
+    "The history of cars: from the first car to today",
+    "The history of the internet",
+    "The history of football",
+    "The history of the airplane",
+    "The history of the Olympic Games",
+    "How Egypt changed through history",
+    "The story of ancient pyramids",
+    "The history of writing",
+    "The history of schools"
+  ],
+
+  science: [
+    "Why do volcanoes erupt?",
+    "Why do we dream?",
+    "How does the human brain work?",
+    "Why is the sky blue?",
+    "How do airplanes fly?",
+    "How do vaccines help us?",
+    "What would happen if gravity disappeared?",
+    "The science of sleep",
+    "How does the heart work?",
+    "Why is water important for life?"
+  ],
+
+  technology: [
+    "The first iPhone and how it changed technology",
+    "Artificial intelligence in our lives",
+    "Robots in the future",
     "Electric cars vs petrol cars",
+    "How social media changes people",
+    "The most useful app for students",
     "A cool invention that changed our lives",
+    "How video games have changed over time",
     "If I could design a new app",
+    "The future of smart homes"
+  ],
 
-    // Games & media
-    "My favourite video game",
-    "A movie or series I can't forget",
-    "My favourite YouTuber or content creator",
-    "The power of music in my life",
+  interesting: [
+    "The most mysterious place in the world",
+    "A strange fact that sounds fake but is true",
+    "The most interesting animal in the world",
+    "The world 100 years from now",
+    "If humans lived on Mars",
+    "A job that might disappear in the future",
+    "The most surprising invention ever",
+    "A famous unsolved mystery",
+    "A place in nature I would love to visit",
+    "If I could travel to the future"
+  ],
 
-    // Sports
-    "My favourite football team",
-    "A sports player I admire",
-    "Team sports vs individual sports",
-
-    // Daily life & opinions
-    "Fast food: good or bad?",
+  opinion: [
     "Should homework be banned?",
     "Social media: helpful or harmful?",
-    "Being kind online",
+    "Fast food: good or bad?",
+    "Should students wear school uniforms?",
+    "Should school start later in the morning?",
+    "Are exams the best way to measure students?",
+    "Should children have phones at school?",
+    "Is online learning better than classroom learning?",
+    "Should video games be limited?",
+    "Is technology making us lazy?"
+  ],
 
-    // People & relationships
+  people: [
     "What makes a good friend",
-    "A time when I helped someone",
     "Why teamwork is important",
-
-    // Animals & nature
-    "Pets vs wild animals",
-    "The most interesting animal in the world",
-    "A place in nature I would love to visit",
-
-    // Future & imagination
-    "Living on Mars in the future",
-    "Robots in our lives",
+    "A person from history I would like to meet",
+    "A scientist I admire",
+    "A leader who changed the world",
+    "A time when I helped someone",
+    "A famous person who inspires me",
+    "The kindest person in my life",
     "If I could meet any famous person",
-    "If I could travel to the future",
+    "What makes someone a hero?"
+  ],
 
-    // School & self
+  school: [
     "One rule I would add to our school",
-    "A hobby that makes me feel calm",
-    "Something I learned from a mistake",
-    "One small change that could improve our classroom"
-  ];
+    "One small change that could improve our classroom",
+    "What makes a great teacher",
+    "The perfect school trip",
+    "My ideal classroom",
+    "How to make school more fun",
+    "Why school presentations are important",
+    "A subject that should be added to school",
+    "Should students choose some of their subjects?",
+    "The best way to learn English"
+  ]
+};
 
   // ========= 2.1 LEVEL TOGGLE (Grades 1–3 vs 4–9) =========
 
@@ -1095,10 +1186,11 @@ const topicsYoung = [
 ];
 
 // Upper topics (Grades 4–9): your existing list + NEW topics
-const topicsUpper = topics; // use your existing topics array as the upper pool
+const topicsUpper = Object.values(topicGenresUpper).flat();
 
 // Active pool state
 let topicLevel = "upper"; // "young" | "upper"
+let selectedGenre = "all";
 
 // ========= UI: add Level Buttons (Young / Upper) =========
 if (document.getElementById("presentacy-grade-controls")) return;
@@ -1130,6 +1222,48 @@ const youngBtn = document.getElementById("level-young");
 const upperBtn = document.getElementById("level-upper");
 const levelLabel = document.getElementById("level-label");
 
+const genreControls = document.createElement("div");
+genreControls.id = "presentacy-genre-controls";
+genreControls.style.display = "flex";
+genreControls.style.flexWrap = "wrap";
+genreControls.style.gap = "0.5rem";
+genreControls.style.margin = "0.25rem 0 0.75rem";
+
+genreControls.innerHTML = `
+  <button type="button" class="primary-button genre-button" data-genre="all" style="padding:0.35rem 0.9rem; font-size:0.85rem;">🎲 All</button>
+  <button type="button" class="primary-button secondary-button genre-button" data-genre="history" style="padding:0.35rem 0.9rem; font-size:0.85rem;">📜 History</button>
+  <button type="button" class="primary-button secondary-button genre-button" data-genre="science" style="padding:0.35rem 0.9rem; font-size:0.85rem;">🔬 Science</button>
+  <button type="button" class="primary-button secondary-button genre-button" data-genre="technology" style="padding:0.35rem 0.9rem; font-size:0.85rem;">💻 Technology</button>
+  <button type="button" class="primary-button secondary-button genre-button" data-genre="interesting" style="padding:0.35rem 0.9rem; font-size:0.85rem;">🌍 Interesting</button>
+  <button type="button" class="primary-button secondary-button genre-button" data-genre="opinion" style="padding:0.35rem 0.9rem; font-size:0.85rem;">💭 Opinion</button>
+  <button type="button" class="primary-button secondary-button genre-button" data-genre="people" style="padding:0.35rem 0.9rem; font-size:0.85rem;">🧑 People</button>
+  <button type="button" class="primary-button secondary-button genre-button" data-genre="school" style="padding:0.35rem 0.9rem; font-size:0.85rem;">🏫 School</button>
+`;
+
+topicOutput.parentElement.insertBefore(genreControls, topicOutput);
+
+const genreButtons = document.querySelectorAll(".genre-button");
+
+function updateGenreButtons() {
+  genreButtons.forEach((btn) => {
+    if (btn.dataset.genre === selectedGenre) {
+      btn.classList.remove("secondary-button");
+    } else {
+      btn.classList.add("secondary-button");
+    }
+  });
+}
+
+genreButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    selectedGenre = btn.dataset.genre || "all";
+    updateGenreButtons();
+    pickRandomTopic();
+  });
+});
+
+updateGenreButtons();
+
 function setLevel(level) {
   topicLevel = level;
 
@@ -1137,13 +1271,17 @@ function setLevel(level) {
     youngBtn.classList.remove("secondary-button");
     upperBtn.classList.add("secondary-button");
     levelLabel.textContent = "Current: Grades 1–3";
+
+    selectedGenre = "all";
+    if (genreControls) genreControls.style.display = "none";
   } else {
     upperBtn.classList.remove("secondary-button");
     youngBtn.classList.add("secondary-button");
     levelLabel.textContent = "Current: Grades 4–9";
+
+    if (genreControls) genreControls.style.display = "flex";
   }
 
-  // Optional: immediately give a topic when switching
   pickRandomTopic();
 }
 
@@ -1151,7 +1289,15 @@ youngBtn.addEventListener("click", () => setLevel("young"));
 upperBtn.addEventListener("click", () => setLevel("upper"));
 
 function getActiveTopics() {
-  return topicLevel === "young" ? topicsYoung : topicsUpper;
+  if (topicLevel === "young") {
+    return topicsYoung;
+  }
+
+  if (selectedGenre === "all") {
+    return topicsUpper;
+  }
+
+  return topicGenresUpper[selectedGenre] || topicsUpper;
 }
 
   let currentTopic = "";
@@ -1931,33 +2077,25 @@ const NEW_PRESENTACY_TOPIC_BY_TITLE = Object.fromEntries(
     };
   }
 
-  // ========= 4. TOPIC CONTENT (facts & sub-ideas) =========
-  // ========= 4. TOPIC CONTENT (facts & sub-ideas) =========
-function getTopicContentIdeas(topic) {
-  const TOPIC_EXACT_DETAILS = window.TOPIC_EXACT_DETAILS || {};
-
-  const key = String(topic || "").trim().toLowerCase();
-  const exact = TOPIC_EXACT_DETAILS[key];
-  if (exact) return exact; // in case you add custom objects later
-
+  function getTopicContentIdeas(topic) {
   const text = String(topic || "").trim();
   const lower = text.toLowerCase();
 
-  // 🌟 SPECIAL: Younger topics (Grades 1–3) – fully personalised
-
+  // =========================
+  // GRADES 1–3 (keep simple)
+  // =========================
   if (text === "My weekend") {
     return {
       title: text,
       intro: "Use these ideas to talk about your weekend in a clear, simple way:",
       bullets: [
         "Say which days are your weekend and why you like them.",
-        "Talk about one relaxing thing you usually do (sleep late, watch cartoons, play games, etc.).",
-        "Describe one place you often go on the weekend (club, park, mall, grandparents’ house).",
-        "Tell a story about a special weekend you remember and what happened.",
-        "Explain how the weekend helps you feel ready for the new school week."
+        "Talk about one relaxing thing you usually do.",
+        "Describe one place you often go on the weekend.",
+        "Tell a story about a special weekend you remember.",
+        "Explain how the weekend helps you feel ready for school again."
       ],
-      extra:
-        "Choose one normal weekend and one special weekend to talk about. That gives you a nice mix of routine and story."
+      extra: "Try to give one normal weekend example and one special weekend memory."
     };
   }
 
@@ -1966,365 +2104,1101 @@ function getTopicContentIdeas(topic) {
       title: text,
       intro: "Here are ideas to help you talk about your family:",
       bullets: [
-        "Say who is in your family (parents, brothers/sisters, maybe grandparents or cousins).",
-        "Give one or two nice things about each person (kind, funny, helpful, strict but caring, etc.).",
-        "Describe something you all do together (eating, travelling, watching a show, playing a game).",
-        "Tell a happy family memory like a trip, birthday, or funny moment at home.",
-        "Explain why your family is important to you and how they support you."
+        "Say who is in your family.",
+        "Describe one nice thing about each person.",
+        "Talk about something you do together.",
+        "Share a happy family memory.",
+        "Explain why your family is important to you."
       ],
-      extra:
-        "You don’t need to talk about every single person. Choose 3–4 people and give nice details about each one."
+      extra: "You do not need to mention everyone. Choose the people closest to you."
     };
   }
 
-  if (text === "My best friend") {
+  // =========================
+  // HISTORY TOPICS
+  // =========================
+  if (text === "The first iPhone and how it changed phones") {
     return {
       title: text,
-      intro: "These ideas will help you give a sweet talk about your best friend:",
+      intro: "These facts and ideas can help you build a strong presentation about the first iPhone:",
       bullets: [
-        "Say your friend’s name and how old they are or which class they are in.",
-        "Tell how you met and when you became friends.",
-        "Describe what your friend looks like or what kind of person they are (kind, funny, shy, loud, etc.).",
-        "Explain what you like to do together (games, sports, studying, talking, online games).",
-        "Tell one short story that shows why this person is your best friend."
+        "The first iPhone was announced by Steve Jobs in 2007.",
+        "It was special because it combined a phone, an iPod, and internet tools in one device.",
+        "Its touchscreen design was very different from many phones with keyboards at that time.",
+        "It changed how people used phones for photos, apps, music, and the internet.",
+        "You can compare phones before the iPhone and after the iPhone to show its impact."
       ],
-      extra:
-        "End with a sentence about why you are thankful for this friend or why you hope to stay friends for a long time."
+      extra: "A nice structure is: what phones were like before, what made the first iPhone special, and how it changed daily life."
     };
   }
 
-  if (text === "My favourite food") {
+  if (text === "The history of cars: from the first car to today") {
     return {
       title: text,
-      intro: "Make your audience hungry with these ideas about your favourite food:",
+      intro: "Use these ideas to explain how cars changed over time:",
       bullets: [
-        "Say the name of your favourite food and if it is sweet, salty, or spicy.",
-        "Talk about the main ingredients (rice, pasta, chicken, vegetables, cheese, etc.).",
-        "Explain how it is cooked or served (fried, baked, grilled, hot/cold, with bread or rice).",
-        "Say where you usually eat it (at home, in a restaurant, street food, at family visits).",
-        "Explain why you love this food (taste, smell, memories with family or friends)."
+        "The first cars were simple and slow compared with modern cars.",
+        "Early cars were expensive, so not many people could own them.",
+        "Over time, factories made cars faster and cheaper to produce.",
+        "Cars changed travel, work, and how cities were built.",
+        "Today cars include electric technology, better safety, and smart systems."
       ],
-      extra:
-        "You can add one funny or cute story about a time you ate too much or tried to cook it yourself!"
+      extra: "You can divide your talk into three parts: early cars, the growth of famous car companies, and modern cars today."
     };
   }
 
-  if (text === "My favourite animal") {
+  if (text === "The history of the internet") {
     return {
       title: text,
-      intro: "Here are ideas to make your favourite animal sound exciting:",
+      intro: "These points can help you explain the internet in a simple but interesting way:",
       bullets: [
-        "Say the animal’s name and if it is a pet, farm animal, zoo animal, or wild animal.",
-        "Describe what it looks like (size, colour, fur/feathers, tail, special body parts).",
-        "Explain where it lives (home, desert, forest, sea, jungle, farm, etc.).",
-        "Say what it eats and how it moves (runs, jumps, flies, swims, climbs).",
-        "Explain why you like this animal and how it makes you feel (safe, happy, excited, brave)."
+        "The internet started as a way for computers to share information.",
+        "At first, only a small number of people and organizations used it.",
+        "Later, websites, email, and search engines made it useful for everyone.",
+        "The internet changed communication, education, shopping, and entertainment.",
+        "Today it is a huge part of daily life, but it also brings problems like privacy and too much screen time."
       ],
-      extra:
-        "You can add a short story about a time you saw this animal in real life or on TV/online."
+      extra: "A good ending is to give your opinion: has the internet improved life more than it has harmed it?"
     };
   }
 
-  if (text === "My favourite toy or game") {
+  if (text === "The history of football") {
     return {
       title: text,
-      intro: "Make your favourite toy or game come alive with these ideas:",
+      intro: "Here are simple ideas to help you talk about football history:",
       bullets: [
-        "Say the name of the toy or game (board game, doll, football, Lego, etc.).",
-        "Explain who gave it to you or how you got it.",
-        "Describe how you play with it and if you play alone or with other people.",
-        "Tell one favourite memory when you played with this toy or game.",
-        "Explain why this toy or game is special for you (fun, relaxing, makes you think, reminds you of someone)."
+        "Football became one of the most popular sports in the world over many years.",
+        "Rules were organized to make the game fair and clear.",
+        "Big clubs, famous players, and international tournaments helped football spread globally.",
+        "Football is not only a sport, but also a part of culture and identity in many countries.",
+        "You can mention why football became more popular than many other sports."
       ],
-      extra:
-        "You could finish by saying what you would do if you lost this toy/game or couldn’t play it anymore."
+      extra: "Try talking about rules, famous competitions, and why so many people love football."
     };
   }
 
-  if (text === "My favourite cartoon") {
+  if (text === "The history of the airplane") {
     return {
       title: text,
-      intro: "Use these ideas to talk about your favourite cartoon:",
+      intro: "Use these points to explain the amazing development of airplanes:",
       bullets: [
-        "Say the name of the cartoon and where you watch it (TV, YouTube, streaming app).",
-        "Describe the main character and what they are like.",
-        "Explain where the story happens (school, city, another world, space, under the sea, etc.).",
-        "Say what usually happens in one episode (problem, funny parts, how it ends).",
-        "Explain what you feel or learn when you watch it (happy, relaxed, brave, kinder, etc.)."
+        "Humans dreamed of flying for a very long time before airplanes were invented.",
+        "The first successful airplanes were simple and small.",
+        "Airplanes improved quickly in speed, size, and safety.",
+        "They changed travel, trade, tourism, and even war.",
+        "Modern airplanes connect people around the world in just hours."
       ],
-      extra:
-        "You can compare this cartoon with another one you used to like when you were younger."
+      extra: "A clear talk could be: the dream of flying, the first airplanes, and how planes changed the world."
     };
   }
 
-  if (text === "A place I like to go") {
+  if (text === "The history of the Olympic Games") {
     return {
       title: text,
-      intro: "These ideas will help you take your audience to your special place:",
+      intro: "These ideas can help you speak about the Olympic Games:",
       bullets: [
-        "Say the name of the place (park, club, beach, mall, grandparent’s house, etc.).",
-        "Explain where it is (near your home, in another city, far away, etc.).",
-        "Describe what it looks and feels like (quiet/noisy, colourful, big/small, nature or buildings).",
-        "Talk about what you usually do there and who you go with.",
-        "Explain why this place is special or important for you."
+        "The Olympic Games began in ancient times and were later brought back in the modern world.",
+        "They bring athletes from many countries together.",
+        "The Olympics are about competition, peace, and international friendship.",
+        "Different sports were added over time, making the Games bigger and more exciting.",
+        "The Olympics inspire young athletes and unite people around the world."
       ],
-      extra:
-        "You can add one special memory that happened in this place to make your talk more like a story."
+      extra: "You can compare the ancient Olympics with the modern Olympic Games."
     };
   }
 
-  if (text === "What makes me happy") {
+  if (text === "How Egypt changed through history") {
     return {
       title: text,
-      intro: "Here are ideas to help you talk about what makes you happy:",
+      intro: "This topic is rich, so focus on the biggest changes in Egypt’s history:",
       bullets: [
-        "Talk about people who make you happy (family, friends, teachers, pets).",
-        "Mention things that make you happy (hobbies, games, music, books, food).",
-        "Tell a short story about a time when you felt really happy and what happened.",
-        "Describe places where you feel happy and relaxed (home, park, club, your room).",
-        "Explain how you can make other people happy too (kind words, helping, sharing)."
+        "Egypt has a very long history, from ancient civilization to modern times.",
+        "It changed in language, architecture, government, and daily life.",
+        "Ancient Egypt is famous for pyramids, temples, and strong rulers.",
+        "Later periods brought new cultures, religions, and systems of life.",
+        "Modern Egypt mixes history, tradition, and technology."
       ],
-      extra:
-        "You can connect happiness to your daily life: what small things make your normal day better?"
+      extra: "A strong structure is: ancient Egypt, later historical periods, and modern Egypt today."
     };
   }
 
-  if (text === "My favourite school day") {
+  if (text === "The story of ancient pyramids") {
     return {
       title: text,
-      intro: "Use these ideas to talk about your favourite school day:",
+      intro: "These points can help students speak confidently about the pyramids:",
       bullets: [
-        "Say which day of the week it is and why it is your favourite.",
-        "List the subjects you have that day and which one you enjoy the most.",
-        "Describe something nice that usually happens (club, activity, game, project, break with friends).",
-        "Tell a special memory from that day (a funny moment, a good mark, a teacher’s comment).",
-        "Explain how you feel at the end of that school day and why."
+        "The pyramids are among the most famous monuments in the world.",
+        "They were built in ancient Egypt and are connected to powerful rulers.",
+        "They show amazing skill in engineering and planning.",
+        "Many people still wonder exactly how the pyramids were built.",
+        "The pyramids are an important symbol of Egyptian history and pride."
       ],
-      extra:
-        "You can compare this day with another day that you don’t like so much to show the difference."
+      extra: "A nice speaking plan is: what pyramids are, why they were built, and why they still amaze people today."
     };
   }
 
-  // ✨ Older / general topics – keep them more general but still structured
-
-  // Cars
-  if (lower.includes("car")) {
+  if (text === "The history of writing") {
     return {
-      title: "Ideas about cars",
-      intro:
-        "Here are some concrete things you can talk about if your topic is cars:",
+      title: text,
+      intro: "Use these ideas to explain how writing changed human life:",
       bullets: [
-        "Different types of cars: small city cars, family cars, sports cars, electric cars, SUVs.",
-        "What engines do: they turn fuel (or electricity) into movement. You can mention petrol, diesel, hybrid and electric engines.",
-        "Basic parts: engine, wheels, brakes, seats, seat belts, air bags, lights – choose 2–3 to describe.",
-        "Safety and rules: wearing a seat belt, speed limits, traffic lights, driving tests.",
-        "Famous brands or models you like and why (fast, safe, comfortable, cheap, electric, etc.)."
+        "Writing helped humans record information and share ideas across time.",
+        "Early writing systems were very different from modern alphabets.",
+        "Writing made education, history, trade, and government more organized.",
+        "Over time, writing moved from stone and paper to screens and keyboards.",
+        "Without writing, human knowledge would be much harder to save and pass on."
       ],
-      extra:
-        "You can pick ONE car you like and describe its look, speed, colour, and why it is your dream car."
+      extra: "You can finish by asking: how would the world be different without writing?"
     };
   }
 
-  // Video games
-  if (lower.includes("video game") || lower.includes("game")) {
+  if (text === "The history of schools") {
     return {
-      title: "Ideas about video games",
-      intro:
-        "If you talk about video games, try to choose one game or one type of game:",
+      title: text,
+      intro: "These points can help students talk about how schools developed:",
       bullets: [
-        "Name of the game, the company (if you know it) and what kind of game it is (adventure, sport, racing, puzzle, etc.).",
-        "Basic story or goal: what do you have to do to win?",
-        "What skills the game uses: strategy, quick reactions, teamwork, creativity.",
-        "Positive sides: fun, relaxing, learning English, meeting friends online.",
-        "Negative sides: too much screen time, addiction, violent content, not enough sleep."
+        "Schools changed a lot from the past to the present.",
+        "In the past, education was more limited and not available to everyone.",
+        "Modern schools try to teach more subjects and more skills.",
+        "Technology has changed classrooms, homework, and communication.",
+        "Schools today prepare students for jobs, society, and life."
       ],
-      extra:
-        "You can finish with your opinion about how many hours per day are healthy for gaming."
+      extra: "A good idea is to compare old schools and modern schools."
     };
   }
 
-  // Social media / phones / apps / tech
-  if (
-    lower.includes("social media") ||
-    lower.includes("instagram") ||
-    lower.includes("tiktok") ||
-    lower.includes("phone") ||
-    lower.includes("mobile") ||
-    lower.includes("app")
-  ) {
+  // =========================
+  // SCIENCE TOPICS
+  // =========================
+  if (text === "Why do volcanoes erupt?") {
     return {
-      title: "Ideas about phones & social media",
-      intro:
-        "Here are some angles you can use if your topic is about phones, apps or social media:",
+      title: text,
+      intro: "These facts can help you explain volcanoes in a simple scientific way:",
       bullets: [
-        "What you mainly use your phone or social media for (chatting, school, games, videos).",
-        "Good sides: quick communication, learning, entertainment, staying in touch with family.",
-        "Bad sides: addiction, wasting time, cyberbullying, fake news.",
-        "How to use phones and social media safely and in a healthy way.",
-        "Your own rules for yourself: when you use it, when you stop, and how you balance it with study and sleep."
+        "A volcano erupts when hot melted rock, called magma, rises from inside the Earth.",
+        "Pressure builds up under the ground until the magma escapes.",
+        "When magma comes out, it is called lava.",
+        "Volcanoes can produce lava, ash, smoke, and gases.",
+        "Some volcanoes are very dangerous, but they can also create new land and rich soil."
       ],
-      extra:
-        "You can add a short story about a time when using your phone helped you – and a time when it caused a problem."
+      extra: "A clear structure is: what a volcano is, why pressure builds up, and what happens during an eruption."
     };
   }
 
-  // Food / health
-  if (
-    lower.includes("food") ||
-    lower.includes("fast food") ||
-    lower.includes("healthy") ||
-    lower.includes("diet")
-  ) {
+  if (text === "Why do we dream?") {
     return {
-      title: "Ideas about food & health",
-      intro:
-        "If your topic is food, health or fast food, try to cover both sides:",
+      title: text,
+      intro: "Dreams are mysterious, but here are simple ideas students can use:",
       bullets: [
-        "Give examples of healthy foods and why they are good (vegetables, fruit, water, home-cooked meals).",
-        "Give examples of unhealthy foods or habits (too much sugar, fried food, soft drinks).",
-        "Explain how food affects your energy, sleep and mood.",
-        "Talk about your own eating habits and what you would like to change.",
-        "Give one or two tips for students who want to eat more healthily."
+        "Dreams usually happen while we are sleeping.",
+        "Scientists believe dreams may be connected to memory, emotions, and the brain’s activity.",
+        "Some dreams are realistic, while others are strange or impossible.",
+        "Dreams may help the brain organize thoughts and experiences.",
+        "People still do not fully understand why we dream, which makes the topic interesting."
       ],
-      extra:
-        "You can compare a healthy day of eating with an unhealthy day to make your point clear."
+      extra: "This topic becomes stronger if the student adds one personal example of a strange or memorable dream."
     };
   }
 
-  // Sports
-  if (
-    lower.includes("football") ||
-    lower.includes("player") ||
-    lower.includes("sport") ||
-    lower.includes("team")
-  ) {
+  if (text === "How does the human brain work?") {
     return {
-      title: "Ideas about sports",
-      intro:
-        "Here are some ideas if your topic is about a sport, a team or a player:",
+      title: text,
+      intro: "These ideas can help explain the brain in a student-friendly way:",
       bullets: [
-        "Explain the basic rules of the sport in a simple way.",
-        "Talk about why people like this sport (fun, fitness, teamwork, competition).",
-        "If you talk about a team, say where it is from, its colours and some famous players.",
-        "If you talk about a player, describe their skills, hard work and personality.",
-        "Mention both the fun side of sport and the discipline needed (training, diet, sleep)."
+        "The brain controls thinking, memory, movement, emotions, and the senses.",
+        "It sends and receives messages through the nervous system.",
+        "Different parts of the brain have different jobs.",
+        "The brain works all the time, even when we are asleep.",
+        "A healthy brain needs sleep, good food, learning, and rest."
       ],
-      extra:
-        "You can add a story about an important match you watched or played in."
+      extra: "A simple speaking order is: what the brain does, how it sends messages, and how we can keep it healthy."
     };
   }
 
-  // School / homework / exams
-  if (
-    lower.includes("school") ||
-    lower.includes("teacher") ||
-    lower.includes("homework") ||
-    lower.includes("exam") ||
-    lower.includes("test")
-  ) {
+  if (text === "Why is the sky blue?") {
     return {
-      title: "Ideas about school",
-      intro:
-        "These ideas work for topics about school life, homework or exams:",
+      title: text,
+      intro: "This is a great topic because the answer is short but interesting:",
       bullets: [
-        "Describe one normal school day or one part of the day (morning, break, last period).",
-        "Talk about subjects you like and dislike, and why.",
-        "Explain how homework or exams make you feel and how you prepare.",
-        "Give one good thing about your school and one thing you would like to improve.",
-        "Share one funny or memorable moment that happened at school."
+        "Sunlight looks white, but it contains many colors.",
+        "When sunlight passes through the atmosphere, the light spreads out.",
+        "Blue light spreads more than many other colors.",
+        "That is why the sky often looks blue during the day.",
+        "At sunset, the colors can change because the light travels through more air."
       ],
-      extra:
-        "You can end with advice for younger students about how to enjoy school more."
+      extra: "The student can make the topic more exciting by comparing a blue sky with red or orange sunsets."
     };
   }
 
-  // Environment / our planet
-  if (
-    lower.includes("environment") ||
-    lower.includes("planet") ||
-    lower.includes("pollution") ||
-    lower.includes("plastic") ||
-    lower.includes("climate")
-  ) {
+  if (text === "How do airplanes fly?") {
     return {
-      title: "Ideas about the environment",
-      intro:
-        "If your topic is about the planet, pollution or climate, you can use these ideas:",
+      title: text,
+      intro: "Use these points to explain flight in a simple way:",
       bullets: [
-        "Explain the problem in simple words (air pollution, plastic in the sea, global warming).",
-        "Give one or two real examples from your country or from the news.",
-        "Talk about how this problem affects people, animals or plants.",
-        "Tell what governments or big companies can do to help.",
-        "Say what children and teenagers can do in their daily life (use less plastic, save water, recycle)."
+        "Airplanes fly because of forces like lift, thrust, gravity, and drag.",
+        "The wings are designed to help create lift.",
+        "The engines push the airplane forward, which creates thrust.",
+        "Pilots control speed, direction, and height using different parts of the plane.",
+        "Modern airplanes use strong materials and advanced technology to fly safely."
       ],
-      extra:
-        "Try to finish with a hopeful message, not just problems – show that people can change things."
+      extra: "A good plan is: the four forces, the job of the wings, and the role of the engines."
     };
   }
 
-  // Travel / places / countries
-  if (
-    lower.includes("travel") ||
-    lower.includes("trip") ||
-    lower.includes("country") ||
-    lower.includes("city") ||
-    lower.includes("tourism")
-  ) {
+  if (text === "How do vaccines help us?") {
     return {
-      title: "Ideas about travel",
-      intro:
-        "For topics about travel or places, try to make your audience feel they are there with you:",
+      title: text,
+      intro: "These facts help explain vaccines in a calm and clear way:",
       bullets: [
-        "Say where the place is and how you travelled there (car, bus, train, plane).",
-        "Describe what you saw, heard and ate there.",
-        "Explain something you learned about the people, culture or history.",
-        "Tell a short story about something that happened on the trip.",
-        "Say whether you would like to go back and why."
+        "Vaccines help the body prepare to fight some diseases.",
+        "They train the immune system to recognize harmful germs.",
+        "Because of vaccines, many dangerous diseases have become less common.",
+        "Vaccines protect both individuals and communities.",
+        "This topic connects science with public health and daily life."
       ],
-      extra:
-        "You can compare this place with your hometown to show the differences."
+      extra: "A strong presentation can explain what vaccines do, why they matter, and how they help society."
     };
   }
 
-  // Future / dreams / technology
-  if (
-    lower.includes("future") ||
-    lower.includes("robot") ||
-    lower.includes("invention") ||
-    lower.includes("technology") ||
-    lower.includes("job") ||
-    lower.includes("dream")
-  ) {
+  if (text === "What would happen if gravity disappeared?") {
     return {
-      title: "Ideas about the future",
-      intro:
-        "Here are ideas for topics about the future, your dreams or new technology:",
+      title: text,
+      intro: "This is a fun science topic because it mixes facts and imagination:",
       bullets: [
-        "Describe your dream job, dream invention or dream life in the future.",
-        "Explain why this dream is interesting or important for you.",
-        "Talk about what skills or steps you need to reach this dream.",
-        "Say how technology might change school, work or home life.",
-        "Mention one positive and one negative thing about this future."
+        "Gravity keeps people, buildings, water, and air connected to Earth.",
+        "Without gravity, objects and people would float away.",
+        "The Moon and planets also depend on gravity in space.",
+        "Life on Earth would completely change without it.",
+        "This topic is great because students can mix real science with creative examples."
       ],
-      extra:
-        "You can finish with a sentence starting with “In my opinion, the future will be…”"
+      extra: "The best way to present this topic is to begin with real science, then imagine daily life without gravity."
     };
   }
 
-  // Default: works for any topic
+  if (text === "The science of sleep") {
+    return {
+      title: text,
+      intro: "Use these ideas to explain why sleep is important:",
+      bullets: [
+        "Sleep helps the body and brain rest and recover.",
+        "It is important for memory, learning, mood, and health.",
+        "Lack of sleep can make people tired, unfocused, and stressed.",
+        "Good sleep habits improve school performance and daily energy.",
+        "Sleep is not wasted time; it is an important part of health."
+      ],
+      extra: "Students can make this topic stronger by giving advice for better sleep habits."
+    };
+  }
+
+  if (text === "How does the heart work?") {
+    return {
+      title: text,
+      intro: "These points can help students explain the heart clearly:",
+      bullets: [
+        "The heart is a powerful muscle inside the chest.",
+        "Its main job is to pump blood around the body.",
+        "Blood carries oxygen and nutrients where the body needs them.",
+        "The heart works all day and night without stopping.",
+        "Exercise and healthy habits help keep the heart strong."
+      ],
+      extra: "A good presentation order is: what the heart is, what blood does, and how to protect heart health."
+    };
+  }
+
+  if (text === "Why is water important for life?") {
+    return {
+      title: text,
+      intro: "This topic is easy to understand but full of strong ideas:",
+      bullets: [
+        "All living things need water to survive.",
+        "Water is important for drinking, farming, cleaning, and industry.",
+        "The human body needs water to stay healthy.",
+        "Without clean water, life becomes difficult and dangerous.",
+        "Protecting water is important for both people and the planet."
+      ],
+      extra: "A strong ending is to talk about saving water and not wasting it."
+    };
+  }
+
+    // =========================
+  // TECHNOLOGY TOPICS
+  // =========================
+  if (text === "The first iPhone and how it changed technology") {
+    return {
+      title: text,
+      intro: "These ideas can help you explain why the first iPhone was so important in technology:",
+      bullets: [
+        "The first iPhone was introduced in 2007 and changed the smartphone industry.",
+        "It combined a phone, music player, and internet device in one product.",
+        "Its touchscreen design made phones feel more modern and easier to use.",
+        "It helped make mobile apps a big part of daily life.",
+        "After it appeared, many companies changed the way they designed phones."
+      ],
+      extra: "A strong way to present this topic is: technology before the iPhone, what made it special, and how it changed the future."
+    };
+  }
+
+  if (text === "Artificial intelligence in our lives") {
+    return {
+      title: text,
+      intro: "Use these facts and ideas to talk about artificial intelligence clearly:",
+      bullets: [
+        "Artificial intelligence means machines or programs doing tasks that normally need human thinking.",
+        "AI is used in phones, search engines, maps, shopping apps, and online recommendations.",
+        "It can help people save time and work more efficiently.",
+        "AI is becoming more common in schools, medicine, and transportation.",
+        "This topic is interesting because AI has both advantages and challenges."
+      ],
+      extra: "You can organize the topic into three parts: what AI is, where we use it, and whether it is always helpful."
+    };
+  }
+
+  if (text === "Robots in the future") {
+    return {
+      title: text,
+      intro: "These points can help students speak about future robots in an interesting way:",
+      bullets: [
+        "Robots may do more jobs in the future, especially dangerous or repetitive jobs.",
+        "They can help in factories, hospitals, homes, and even space missions.",
+        "Future robots may become smarter and more independent.",
+        "Some people think robots will improve life, while others worry about jobs and control.",
+        "This topic allows students to mix facts with imagination."
+      ],
+      extra: "A good plan is: what robots do now, what they may do in the future, and your opinion about that future."
+    };
+  }
+
+  if (text === "Electric cars vs petrol cars") {
+    return {
+      title: text,
+      intro: "Use these ideas to compare electric cars and petrol cars:",
+      bullets: [
+        "Petrol cars have been common for many years, but electric cars are becoming more popular.",
+        "Electric cars can be quieter and may cause less pollution.",
+        "Petrol cars are often easier to refuel quickly, while electric cars need charging.",
+        "Technology is improving electric cars every year.",
+        "This topic works well because students can compare advantages and disadvantages."
+      ],
+      extra: "An easy structure is: how each type works, the benefits of each one, and which one may be better for the future."
+    };
+  }
+
+  if (text === "How social media changes people") {
+    return {
+      title: text,
+      intro: "These points can help explain the influence of social media:",
+      bullets: [
+        "Social media changes how people communicate, share ideas, and spend free time.",
+        "It can help people learn news, follow trends, and stay connected.",
+        "It can also affect confidence, attention, and emotions.",
+        "Some people use social media positively, while others are affected in unhealthy ways.",
+        "This topic is strong because it connects technology with real life."
+      ],
+      extra: "A balanced presentation should include both positive and negative effects."
+    };
+  }
+
+  if (text === "The most useful app for students") {
+    return {
+      title: text,
+      intro: "These ideas can help students speak about useful apps:",
+      bullets: [
+        "Many apps help students organize homework, study, translate, or take notes.",
+        "A useful app saves time and helps students learn better.",
+        "Students can talk about apps for reading, planning, or practicing skills.",
+        "Different students may prefer different apps depending on their needs.",
+        "This topic becomes stronger when the student gives a real example."
+      ],
+      extra: "A nice way to present this is to name one app, explain what it does, and say why it helps students."
+    };
+  }
+
+  if (text === "A cool invention that changed our lives") {
+    return {
+      title: text,
+      intro: "Use these points to talk about an invention that made a big difference:",
+      bullets: [
+        "Some inventions changed the way people live, work, and communicate.",
+        "Examples include the phone, light bulb, internet, airplane, or computer.",
+        "A great invention usually solves an important problem.",
+        "It may save time, improve safety, or make life easier.",
+        "This topic is good because the student can choose the invention they find most interesting."
+      ],
+      extra: "Choose one invention and explain life before it, what changed after it, and why it still matters."
+    };
+  }
+
+  if (text === "How video games have changed over time") {
+    return {
+      title: text,
+      intro: "These facts and ideas can help students talk about video games over time:",
+      bullets: [
+        "Early video games were simple in design, sound, and graphics.",
+        "Modern games are more realistic, detailed, and complex.",
+        "Video games changed because of better computers, consoles, and internet connections.",
+        "Today games are not only for fun; they can also be social, competitive, and educational.",
+        "This topic works well because students can compare the past and the present."
+      ],
+      extra: "A clear structure is: old games, modern games, and whether the change has been positive or negative."
+    };
+  }
+
+  if (text === "If I could design a new app") {
+    return {
+      title: text,
+      intro: "This topic lets students be creative while staying organized:",
+      bullets: [
+        "Start by explaining what problem your app would solve.",
+        "Describe the main features and how people would use it.",
+        "Explain who the app is for: students, teachers, parents, or everyone.",
+        "Say how the app would make life easier or more enjoyable.",
+        "The best presentations make the app sound realistic and useful."
+      ],
+      extra: "A strong speaking plan is: the problem, the idea, the features, and why people would want this app."
+    };
+  }
+
+  if (text === "The future of smart homes") {
+    return {
+      title: text,
+      intro: "These points can help explain smart homes in an easy way:",
+      bullets: [
+        "Smart homes use technology to control lights, doors, air conditioning, and other devices.",
+        "They can make life easier, safer, and more comfortable.",
+        "People may use phones or voice commands to control things at home.",
+        "In the future, smart homes may become even more automatic and intelligent.",
+        "This topic is interesting because it shows how technology may change daily life."
+      ],
+      extra: "A good plan is: what a smart home is, how it helps people, and what homes may be like in the future."
+    };
+  }
+
+  // =========================
+  // INTERESTING TOPICS
+  // =========================
+  if (text === "The most mysterious place in the world") {
+    return {
+      title: text,
+      intro: "Use these ideas to make this mysterious topic exciting:",
+      bullets: [
+        "Some places are called mysterious because people do not fully understand them.",
+        "They may have strange stories, unusual history, or unexplained events.",
+        "Examples could include ancient sites, deep forests, or isolated islands.",
+        "Mystery makes people curious and interested in learning more.",
+        "This topic is strong when students describe both facts and questions that remain unanswered."
+      ],
+      extra: "A good structure is: where the place is, why it is mysterious, and why people still talk about it."
+    };
+  }
+
+  if (text === "A strange fact that sounds fake but is true") {
+    return {
+      title: text,
+      intro: "This topic is fun because it surprises the audience:",
+      bullets: [
+        "Some true facts sound impossible at first.",
+        "The topic becomes stronger when the student explains why the fact seems fake.",
+        "Good examples often come from science, animals, space, or history.",
+        "After sharing the fact, explain the truth behind it.",
+        "The surprise element makes this a very engaging presentation."
+      ],
+      extra: "Begin with the strange fact first, then explain why it is actually true."
+    };
+  }
+
+  if (text === "The most interesting animal in the world") {
+    return {
+      title: text,
+      intro: "These ideas can help students speak well about a fascinating animal:",
+      bullets: [
+        "Choose one animal with unusual features, behavior, or abilities.",
+        "Describe where it lives and how it survives.",
+        "Talk about what makes it different from other animals.",
+        "You can explain why people find it amazing, cute, dangerous, or intelligent.",
+        "This topic becomes better when the student gives specific examples."
+      ],
+      extra: "A good speaking order is: introduce the animal, describe its special features, and explain why it is the most interesting."
+    };
+  }
+
+  if (text === "The world 100 years from now") {
+    return {
+      title: text,
+      intro: "This topic allows students to mix logic and imagination:",
+      bullets: [
+        "In 100 years, technology may be much more advanced than today.",
+        "Transportation, communication, and medicine may look very different.",
+        "Cities, schools, and homes could become smarter and more automated.",
+        "Some problems may improve, but new challenges may appear too.",
+        "This topic is interesting because everyone imagines the future differently."
+      ],
+      extra: "A strong presentation can cover daily life, school, travel, and one big future change you expect."
+    };
+  }
+
+  if (text === "If humans lived on Mars") {
+    return {
+      title: text,
+      intro: "These ideas can help students imagine life on Mars in a smart way:",
+      bullets: [
+        "Mars is a planet that scientists study as a possible place for future humans.",
+        "Life there would be difficult because of the cold weather and harsh conditions.",
+        "Humans would need special homes, oxygen, food systems, and technology.",
+        "Living on Mars would change daily life completely.",
+        "This topic is great because it mixes real science with creative thinking."
+      ],
+      extra: "A good structure is: why Mars interests scientists, what problems humans would face, and what life there might look like."
+    };
+  }
+
+  if (text === "A job that might disappear in the future") {
+    return {
+      title: text,
+      intro: "Use these ideas to discuss jobs and the future:",
+      bullets: [
+        "Some jobs may disappear because of machines, robots, or artificial intelligence.",
+        "Technology often changes the kinds of jobs people do.",
+        "Simple or repetitive jobs are more likely to be replaced.",
+        "At the same time, new jobs may appear because of these changes.",
+        "This topic is interesting because it connects the future, work, and technology."
+      ],
+      extra: "Choose one job and explain why it might disappear and what could replace it."
+    };
+  }
+
+  if (text === "The most surprising invention ever") {
+    return {
+      title: text,
+      intro: "These points can help students talk about an invention that feels amazing or unexpected:",
+      bullets: [
+        "Some inventions are surprising because they seem simple but changed the world.",
+        "Others are surprising because they sound impossible at first.",
+        "A strong presentation explains what the invention is and why it matters.",
+        "The invention may have changed communication, travel, health, or daily life.",
+        "This topic becomes more powerful when the student explains why it surprised them personally."
+      ],
+      extra: "Start by naming the invention, then explain what it changed and why it is so surprising."
+    };
+  }
+
+  if (text === "A famous unsolved mystery") {
+    return {
+      title: text,
+      intro: "This is a very engaging topic because people love mysteries:",
+      bullets: [
+        "An unsolved mystery is something people still do not fully understand or explain.",
+        "It may involve history, crime, lost places, or unusual events.",
+        "Many mysteries remain famous because there is no final answer.",
+        "People enjoy discussing different theories about what happened.",
+        "This topic works best when the student explains both the mystery and the possible ideas about it."
+      ],
+      extra: "A nice speaking plan is: explain the mystery, give two possible theories, and say which one you believe more."
+    };
+  }
+
+  if (text === "A place in nature I would love to visit") {
+    return {
+      title: text,
+      intro: "These ideas can help students make this topic descriptive and beautiful:",
+      bullets: [
+        "Choose a natural place like mountains, forests, beaches, waterfalls, or deserts.",
+        "Describe what the place looks like and why it is special.",
+        "Explain what you would do there and how you would feel.",
+        "Talk about why nature is important and relaxing for people.",
+        "This topic becomes stronger when the student uses clear description and emotion."
+      ],
+      extra: "A good structure is: the place, why you chose it, and what experience you hope to have there."
+    };
+  }
+
+  if (text === "If I could travel to the future") {
+    return {
+      title: text,
+      intro: "This topic is creative and gives students a lot to say:",
+      bullets: [
+        "Traveling to the future means imagining what life may become.",
+        "The student can talk about technology, cities, schools, jobs, or even fashion.",
+        "They can also explain what they would want to discover there.",
+        "The most interesting part is comparing today with the future.",
+        "This topic is strong because it mixes imagination with prediction."
+      ],
+      extra: "A clear way to present this is: where you would go in the future, what you expect to see, and what might surprise you most."
+    };
+  }
+
+    // =========================
+  // OPINION TOPICS
+  // =========================
+  if (text === "Should homework be banned?") {
+    return {
+      title: text,
+      intro: "These ideas can help students discuss homework in a balanced way:",
+      bullets: [
+        "Some people think homework helps students revise, practice, and become more responsible.",
+        "Others think too much homework causes stress and leaves little time for rest or hobbies.",
+        "Homework can be useful when it is short, clear, and meaningful.",
+        "The real question may not be whether homework should disappear, but whether it should be improved.",
+        "This topic is strong because students can argue both sides before giving their opinion."
+      ],
+      extra: "A good structure is: reasons to keep homework, reasons to reduce it, and your own final opinion."
+    };
+  }
+
+  if (text === "Social media: helpful or harmful?") {
+    return {
+      title: text,
+      intro: "Use these points to talk about social media in a fair and interesting way:",
+      bullets: [
+        "Social media helps people communicate, learn news, and share ideas quickly.",
+        "It can also waste time, spread false information, and affect mental health.",
+        "For some people, social media is useful and positive when used wisely.",
+        "For others, too much use becomes distracting or unhealthy.",
+        "This topic works best when students explain both benefits and risks."
+      ],
+      extra: "A strong presentation can end with this idea: social media is not fully good or bad, but depends on how people use it."
+    };
+  }
+
+  if (text === "Fast food: good or bad?") {
+    return {
+      title: text,
+      intro: "These ideas can help students discuss fast food clearly:",
+      bullets: [
+        "Fast food is popular because it is quick, easy, and often tasty.",
+        "However, eating too much fast food may be unhealthy.",
+        "Some fast food meals have too much salt, sugar, or fat.",
+        "Fast food can be convenient, but it should not replace healthy meals all the time.",
+        "This topic is easy to understand because it connects to daily life."
+      ],
+      extra: "A nice way to present this is: why people like fast food, what its problems are, and how to eat more wisely."
+    };
+  }
+
+  if (text === "Should students wear school uniforms?") {
+    return {
+      title: text,
+      intro: "Use these ideas to talk about school uniforms in a balanced way:",
+      bullets: [
+        "Some people believe uniforms create equality and reduce distraction.",
+        "Others think students should have more freedom to choose what they wear.",
+        "Uniforms may help schools look organized and professional.",
+        "At the same time, some students feel uniforms do not show personality.",
+        "This topic is strong because both sides have reasonable arguments."
+      ],
+      extra: "A good structure is: reasons for uniforms, reasons against them, and what you personally think is best."
+    };
+  }
+
+  if (text === "Should school start later in the morning?") {
+    return {
+      title: text,
+      intro: "These points can help students discuss school timing in an organized way:",
+      bullets: [
+        "Some students feel tired in the early morning and find it hard to focus.",
+        "Starting later may improve energy, mood, and attention in class.",
+        "On the other hand, a later start may affect transportation, family schedules, or after-school activities.",
+        "This topic connects health, learning, and daily routine.",
+        "It becomes stronger when the student explains how timing affects real school life."
+      ],
+      extra: "A nice presentation can compare the benefits of more sleep with the practical problems of changing the schedule."
+    };
+  }
+
+  if (text === "Are exams the best way to measure students?") {
+    return {
+      title: text,
+      intro: "These ideas can help students speak thoughtfully about exams:",
+      bullets: [
+        "Exams can show what students remember and understand at a certain time.",
+        "However, exams may not show creativity, effort, or speaking skills very well.",
+        "Some students perform well in class but feel nervous in exams.",
+        "Projects, presentations, and participation can also show learning.",
+        "This topic is important because it asks what success in school really means."
+      ],
+      extra: "A strong structure is: what exams do well, what they miss, and what other ways can measure students fairly."
+    };
+  }
+
+  if (text === "Should children have phones at school?") {
+    return {
+      title: text,
+      intro: "Use these points to talk about phones at school in a balanced way:",
+      bullets: [
+        "Phones can help students contact parents in emergencies.",
+        "They may also be useful for learning, research, or educational apps.",
+        "At the same time, phones can distract students during lessons.",
+        "Some students may misuse phones for games, cheating, or social media.",
+        "This topic is strong because it includes both safety and discipline."
+      ],
+      extra: "A good final opinion could be that phones should be controlled, not always fully allowed or fully banned."
+    };
+  }
+
+  if (text === "Is online learning better than classroom learning?") {
+    return {
+      title: text,
+      intro: "These ideas can help compare online learning and classroom learning:",
+      bullets: [
+        "Online learning can be flexible and convenient for many students.",
+        "It allows students to learn from different places and sometimes at their own speed.",
+        "Classroom learning gives direct interaction with teachers and classmates.",
+        "Many students focus better in a real classroom than at home.",
+        "This topic works well because both systems have clear strengths and weaknesses."
+      ],
+      extra: "A strong presentation can compare flexibility, attention, communication, and which method works better for you."
+    };
+  }
+
+  if (text === "Should video games be limited?") {
+    return {
+      title: text,
+      intro: "These points can help students discuss video games fairly:",
+      bullets: [
+        "Video games can be fun, relaxing, and sometimes educational.",
+        "However, too much gaming may affect sleep, study time, and physical activity.",
+        "The problem may not be video games themselves, but how much time people spend on them.",
+        "Some games improve thinking, teamwork, or problem-solving.",
+        "This topic is strong when students explain the difference between healthy use and too much use."
+      ],
+      extra: "A good structure is: benefits of gaming, problems of overuse, and what a healthy limit might be."
+    };
+  }
+
+  if (text === "Is technology making us lazy?") {
+    return {
+      title: text,
+      intro: "Use these ideas to discuss the effect of technology on daily life:",
+      bullets: [
+        "Technology makes many tasks easier and faster.",
+        "Because of this, some people feel it reduces effort and makes life less active.",
+        "At the same time, technology can also help people work, learn, and create more efficiently.",
+        "The real issue may be how people use technology, not technology itself.",
+        "This topic is interesting because it asks whether convenience always has a negative effect."
+      ],
+      extra: "A strong presentation can compare useful technology with examples where people depend on it too much."
+    };
+  }
+
+  // =========================
+  // PEOPLE TOPICS
+  // =========================
+  if (text === "What makes a good friend") {
+    return {
+      title: text,
+      intro: "These ideas can help students speak warmly and clearly about friendship:",
+      bullets: [
+        "A good friend is honest, kind, and supportive.",
+        "Good friends listen, help, and stay respectful.",
+        "Trust is one of the most important parts of friendship.",
+        "A true friend is there during both happy and difficult times.",
+        "This topic becomes stronger when students give a real-life example."
+      ],
+      extra: "A good structure is: qualities of a good friend, why trust matters, and an example from your own life."
+    };
+  }
+
+  if (text === "Why teamwork is important") {
+    return {
+      title: text,
+      intro: "Use these ideas to explain why teamwork matters in school and life:",
+      bullets: [
+        "Teamwork helps people share ideas and responsibilities.",
+        "Working together can make a task easier and more successful.",
+        "Good teamwork needs communication, respect, and trust.",
+        "In many situations, a group can do more than one person alone.",
+        "This topic is strong because students can connect it to school, sports, and real life."
+      ],
+      extra: "A nice presentation can include one example of teamwork in class, in sports, or in a project."
+    };
+  }
+
+  if (text === "A person from history I would like to meet") {
+    return {
+      title: text,
+      intro: "These ideas can help students make this topic interesting and personal:",
+      bullets: [
+        "Choose a historical person who did something important, brave, or inspiring.",
+        "Explain who the person was and why they are remembered.",
+        "Say what questions you would ask if you could meet them.",
+        "Talk about what you might learn from that meeting.",
+        "This topic works well because it mixes history with personal opinion."
+      ],
+      extra: "A strong structure is: who the person is, why you chose them, and what conversation you would want to have."
+    };
+  }
+
+  if (text === "A scientist I admire") {
+    return {
+      title: text,
+      intro: "Use these points to talk about a scientist in an organized and inspiring way:",
+      bullets: [
+        "Choose a scientist who made an important discovery or helped the world.",
+        "Explain what field they worked in, such as medicine, physics, or space.",
+        "Talk about their achievements and why they matter.",
+        "Say what makes this scientist inspiring to you personally.",
+        "This topic becomes stronger when students connect science with character and hard work."
+      ],
+      extra: "A good speaking order is: who the scientist is, what they achieved, and why you admire them."
+    };
+  }
+
+  if (text === "A leader who changed the world") {
+    return {
+      title: text,
+      intro: "These ideas can help students speak about leadership in a meaningful way:",
+      bullets: [
+        "A great leader influences people and creates change.",
+        "Leaders may change the world through politics, peace, science, or social action.",
+        "A leader is often remembered for courage, vision, and strong decisions.",
+        "Not all leadership is the same, so students can explain what kind of change they mean.",
+        "This topic is strong when students connect leadership with real impact."
+      ],
+      extra: "A clear structure is: who the leader is, what change they made, and what qualities made them effective."
+    };
+  }
+
+  if (text === "A time when I helped someone") {
+    return {
+      title: text,
+      intro: "This topic is personal, so students should focus on clear storytelling:",
+      bullets: [
+        "Start by explaining who needed help and what the situation was.",
+        "Describe what you did to help.",
+        "Talk about how the other person felt and how you felt.",
+        "Explain what you learned from that experience.",
+        "This topic becomes more powerful when the student is honest and specific."
+      ],
+      extra: "A good structure is: the situation, your action, the result, and the lesson you learned."
+    };
+  }
+
+  if (text === "A famous person who inspires me") {
+    return {
+      title: text,
+      intro: "These points can help students talk about inspiration in a personal way:",
+      bullets: [
+        "Choose a famous person who has talent, courage, discipline, or a strong message.",
+        "Explain what this person achieved.",
+        "Talk about the qualities that make them inspiring.",
+        "Say how they affect your thinking or goals.",
+        "This topic works best when the student explains both facts and personal feelings."
+      ],
+      extra: "A nice speaking plan is: introduce the person, explain what they did, and say why they inspire you."
+    };
+  }
+
+  if (text === "The kindest person in my life") {
+    return {
+      title: text,
+      intro: "Use these ideas to make this topic heartfelt and clear:",
+      bullets: [
+        "Start by saying who this person is.",
+        "Describe the kind actions or habits that make them special.",
+        "Explain how this person treats you and others.",
+        "Talk about a memory that shows their kindness clearly.",
+        "This topic becomes strongest when the student uses real examples."
+      ],
+      extra: "A good presentation can focus on the person’s character, one memorable action, and why their kindness matters to you."
+    };
+  }
+
+  if (text === "If I could meet any famous person") {
+    return {
+      title: text,
+      intro: "These ideas can help students turn this into a strong speaking topic:",
+      bullets: [
+        "Choose a famous person from sports, history, science, art, or entertainment.",
+        "Explain why this person interests you.",
+        "Say what questions you would ask them.",
+        "Talk about what you hope to learn from meeting them.",
+        "This topic is interesting because it mixes facts, opinion, and imagination."
+      ],
+      extra: "A strong structure is: who you would meet, why you chose them, and what conversation you would have."
+    };
+  }
+
+  if (text === "What makes someone a hero?") {
+    return {
+      title: text,
+      intro: "These points can help students think deeply about heroes:",
+      bullets: [
+        "A hero is not only someone famous or powerful.",
+        "Heroes often show courage, kindness, sacrifice, or honesty.",
+        "Some heroes help others in big ways, while others do small but meaningful things.",
+        "A hero can be someone from history, a public figure, or a person in daily life.",
+        "This topic is strong because students can define heroism in their own way."
+      ],
+      extra: "A good presentation can begin by defining a hero, then give one or two examples, and end with your own opinion."
+    };
+  }
+
+  // =========================
+  // SCHOOL TOPICS
+  // =========================
+  if (text === "One rule I would add to our school") {
+    return {
+      title: text,
+      intro: "These ideas can help students speak clearly about improving school rules:",
+      bullets: [
+        "Start by explaining the rule you would like to add.",
+        "Say what problem this rule would solve.",
+        "Describe how it would help students, teachers, or the school environment.",
+        "A good new rule should be fair, realistic, and useful.",
+        "This topic becomes stronger when students explain the reason behind the rule."
+      ],
+      extra: "A strong structure is: the new rule, why it is needed, and how it would improve school life."
+    };
+  }
+
+  if (text === "One small change that could improve our classroom") {
+    return {
+      title: text,
+      intro: "Use these ideas to talk about classroom improvement in a practical way:",
+      bullets: [
+        "Choose one change that is simple but meaningful.",
+        "It could be related to seating, decoration, behavior, technology, or class routine.",
+        "Explain how this change would help students learn better or feel more comfortable.",
+        "Small changes can have a big effect on focus and classroom mood.",
+        "This topic works well when students give clear, realistic suggestions."
+      ],
+      extra: "A nice way to present this is: what the classroom needs, your small change, and why it would make a difference."
+    };
+  }
+
+  if (text === "What makes a great teacher") {
+    return {
+      title: text,
+      intro: "These points can help students talk respectfully and thoughtfully about teachers:",
+      bullets: [
+        "A great teacher explains clearly and helps students understand.",
+        "Patience, kindness, and fairness are also important qualities.",
+        "Great teachers motivate students and make learning interesting.",
+        "They care about students not only academically but also personally.",
+        "This topic is strong because students can mix general qualities with real examples."
+      ],
+      extra: "A good structure is: teaching skills, personal qualities, and why great teachers leave a lasting effect."
+    };
+  }
+
+  if (text === "The perfect school trip") {
+    return {
+      title: text,
+      intro: "These ideas can help students describe an ideal school trip in an exciting way:",
+      bullets: [
+        "Start by saying where the trip would go.",
+        "Explain why this place is educational, fun, or memorable.",
+        "Describe what students would do there.",
+        "Talk about how the trip would help learning and teamwork.",
+        "This topic becomes better when the student includes both fun and educational value."
+      ],
+      extra: "A strong speaking order is: destination, activities, benefits, and why it would be the perfect trip."
+    };
+  }
+
+  if (text === "My ideal classroom") {
+    return {
+      title: text,
+      intro: "Use these ideas to help students describe their dream classroom:",
+      bullets: [
+        "Talk about how the classroom would look and feel.",
+        "Describe the furniture, space, decorations, or technology you would include.",
+        "Explain how your ideal classroom would help students learn better.",
+        "A great classroom should feel comfortable, organized, and motivating.",
+        "This topic is strong because students can combine imagination with practical ideas."
+      ],
+      extra: "A good structure is: physical design, learning tools, and how the classroom atmosphere would support students."
+    };
+  }
+
+  if (text === "How to make school more fun") {
+    return {
+      title: text,
+      intro: "These ideas can help students talk about improving school life positively:",
+      bullets: [
+        "School becomes more fun when students are active, interested, and included.",
+        "Fun does not mean less learning; it can mean better activities and more engagement.",
+        "Ideas may include projects, games, clubs, trips, or creative lessons.",
+        "A fun school environment can improve motivation and participation.",
+        "This topic works best when students give realistic and useful suggestions."
+      ],
+      extra: "A strong presentation can explain what makes school boring sometimes and what changes could make it more enjoyable."
+    };
+  }
+
+  if (text === "Why school presentations are important") {
+    return {
+      title: text,
+      intro: "These points can help students explain the value of presentations:",
+      bullets: [
+        "Presentations help students practice speaking in front of others.",
+        "They build confidence, communication skills, and organization.",
+        "Students learn how to explain ideas clearly and respectfully.",
+        "Presentations also prepare students for future study and work.",
+        "This topic is especially strong because students can connect it to their own experience."
+      ],
+      extra: "A good structure is: skills presentations build, why those skills matter, and how presentations help in the future."
+    };
+  }
+
+  if (text === "A subject that should be added to school") {
+    return {
+      title: text,
+      intro: "Use these ideas to discuss a new subject in a smart and organized way:",
+      bullets: [
+        "Choose a subject you think students need but do not study enough.",
+        "It could be life skills, coding, public speaking, mental health, or financial education.",
+        "Explain why this subject would be useful in real life.",
+        "Talk about what students would learn from it.",
+        "This topic becomes stronger when the student explains both the need and the benefits."
+      ],
+      extra: "A good speaking plan is: the subject, why students need it, and what positive effect it would have."
+    };
+  }
+
+  if (text === "Should students choose some of their subjects?") {
+    return {
+      title: text,
+      intro: "These ideas can help students discuss choice in education fairly:",
+      bullets: [
+        "Allowing students to choose some subjects may increase interest and motivation.",
+        "Students often learn better when they study topics they enjoy.",
+        "On the other hand, schools must make sure students still learn the basics.",
+        "Too much choice may be difficult for younger students.",
+        "This topic is strong because it balances freedom with responsibility."
+      ],
+      extra: "A strong presentation can compare the benefits of choice with the need for a complete education."
+    };
+  }
+
+  if (text === "The best way to learn English") {
+    return {
+      title: text,
+      intro: "These points can help students explain how English can be learned effectively:",
+      bullets: [
+        "Learning English improves with regular practice, not only memorization.",
+        "Students can learn through reading, listening, speaking, and writing.",
+        "Watching videos, reading stories, and speaking with others can all help.",
+        "Confidence is important because mistakes are part of learning.",
+        "This topic is useful because students can share advice from real experience."
+      ],
+      extra: "A good structure is: the main skills in English, the best ways to practice them, and the method that works best for you."
+    };
+  }
+
+  // =========================
+  // DEFAULT
+  // =========================
   return {
-    title: "Ideas for your topic",
-    intro:
-      "If your topic doesn’t match any of the special categories, you can still build a strong presentation:",
+    title: text,
+    intro: "Here are some ideas to help you speak well about this topic:",
     bullets: [
-      "Start by saying what your topic is and give a simple definition in your own words.",
-      "Explain why you chose this topic and why it is important or interesting.",
-      "Give 2–3 real examples or short stories connected to the topic.",
-      "Add at least one advantage and one disadvantage or one problem and one solution.",
-      "Finish with your own opinion or message for the audience."
+      "Start by explaining what the topic means.",
+      "Give two or three important facts or ideas about it.",
+      "Add one example from real life, history, or your own opinion.",
+      "Say why this topic matters.",
+      "Finish with a clear final sentence."
     ],
-    extra:
-      "When you feel stuck, imagine you are explaining this topic to a younger student: keep it clear, simple and friendly."
+    extra: "Try to speak in an organized way: introduction, main ideas, example, and conclusion."
   };
 }
 
@@ -3104,45 +3978,36 @@ function convertSupabaseRubricRow(row) {
         }
 
         const rowsHtml = rubricKeys
-          .map((key) => {
-            const safeLabel = String(key)
-              .replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
+  .map((key) => {
+    const safeLabel = String(key)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
 
-            const numericValue = rubricNumbers[key];
-            const letterValue = rubricLetters[key] || "";
-            const safeNumeric =
-              typeof numericValue === "number"
-                ? numericValue
-                : numericValue !== undefined && numericValue !== null && numericValue !== ""
-                ? numericValue
-                : "–";
+    const letterValue = rubricLetters[key] || "–";
 
-            return `
-              <tr>
-                <td>${safeLabel}</td>
-                <td>${safeNumeric}</td>
-                <td>${letterValue}</td>
-              </tr>
-            `;
-          })
-          .join("");
+    return `
+      <tr>
+        <td>${safeLabel}</td>
+        <td>${letterValue}</td>
+      </tr>
+    `;
+  })
+  .join("");
 
-        rubricsEl.innerHTML = `
-          <table class="myscores-table rubrics-table">
-            <thead>
-              <tr>
-                <th>Skill</th>
-                <th>Score</th>
-                <th>Grade</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
-        `;
+rubricsEl.innerHTML = `
+  <table class="myscores-table rubrics-table">
+    <thead>
+      <tr>
+        <th>Skill</th>
+        <th>Grade</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rowsHtml}
+    </tbody>
+  </table>
+`;
       }
 
       renderRubricRow(latestRow);
@@ -3213,54 +4078,124 @@ function convertSupabaseRubricRow(row) {
       });
     }
 
-    function buildStudentListCard(student) {
-      const presentationCount = getPresentationCount(student);
-      const totalPoints = getTotalPoints(student);
-      const notPresented = presentationCount === 0;
-      const badgeLabel = notPresented ? "Not Presented Yet" : getBadgeForPoints(totalPoints);
-      const statusMarkup = notPresented
-        ? `<span style="display:inline-block; margin-top:0.45rem; padding:0.3rem 0.7rem; border-radius:999px; background:rgba(255,255,255,0.08); font-size:0.82rem; font-weight:700;">Not Presented Yet</span>`
-        : `<span style="display:inline-block; margin-top:0.45rem; padding:0.3rem 0.7rem; border-radius:999px; background:rgba(255,255,255,0.08); font-size:0.82rem; font-weight:700;">${escapeHtml(badgeLabel)}</span>`;
+    function getSortedWeekEntries(student) {
+  const scores = student?.scores || {};
 
-      return `
-        <article class="student-card" style="padding:1rem; margin-bottom:0.9rem; border:1px solid rgba(255,255,255,0.08); border-radius:16px;">
-          <div style="display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
-            <div>
-              <h3 style="margin:0 0 0.35rem 0;">${escapeHtml(student.name || "Unnamed Student")}</h3>
-              <p class="myscores-muted" style="margin:0;">Class: ${escapeHtml(student.class || "-")}</p>
-              ${statusMarkup}
+  return Object.entries(scores)
+    .filter(([key]) => /^week\d+$/i.test(key))
+    .sort((a, b) => {
+      const numA = parseInt(String(a[0]).replace("week", ""), 10) || 0;
+      const numB = parseInt(String(b[0]).replace("week", ""), 10) || 0;
+      return numA - numB;
+    });
+}
+
+function getLatestWeekEntry(student) {
+  const entries = getSortedWeekEntries(student);
+  return entries.length ? entries[entries.length - 1] : null;
+}
+
+function buildStudentListCard(student, index) {
+  const presentationCount = getPresentationCount(student);
+  const totalPoints = getTotalPoints(student);
+  const latestEntry = getLatestWeekEntry(student);
+  const weekEntries = getSortedWeekEntries(student);
+  const detailsId = `teacher-student-details-${index}`;
+
+  const statusMarkup =
+    presentationCount === 0
+      ? `<p class="myscores-muted" style="margin:0.4rem 0 0 0;"><strong>Not Presented Yet</strong></p>`
+      : `<p class="myscores-muted" style="margin:0.4rem 0 0 0;">Latest presentation: <strong>Week ${String(latestEntry[0]).replace("week", "")}</strong> — <strong>${latestEntry[1]}</strong> points</p>`;
+
+  const presentationsHtml = weekEntries.length
+    ? weekEntries
+        .map(([weekKey, score], presentationIndex) => {
+          const weekNumber = weekKey.replace("week", "");
+          const label =
+            presentationIndex === 0
+              ? "First presentation"
+              : presentationIndex === 1
+              ? "Second presentation"
+              : presentationIndex === 2
+              ? "Third presentation"
+              : `Presentation ${presentationIndex + 1}`;
+
+          return `
+            <div class="student-presentation-item">
+              <div><strong>${label}</strong></div>
+              <div>Week ${weekNumber}: <strong>${score}</strong> points</div>
             </div>
-            <div style="min-width:190px;">
-              <p style="margin:0 0 0.35rem 0;"><strong>Presentations:</strong> ${presentationCount}</p>
-              <p style="margin:0;"><strong>Total points:</strong> ${totalPoints}</p>
-            </div>
+          `;
+        })
+        .join("")
+    : `<div class="student-presentations-empty"><strong>Not Presented Yet</strong></div>`;
+
+  return `
+    <article class="student-card student-result-card student-result-card--collapsible" style="padding:1rem; margin-bottom:0.9rem; border:1px solid rgba(255,255,255,0.08); border-radius:16px;">
+      <button
+        type="button"
+        class="student-card-toggle"
+        data-details-id="${detailsId}"
+        aria-expanded="false"
+      >
+        <div class="student-card-toggle-head">
+          <div>
+            <h3 style="margin:0 0 0.35rem 0;">${escapeHtml(student.name || "Unnamed Student")}</h3>
+            <p class="myscores-muted" style="margin:0;">Class: ${escapeHtml(student.class || "-")}</p>
+            ${statusMarkup}
           </div>
-        </article>
-      `;
+
+          <div style="min-width:190px; text-align:left;">
+            <p style="margin:0 0 0.35rem 0;"><strong>Presentations:</strong> ${presentationCount}</p>
+            <p style="margin:0 0 0.35rem 0;"><strong>Total points:</strong> ${totalPoints}</p>
+            <span class="student-card-toggle-icon">▼</span>
+          </div>
+        </div>
+      </button>
+
+      <div class="student-card-details" id="${detailsId}">
+        ${presentationsHtml}
+      </div>
+    </article>
+  `;
+}
+
+function renderStudents(list, selectedClassLabel, searchTerm) {
+  resultEl.innerHTML = "";
+
+  if (!list.length) {
+    if (searchTerm) {
+      statusEl.textContent = `No students matched "${searchTerm}"${selectedClassLabel ? ` in ${selectedClassLabel}` : ""}.`;
+    } else if (selectedClassLabel) {
+      statusEl.textContent = `No students found in ${selectedClassLabel}.`;
+    } else {
+      statusEl.textContent = "No students found.";
     }
+    return;
+  }
 
-    function renderStudents(list, selectedClassLabel, searchTerm) {
-      resultEl.innerHTML = "";
+  const sorted = sortStudentsByPresentationCount(list);
+  const zeroCount = sorted.filter((student) => getPresentationCount(student) === 0).length;
+  const classText = selectedClassLabel ? ` for ${selectedClassLabel}` : "";
+  const searchText = searchTerm ? ` matching "${searchTerm}"` : "";
 
-      if (!list.length) {
-        if (searchTerm) {
-          statusEl.textContent = `No students matched "${searchTerm}"${selectedClassLabel ? ` in ${selectedClassLabel}` : ""}.`;
-        } else if (selectedClassLabel) {
-          statusEl.textContent = `No students found in ${selectedClassLabel}.`;
-        } else {
-          statusEl.textContent = "No students found.";
-        }
-        return;
-      }
+  statusEl.textContent = `${sorted.length} student${sorted.length === 1 ? "" : "s"} shown${classText}${searchText}. ${zeroCount} not presented yet. Click a card to see all presentations.`;
+  resultEl.innerHTML = sorted.map((student, index) => buildStudentListCard(student, index)).join("");
 
-      const sorted = sortStudentsByPresentationCount(list);
-      const zeroCount = sorted.filter((student) => getPresentationCount(student) === 0).length;
-      const classText = selectedClassLabel ? ` for ${selectedClassLabel}` : "";
-      const searchText = searchTerm ? ` matching "${searchTerm}"` : "";
+  const toggleButtons = resultEl.querySelectorAll(".student-card-toggle");
+  toggleButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const detailsId = btn.getAttribute("data-details-id");
+      const detailsEl = detailsId ? resultEl.querySelector(`#${detailsId}`) : null;
+      const iconEl = btn.querySelector(".student-card-toggle-icon");
+      if (!detailsEl || !iconEl) return;
 
-      statusEl.textContent = `${sorted.length} student${sorted.length === 1 ? "" : "s"} shown${classText}${searchText}. ${zeroCount} not presented yet.`;
-      resultEl.innerHTML = sorted.map(buildStudentListCard).join("");
-    }
+      const isOpen = detailsEl.classList.toggle("is-open");
+      btn.setAttribute("aria-expanded", String(isOpen));
+      iconEl.textContent = isOpen ? "▲" : "▼";
+    });
+  });
+}
 
     function getFilteredStudents() {
       const selectedClass = classSelect.value.trim().toLowerCase();
