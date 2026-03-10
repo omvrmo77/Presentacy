@@ -4290,7 +4290,6 @@ function renderStudents(list, selectedClassLabel, searchTerm) {
   // DOMContentLoaded – FINAL
   // ========================
   addEventListener("DOMContentLoaded", () => {
-    if (enforceMaintenanceMode()) return;
 
     const page = document.body.getAttribute("data-page") || "";
 
