@@ -1629,3 +1629,93 @@ footer {
   margin-left: auto;
   margin-right: auto;
 }
+
+.student-card-toggle {
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.student-card-toggle-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.student-card-toggle-icon {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.student-latest-score,
+.student-total-score {
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.student-card-details {
+  display: none;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+.student-card-details.is-open {
+  display: block;
+}
+
+.student-presentation-item {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.student-presentation-item:last-child {
+  border-bottom: none;
+}
+
+.student-presentations-empty {
+  padding: 0.75rem 0;
+  color: var(--text-muted);
+}
+.wordle-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.wordle-inline-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: #8b5cf6;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.22);
+}
+
+.wordle-inline-score-label {
+  opacity: 0.95;
+}
+
+.wordle-inline-score-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9rem;
+  height: 1.9rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
