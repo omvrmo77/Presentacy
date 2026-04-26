@@ -93,6 +93,14 @@
           </div>
         </section>
 
+        <script>
+const seen = localStorage.getItem("seenGoodbyePage");
+
+if (!seen) {
+    window.location.href = "Goodbye.html";
+}
+</script>
+
         <!-- Teacher view -->
         <section class="card" id="myscores-teacher-section">
           <h2 class="card-title">Students’ Scores</h2>
