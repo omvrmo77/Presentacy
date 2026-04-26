@@ -90,7 +90,7 @@ async function initPresentacyLoginPage() {
 
   const existing = presentacyGetCurrentUser();
   if (existing) {
-    window.location.href = "index.html";
+    window.location.href = "Goodbye.html";
     return;
   }
 
@@ -170,7 +170,7 @@ async function initPresentacyLoginPage() {
 
       if (errorEl) errorEl.textContent = "";
       presentacySetCurrentUser(account);
-      window.location.href = "index.html";
+      window.location.href = "Goodbye.html";
     } catch (err) {
       console.error(err);
       if (errorEl) {
