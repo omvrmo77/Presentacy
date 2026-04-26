@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentacy | Goodbye</title>
+
+<style>
+:root {
+  --bg:#0b1024;
+  --card:rgba(255,255,255,0.07);
+  --text:#f1f5ff;
+  --muted:rgba(255,255,255,0.7);
+  --accent:#ff8fc5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background:
+    radial-gradient(circle at top, rgba(255,140,200,0.2), transparent 30%),
+    radial-gradient(circle at bottom, rgba(120,200,255,0.2), transparent 30%),
+    var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* CARD */
+.card {
+  width: 90%;
+  max-width: 780px;
+  padding: 50px 40px;
+  border-radius: 30px;
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  text-align: center;
+}
+
+/* HEADER */
+.header {
+  font-size: 0.9rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 15px;
+}
+
+/* TITLE */
+h1 {
+  font-size: 3.5rem;
+  margin-bottom: 15px;
+}
+
+h1 span {
+  background: linear-gradient(90deg,#fff,#ff9ecf,#7cd7ff);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* TEXT */
+.subtitle {
+  color: var(--muted);
+  margin-bottom: 30px;
+  line-height: 1.8;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 14px 24px;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-weight: bold;
+  background: linear-gradient(90deg,#ffd1e3,#fff);
+  color: #111;
+  transition: 0.3s;
+  margin: 8px;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+}
+
+.btn.secondary {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* FINAL MESSAGE */
+.final-message {
+  display: none;
+  margin-top: 30px;
+  animation: fadeUp 0.6s ease;
+}
+
+.message-box {
+  background: rgba(255,255,255,0.08);
+  padding: 25px;
+  border-radius: 20px;
+  text-align: left;
+  max-height: 420px;
+  overflow-y: auto;
+  line-height: 1.9;
+}
+
+.message-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.message-box::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+}
+
+/* HEARTS */
+.heart {
+  position: fixed;
+  top: -20px;
+  width: 14px;
+  height: 14px;
+  background: #ff6fa5;
+  transform: rotate(45deg);
+  animation: fall linear forwards;
+  z-index: -1;
+}
+
+.heart::before,
+.heart::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: inherit;
+  border-radius: 50%;
+}
+
+.heart::before { left: -7px; }
+.heart::after { top: -7px; }
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="header">PRESENTACY</div>
+
+  <h1><span>Goodbye</span></h1>
+
+  <p class="subtitle">
+    This was never just a platform.  
+    It was a space where you stood up, spoke, and became more confident each time.
+  </p>
+
+  <button class="btn" onclick="toggleMessage()" id="toggleBtn">
+    Open Final Message
+  </button>
+
+  <div class="final-message" id="finalMessage">
+
+    <div class="message-box">
+
+This wasn’t just a project to me… it was something I truly cared about.
+
+And more than that, I cared about you.
+
+Not just as students,  
+but as people learning to grow, to try, and to find your voice.
+
+Seeing you stand up, even when you were nervous…  
+seeing you try, even when it wasn’t perfect…  
+that meant more than you think.
+
+Because growth doesn’t come from being perfect —  
+it comes from showing up.
+
+
+So remember this…
+
+Don’t wait until you feel ready.  
+You probably never will.
+
+Just start.
+
+Speak, even if your voice shakes.  
+Try, even if you’re not sure.
+
+That’s how confidence is built.
+
+
+And in life…
+
+What you do matters, even when no one is watching.
+
+Because who you are in those quiet moments —  
+that’s what truly defines you.
+
+So be honest.  
+Do what is right.  
+And stay true to yourself.
+
+
+Wherever life takes you next…
+
+I hope you take chances,  
+I hope you believe in yourself more,  
+and I hope you never stay silent when you have something worth saying.
+
+
+Love you all.
+
+You gave me memories I won’t forget.  
+I’ll always remember how much you cared,  
+and how every one of you tried to be better.
+
+You made this journey special.
+— Mr. Omar
+
+    </div>
+
+    <button class="btn" onclick="continueTomyscore()">
+      Continue to My Scores
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+/*
+IMPORTANT:
+Put this SAME redirect logic inside your main scores page too:
+
+const seen = localStorage.getItem("seenGoodbyePage");
+if (!seen) {
+  window.location.href = "Goodbye.html";
+}
+
+This forces students to open goodbye page first.
+*/
+
+
+let isOpen = false;
+
+function toggleMessage() {
+  const box = document.getElementById("finalMessage");
+  const btn = document.getElementById("toggleBtn");
+
+  if (!isOpen) {
+    box.style.display = "block";
+    btn.textContent = "Close Message";
+  } else {
+    box.style.display = "none";
+    btn.textContent = "Open Final Message";
+  }
+
+  isOpen = !isOpen;
+}
+
+function continueTomyscore() {
+  // save that student already opened goodbye page
+  localStorage.setItem("seenGoodbyePage", "true");
+
+  // IMPORTANT:
+  // Change this to your real scores/dashboard page
+  window.location.href = "myscore.html";
+}
+
+/* HEARTS */
+function createHeart() {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.animationDuration = (5 + Math.random() * 5) + "s";
+
+  document.body.appendChild(heart);
+
+  setTimeout(() => {
+    heart.remove();
+  }, 10000);
+}
+
+setInterval(createHeart, 500);
+
+</script>
+
+</body>
+</html>
